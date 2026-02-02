@@ -630,6 +630,91 @@ export type Database = {
           },
         ]
       }
+      deadlines: {
+        Row: {
+          case_id: string | null
+          completed_at: string | null
+          completed_notes: string | null
+          created_at: string
+          delivery_due_at: string
+          fatal_due_at: string
+          id: string
+          notes: string | null
+          organization_id: string
+          priority: number
+          responsible_member_id: string
+          review_status: string
+          reviewed_at: string | null
+          reviewed_notes: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          case_id?: string | null
+          completed_at?: string | null
+          completed_notes?: string | null
+          created_at?: string
+          delivery_due_at: string
+          fatal_due_at: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          priority?: number
+          responsible_member_id: string
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_notes?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string | null
+          completed_at?: string | null
+          completed_notes?: string | null
+          created_at?: string
+          delivery_due_at?: string
+          fatal_due_at?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          priority?: number
+          responsible_member_id?: string
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_notes?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deadlines_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deadlines_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deadlines_responsible_member_id_fkey"
+            columns: ["responsible_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_links: {
         Row: {
           case_id: string | null
@@ -811,6 +896,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tags_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          organization_id: string
+          role: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          organization_id: string
+          role?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization_id?: string
+          role?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
