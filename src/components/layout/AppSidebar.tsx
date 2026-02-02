@@ -31,6 +31,8 @@ import {
   Clock,
   CalendarDays,
   UsersRound,
+  Building2,
+  UserCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useOrganization } from "@/hooks/useOrganization";
@@ -39,6 +41,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Processos", icon: Briefcase, href: "/cases" },
+  { title: "Casos Externos", icon: Building2, href: "/external-cases" },
   { title: "Prazos", icon: Clock, href: "/deadlines" },
   { title: "Agenda", icon: CalendarDays, href: "/agenda" },
   { title: "Contatos", icon: Users, href: "/contacts" },
@@ -46,6 +49,7 @@ const navItems = [
 ];
 
 const settingsItems = [
+  { title: "Advogados Parceiros", icon: UserCheck, href: "/partner-lawyers" },
   { title: "Equipe", icon: UsersRound, href: "/team" },
   { title: "Configurações", icon: Settings, href: "/settings" },
 ];
