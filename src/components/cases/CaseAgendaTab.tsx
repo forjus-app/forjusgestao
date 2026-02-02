@@ -43,7 +43,7 @@ export function CaseAgendaTab({ caseId }: CaseAgendaTabProps) {
         .from("events")
         .select(`
           *,
-          team_members (id, name)
+          team_members:responsible_member_id (id, name)
         `)
         .eq("case_id", caseId)
         .order("start_at", { ascending: true });

@@ -137,14 +137,15 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Upcoming Events & External Cases */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <UpcomingEventsCards />
-        <ExternalCasesCard />
-      </div>
+      {/* Upcoming Events */}
+      <UpcomingEventsCards />
 
-      {/* Recent Cases */}
-      <Card>
+      {/* External Cases & Recent Cases */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ExternalCasesCard />
+
+        {/* Recent Cases */}
+        <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Processos Recentes</CardTitle>
           <Button variant="ghost" size="sm" asChild>
@@ -198,7 +199,8 @@ export default function Dashboard() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
