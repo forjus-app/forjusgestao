@@ -78,7 +78,7 @@ export function AppSidebar() {
             <Scale className="w-5 h-5 text-sidebar-primary-foreground" />
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-sidebar-foreground">Juris Pro</span>
+            <span className="font-semibold text-sidebar-foreground">ForJus</span>
             <span className="text-xs text-sidebar-foreground/60 truncate max-w-32">
               {organization?.name || "Carregando..."}
             </span>
