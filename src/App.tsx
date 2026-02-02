@@ -16,6 +16,7 @@ import CaseDetail from "./pages/CaseDetail";
 import Contacts from "./pages/Contacts";
 import Tags from "./pages/Tags";
 import Deadlines from "./pages/Deadlines";
+import Agenda from "./pages/Agenda";
 import TeamMembers from "./pages/TeamMembers";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -88,6 +89,14 @@ const App = () => (
               element={
                 <AppLayout>
                   <Deadlines />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/agenda"
+              element={
+                <AppLayout>
+                  <Agenda />
                 </AppLayout>
               }
             />

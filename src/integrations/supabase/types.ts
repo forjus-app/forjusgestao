@@ -815,6 +815,134 @@ export type Database = {
           },
         ]
       }
+      event_reminders: {
+        Row: {
+          channel: string
+          created_at: string
+          event_id: string
+          id: string
+          organization_id: string
+          remind_at: string
+          sent_at: string | null
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          event_id: string
+          id?: string
+          organization_id: string
+          remind_at: string
+          sent_at?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          organization_id?: string
+          remind_at?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reminders_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_reminders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          case_id: string | null
+          contact_id: string | null
+          created_at: string
+          end_at: string | null
+          event_type: string
+          id: string
+          location: string | null
+          notes: string | null
+          online_link: string | null
+          organization_id: string
+          responsible_member_id: string
+          start_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          case_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          end_at?: string | null
+          event_type: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          online_link?: string | null
+          organization_id: string
+          responsible_member_id: string
+          start_at: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          end_at?: string | null
+          event_type?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          online_link?: string | null
+          organization_id?: string
+          responsible_member_id?: string
+          start_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_responsible_member_id_fkey"
+            columns: ["responsible_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string

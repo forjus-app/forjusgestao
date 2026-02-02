@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, Users, Clock, TrendingUp, Plus, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UpcomingEventsCards } from "@/components/dashboard/UpcomingEventsCards";
 
 export default function Dashboard() {
   const { data: organization } = useOrganization();
@@ -134,6 +135,9 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
+
+      {/* Upcoming Events */}
+      <UpcomingEventsCards />
 
       {/* Recent Cases */}
       <Card>
