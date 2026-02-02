@@ -19,8 +19,8 @@ export function UpcomingEventsCards() {
         .from("events")
         .select(`
           id, title, start_at, location,
-          team_members (name),
-          cases (id, title)
+          team_members:responsible_member_id (name),
+          cases:case_id (id, title)
         `)
         .eq("event_type", "audiencia")
         .eq("status", "scheduled")
@@ -41,8 +41,8 @@ export function UpcomingEventsCards() {
         .from("events")
         .select(`
           id, title, start_at, location,
-          team_members (name),
-          cases (id, title)
+          team_members:responsible_member_id (name),
+          cases:case_id (id, title)
         `)
         .eq("event_type", "pericia")
         .eq("status", "scheduled")
@@ -63,8 +63,8 @@ export function UpcomingEventsCards() {
         .from("events")
         .select(`
           id, title, start_at, location, event_type,
-          team_members (name),
-          cases (id, title)
+          team_members:responsible_member_id (name),
+          cases:case_id (id, title)
         `)
         .eq("status", "scheduled")
         .gte("start_at", new Date().toISOString())

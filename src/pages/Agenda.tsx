@@ -95,9 +95,9 @@ export default function Agenda() {
         .from("events")
         .select(`
           *,
-          team_members (id, name),
-          cases (id, title, cnj_number),
-          contacts (id, name)
+          team_members:responsible_member_id (id, name),
+          cases:case_id (id, title, cnj_number),
+          contacts:contact_id (id, name)
         `)
         .order("start_at", { ascending: true });
 

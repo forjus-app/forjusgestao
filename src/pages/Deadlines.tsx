@@ -83,8 +83,8 @@ export default function Deadlines() {
         .select(
           `
           *,
-          team_members (id, name),
-          cases (id, title, cnj_number)
+          team_members:responsible_member_id (id, name),
+          cases:case_id (id, title, cnj_number)
         `
         )
         .order("fatal_due_at", { ascending: true });
