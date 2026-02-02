@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Calendar, Plus, Search } from "lucide-react";
+import { Calendar, Plus, Search, FolderOpen, Copy, Check, ExternalLink } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AddDeadlineDialogProps {
@@ -53,8 +53,10 @@ export function AddDeadlineDialog({
     fatalDueAt: "",
     priority: "0",
     notes: "",
+    driveLink: "",
   });
   const [caseSearch, setCaseSearch] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -75,7 +77,7 @@ export function AddDeadlineDialog({
     queryFn: async () => {
       let query = supabase
         .from("cases")
-        .select("id, title, cnj_number")
+        .select("id, title, cnj_number, drive_link")
         .order("updated_at", { ascending: false })
         .limit(20);
 
@@ -91,6 +93,27 @@ export function AddDeadlineDialog({
     },
     enabled: open && !!organization?.id && formData.type === "processual",
   });
+
+  // Get selected case with drive_link
+  const selectedCase = cases?.find((c) => c.id === formData.caseId);
+
+  // Query for preselected case drive_link
+  const { data: preselectedCase } = useQuery({
+    queryKey: ["case-drive-link", preselectedCaseId],
+    queryFn: async () => {
+      if (!preselectedCaseId) return null;
+      const { data, error } = await supabase
+        .from("cases")
+        .select("id, title, drive_link")
+        .eq("id", preselectedCaseId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!preselectedCaseId && open,
+  });
+
+  const caseDriveLink = preselectedCaseId ? preselectedCase?.drive_link : selectedCase?.drive_link;
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -130,6 +153,7 @@ export function AddDeadlineDialog({
         fatal_due_at: formData.fatalDueAt,
         priority: parseInt(formData.priority),
         notes: formData.notes || null,
+        drive_link: formData.driveLink || null,
       });
 
       if (error) throw error;
@@ -159,12 +183,29 @@ export function AddDeadlineDialog({
       fatalDueAt: "",
       priority: "0",
       notes: "",
+      driveLink: "",
     });
     setCaseSearch("");
+    setCopied(false);
     onOpenChange(false);
   };
 
-  const selectedCase = cases?.find((c) => c.id === formData.caseId);
+  const handleUseCaseDriveLink = () => {
+    if (caseDriveLink) {
+      setFormData({ ...formData, driveLink: caseDriveLink });
+      toast.success("Link do Drive do processo copiado");
+    }
+  };
+
+  const handleCopyDriveLink = () => {
+    if (formData.driveLink) {
+      navigator.clipboard.writeText(formData.driveLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("Link copiado!");
+    }
+  };
+
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -333,6 +374,63 @@ export function AddDeadlineDialog({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Drive Link */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <FolderOpen className="h-4 w-4" />
+              Link do Drive
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                type="url"
+                placeholder="https://drive.google.com/..."
+                value={formData.driveLink}
+                onChange={(e) =>
+                  setFormData({ ...formData, driveLink: e.target.value })
+                }
+                className="flex-1"
+              />
+              {formData.driveLink && (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopyDriveLink}
+                  >
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    asChild
+                  >
+                    <a href={formData.driveLink} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </>
+              )}
+            </div>
+            {/* Botão para herdar do processo */}
+            {formData.type === "processual" && 
+             (formData.caseId || preselectedCaseId) && 
+             caseDriveLink && 
+             !formData.driveLink && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleUseCaseDriveLink}
+                className="w-full"
+              >
+                <FolderOpen className="h-4 w-4 mr-2" />
+                Usar Link do Drive do Processo
+              </Button>
+            )}
           </div>
 
           {/* Notes */}

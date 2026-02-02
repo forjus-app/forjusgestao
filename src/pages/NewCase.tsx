@@ -37,6 +37,7 @@ export default function NewCase() {
     city: "",
     state: "",
     link_url: "",
+    drive_link: "",
     pending_notes: "",
     claim_value: "",
   });
@@ -120,6 +121,7 @@ export default function NewCase() {
           city: formData.city || null,
           state: formData.state || null,
           link_url: formData.link_url || null,
+          drive_link: formData.drive_link || null,
           pending_notes: formData.pending_notes || null,
           claim_value: formData.claim_value ? parseFloat(formData.claim_value) : null,
         })
@@ -204,6 +206,17 @@ export default function NewCase() {
                   placeholder="https://..."
                   value={formData.link_url}
                   onChange={(e) => handleChange("link_url", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="drive_link">Link do Drive</Label>
+                <Input
+                  id="drive_link"
+                  type="url"
+                  placeholder="https://drive.google.com/..."
+                  value={formData.drive_link}
+                  onChange={(e) => handleChange("drive_link", e.target.value)}
                 />
               </div>
             </div>

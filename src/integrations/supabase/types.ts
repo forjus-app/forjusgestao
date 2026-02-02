@@ -358,6 +358,7 @@ export type Database = {
           court: string | null
           court_division: string | null
           created_at: string
+          drive_link: string | null
           fee_percent: number | null
           fee_value: number | null
           id: string
@@ -387,6 +388,7 @@ export type Database = {
           court?: string | null
           court_division?: string | null
           created_at?: string
+          drive_link?: string | null
           fee_percent?: number | null
           fee_value?: number | null
           id?: string
@@ -416,6 +418,7 @@ export type Database = {
           court?: string | null
           court_division?: string | null
           created_at?: string
+          drive_link?: string | null
           fee_percent?: number | null
           fee_value?: number | null
           id?: string
@@ -637,6 +640,7 @@ export type Database = {
           completed_notes: string | null
           created_at: string
           delivery_due_at: string
+          drive_link: string | null
           fatal_due_at: string
           id: string
           notes: string | null
@@ -657,6 +661,7 @@ export type Database = {
           completed_notes?: string | null
           created_at?: string
           delivery_due_at: string
+          drive_link?: string | null
           fatal_due_at: string
           id?: string
           notes?: string | null
@@ -677,6 +682,7 @@ export type Database = {
           completed_notes?: string | null
           created_at?: string
           delivery_due_at?: string
+          drive_link?: string | null
           fatal_due_at?: string
           id?: string
           notes?: string | null

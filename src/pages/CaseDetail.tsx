@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   ExternalLink,
@@ -19,6 +22,11 @@ import {
   DollarSign,
   Calendar,
   CalendarDays,
+  FolderOpen,
+  Copy,
+  Check,
+  X,
+  Save,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -29,7 +37,11 @@ import { CaseAgendaTab } from "@/components/cases/CaseAgendaTab";
 export default function CaseDetail() {
   const { id } = useParams();
   const { data: organization } = useOrganization();
+  const queryClient = useQueryClient();
   const [addPartyOpen, setAddPartyOpen] = useState(false);
+  const [editingDriveLink, setEditingDriveLink] = useState(false);
+  const [driveLink, setDriveLink] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const { data: caseData, isLoading } = useQuery({
     queryKey: ["case", id],
@@ -74,6 +86,43 @@ export default function CaseDetail() {
     },
     enabled: !!id,
   });
+
+  // Update drive link mutation
+  const updateDriveLinkMutation = useMutation({
+    mutationFn: async (newDriveLink: string) => {
+      const { error } = await supabase
+        .from("cases")
+        .update({ drive_link: newDriveLink || null })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["case", id] });
+      toast.success("Link do Drive atualizado");
+      setEditingDriveLink(false);
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar link");
+    },
+  });
+
+  const handleCopyDriveLink = () => {
+    if (caseData?.drive_link) {
+      navigator.clipboard.writeText(caseData.drive_link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("Link copiado!");
+    }
+  };
+
+  const handleStartEditDriveLink = () => {
+    setDriveLink(caseData?.drive_link || "");
+    setEditingDriveLink(true);
+  };
+
+  const handleSaveDriveLink = () => {
+    updateDriveLinkMutation.mutate(driveLink);
+  };
 
   if (isLoading) {
     return (
@@ -262,7 +311,70 @@ export default function CaseDetail() {
               </CardContent>
             </Card>
 
+            {/* Link do Drive */}
             <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <FolderOpen className="h-4 w-4" />
+                  Link do Drive
+                </CardTitle>
+                {!editingDriveLink && (
+                  <Button variant="ghost" size="sm" onClick={handleStartEditDriveLink}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+              </CardHeader>
+              <CardContent>
+                {editingDriveLink ? (
+                  <div className="space-y-3">
+                    <Input
+                      type="url"
+                      placeholder="https://drive.google.com/..."
+                      value={driveLink}
+                      onChange={(e) => setDriveLink(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveDriveLink} disabled={updateDriveLinkMutation.isPending}>
+                        <Save className="h-4 w-4 mr-1" />
+                        Salvar
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingDriveLink(false)}>
+                        <X className="h-4 w-4 mr-1" />
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : caseData.drive_link ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground break-all">
+                      {caseData.drive_link}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" asChild>
+                        <a href={caseData.drive_link} target="_blank" rel="noopener noreferrer">
+                          <FolderOpen className="h-4 w-4 mr-1" />
+                          Abrir Drive
+                        </a>
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCopyDriveLink}>
+                        {copied ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                        {copied ? "Copiado!" : "Copiar"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-muted-foreground text-sm mb-2">Nenhum link cadastrado</p>
+                    <Button size="sm" variant="outline" onClick={handleStartEditDriveLink}>
+                      <FolderOpen className="h-4 w-4 mr-1" />
+                      Adicionar Link
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Observações</CardTitle>
               </CardHeader>
