@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,10 +20,12 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AddPartyDialog } from "@/components/cases/AddPartyDialog";
 
 export default function CaseDetail() {
   const { id } = useParams();
   const { data: organization } = useOrganization();
+  const [addPartyOpen, setAddPartyOpen] = useState(false);
 
   const { data: caseData, isLoading } = useQuery({
     queryKey: ["case", id],
@@ -264,7 +267,7 @@ export default function CaseDetail() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Partes Envolvidas</CardTitle>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setAddPartyOpen(true)}>
                 <Users className="h-4 w-4 mr-2" />
                 Adicionar Parte
               </Button>
@@ -357,6 +360,14 @@ export default function CaseDetail() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Add Party Dialog */}
+      <AddPartyDialog
+        open={addPartyOpen}
+        onOpenChange={setAddPartyOpen}
+        caseId={id!}
+        existingPartyIds={caseData.case_parties?.map((p: any) => p.contact_id) || []}
+      />
     </div>
   );
 }
