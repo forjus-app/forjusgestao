@@ -7,6 +7,7 @@ import { Briefcase, Users, Clock, TrendingUp, Plus, ArrowRight } from "lucide-re
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UpcomingEventsCards } from "@/components/dashboard/UpcomingEventsCards";
+import { ExternalCasesCard } from "@/components/dashboard/ExternalCasesCard";
 
 export default function Dashboard() {
   const { data: organization } = useOrganization();
@@ -136,8 +137,11 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Upcoming Events */}
-      <UpcomingEventsCards />
+      {/* Upcoming Events & External Cases */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <UpcomingEventsCards />
+        <ExternalCasesCard />
+      </div>
 
       {/* Recent Cases */}
       <Card>

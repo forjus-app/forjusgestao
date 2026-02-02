@@ -17,6 +17,9 @@ import Contacts from "./pages/Contacts";
 import Tags from "./pages/Tags";
 import Deadlines from "./pages/Deadlines";
 import Agenda from "./pages/Agenda";
+import ExternalCases from "./pages/ExternalCases";
+import ExternalCaseDetail from "./pages/ExternalCaseDetail";
+import PartnerLawyers from "./pages/PartnerLawyers";
 import TeamMembers from "./pages/TeamMembers";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -97,6 +100,30 @@ const App = () => (
               element={
                 <AppLayout>
                   <Agenda />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/external-cases"
+              element={
+                <AppLayout>
+                  <ExternalCases />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/external-cases/:id"
+              element={
+                <AppLayout>
+                  <ExternalCaseDetail />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/partner-lawyers"
+              element={
+                <AppLayout>
+                  <PartnerLawyers />
                 </AppLayout>
               }
             />

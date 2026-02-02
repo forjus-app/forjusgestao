@@ -943,6 +943,266 @@ export type Database = {
           },
         ]
       }
+      external_case_document_links: {
+        Row: {
+          created_at: string
+          document_id: string
+          external_case_id: string
+          id: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          external_case_id: string
+          id?: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          external_case_id?: string
+          id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_case_document_links_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_case_document_links_external_case_id_fkey"
+            columns: ["external_case_id"]
+            isOneToOne: false
+            referencedRelation: "external_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_case_document_links_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_case_statuses: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          organization_id: string
+          sort_order: number
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          organization_id: string
+          sort_order?: number
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          organization_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_case_statuses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_case_timeline_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_type: string
+          external_case_id: string
+          id: string
+          occurred_at: string
+          organization_id: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_type: string
+          external_case_id: string
+          id?: string
+          occurred_at?: string
+          organization_id: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_type?: string
+          external_case_id?: string
+          id?: string
+          occurred_at?: string
+          organization_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_case_timeline_events_external_case_id_fkey"
+            columns: ["external_case_id"]
+            isOneToOne: false
+            referencedRelation: "external_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_case_timeline_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_case_types: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_case_types_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_cases: {
+        Row: {
+          authority_name: string
+          city: string | null
+          client_contact_id: string
+          created_at: string
+          has_official_number: boolean
+          id: string
+          notes: string | null
+          organization_id: string
+          partner_lawyer_id: string
+          portal_link: string | null
+          process_number: string | null
+          protocol_number: string | null
+          state: string | null
+          status_id: string | null
+          type_id: string
+          updated_at: string
+        }
+        Insert: {
+          authority_name: string
+          city?: string | null
+          client_contact_id: string
+          created_at?: string
+          has_official_number?: boolean
+          id?: string
+          notes?: string | null
+          organization_id: string
+          partner_lawyer_id: string
+          portal_link?: string | null
+          process_number?: string | null
+          protocol_number?: string | null
+          state?: string | null
+          status_id?: string | null
+          type_id: string
+          updated_at?: string
+        }
+        Update: {
+          authority_name?: string
+          city?: string | null
+          client_contact_id?: string
+          created_at?: string
+          has_official_number?: boolean
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          partner_lawyer_id?: string
+          portal_link?: string | null
+          process_number?: string | null
+          protocol_number?: string | null
+          state?: string | null
+          status_id?: string | null
+          type_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_cases_client_contact_id_fkey"
+            columns: ["client_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_cases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_cases_partner_lawyer_id_fkey"
+            columns: ["partner_lawyer_id"]
+            isOneToOne: false
+            referencedRelation: "partner_lawyers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_cases_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "external_case_statuses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_cases_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "external_case_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
@@ -966,6 +1226,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      partner_lawyers: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          oab: string | null
+          office_name: string | null
+          organization_id: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          oab?: string | null
+          office_name?: string | null
+          organization_id: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          oab?: string | null
+          office_name?: string | null
+          organization_id?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_lawyers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1082,6 +1392,10 @@ export type Database = {
     Functions: {
       current_org_id: { Args: never; Returns: string }
       seed_case_taxonomy: { Args: { org_id: string }; Returns: undefined }
+      seed_external_case_taxonomy: {
+        Args: { org_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
