@@ -17,10 +17,12 @@ import {
   FileText,
   MapPin,
   DollarSign,
+  Calendar,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AddPartyDialog } from "@/components/cases/AddPartyDialog";
+import { CaseDeadlinesTab } from "@/components/cases/CaseDeadlinesTab";
 
 export default function CaseDetail() {
   const { id } = useParams();
@@ -212,6 +214,10 @@ export default function CaseDetail() {
             <Users className="h-4 w-4 mr-2" />
             Partes ({caseData.case_parties?.length || 0})
           </TabsTrigger>
+          <TabsTrigger value="deadlines">
+            <Calendar className="h-4 w-4 mr-2" />
+            Prazos
+          </TabsTrigger>
           <TabsTrigger value="timeline">
             <Clock className="h-4 w-4 mr-2" />
             Timeline ({timeline?.length || 0})
@@ -311,6 +317,10 @@ export default function CaseDetail() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="deadlines" className="mt-6">
+          <CaseDeadlinesTab caseId={id!} />
         </TabsContent>
 
         <TabsContent value="timeline" className="mt-6">

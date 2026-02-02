@@ -28,6 +28,8 @@ import {
   LogOut,
   ChevronUp,
   Tags,
+  Calendar,
+  UsersRound,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useOrganization } from "@/hooks/useOrganization";
@@ -36,11 +38,13 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Processos", icon: Briefcase, href: "/cases" },
+  { title: "Prazos", icon: Calendar, href: "/deadlines" },
   { title: "Contatos", icon: Users, href: "/contacts" },
   { title: "Tags", icon: Tags, href: "/tags" },
 ];
 
 const settingsItems = [
+  { title: "Equipe", icon: UsersRound, href: "/team" },
   { title: "Configurações", icon: Settings, href: "/settings" },
 ];
 
