@@ -28,7 +28,8 @@ import {
   LogOut,
   ChevronUp,
   Tags,
-  Calendar,
+  Clock,
+  CalendarDays,
   UsersRound,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,7 +39,8 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Processos", icon: Briefcase, href: "/cases" },
-  { title: "Prazos", icon: Calendar, href: "/deadlines" },
+  { title: "Prazos", icon: Clock, href: "/deadlines" },
+  { title: "Agenda", icon: CalendarDays, href: "/agenda" },
   { title: "Contatos", icon: Users, href: "/contacts" },
   { title: "Tags", icon: Tags, href: "/tags" },
 ];
