@@ -235,15 +235,14 @@ export function AddPartyDialog({
             </Select>
           </div>
 
-          {/* Side */}
           <div className="space-y-2">
             <Label>Polo (opcional)</Label>
-            <Select value={side || ""} onValueChange={(v) => setSide(v || undefined)}>
+            <Select value={side || "none"} onValueChange={(v) => setSide(v === "none" ? undefined : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o polo..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhum</SelectItem>
+                <SelectItem value="none">Nenhum</SelectItem>
                 {sideOptions.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
