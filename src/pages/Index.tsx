@@ -127,7 +127,7 @@ export default function Index() {
       {/* Footer */}
       <footer className="py-6 border-t">
         <div className="container text-center text-sm text-muted-foreground">
-          © 2026 Juris Pro. Sistema de Gestão Jurídica.
+          © 2026 ForJus. Sistema de Gestão Jurídica.
         </div>
       </footer>
     </div>

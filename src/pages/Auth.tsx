@@ -96,7 +96,7 @@ export default function Auth() {
             <Scale className="w-8 h-8 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Juris Pro</CardTitle>
+            <CardTitle className="text-2xl font-bold">ForJus</CardTitle>
             <CardDescription>Sistema de Gestão Jurídica</CardDescription>
           </div>
         </CardHeader>
