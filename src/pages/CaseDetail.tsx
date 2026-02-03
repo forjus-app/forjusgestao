@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDateTime } from "@/lib/dateUtils";
 import { AddPartyDialog } from "@/components/cases/AddPartyDialog";
 import { CaseDeadlinesTab } from "@/components/cases/CaseDeadlinesTab";
 import { CaseAgendaTab } from "@/components/cases/CaseAgendaTab";
@@ -473,7 +474,7 @@ export default function CaseDetail() {
                         <div className="flex items-center justify-between">
                           <p className="font-medium">{event.title || event.event_type}</p>
                           <p className="text-sm text-muted-foreground">
-                            {format(new Date(event.occurred_at), "dd/MM/yyyy HH:mm", {
+                            {format(parseLocalDateTime(event.occurred_at), "dd/MM/yyyy HH:mm", {
                               locale: ptBR,
                             })}
                           </p>

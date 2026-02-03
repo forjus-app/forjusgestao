@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDateTime } from "@/lib/dateUtils";
 
 interface DeadlineDetailDrawerProps {
   deadlineId: string | null;
@@ -125,11 +126,11 @@ export function DeadlineDetailDrawer({
   };
 
   const formatDateTime = (date: string) => {
-    return format(new Date(date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+    return format(parseLocalDateTime(date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
   };
 
   const formatDate = (date: string) => {
-    return format(new Date(date), "dd/MM/yyyy", { locale: ptBR });
+    return format(parseLocalDateTime(date), "dd/MM/yyyy", { locale: ptBR });
   };
 
   const getStatusBadge = (status: string) => {
@@ -157,7 +158,7 @@ export function DeadlineDetailDrawer({
 
   const getDateWarning = () => {
     if (!deadline || deadline.status !== "open") return null;
-    const fatal = new Date(deadline.fatal_due_at);
+    const fatal = parseLocalDateTime(deadline.fatal_due_at);
     if (isPast(fatal) && !isToday(fatal)) {
       return <Badge variant="destructive">Vencido</Badge>;
     }

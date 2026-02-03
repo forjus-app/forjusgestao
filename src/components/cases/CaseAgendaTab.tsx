@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Calendar, MapPin, User, Video } from "lucide-react";
 import { format, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDateTime } from "@/lib/dateUtils";
 import { AddEventDialog } from "@/components/agenda/AddEventDialog";
 import { EventActions } from "@/components/agenda/EventActions";
 
@@ -61,7 +62,7 @@ export function CaseAgendaTab({ caseId }: CaseAgendaTabProps) {
     if (status === "canceled") {
       return <Badge variant="destructive">Cancelado</Badge>;
     }
-    if (isPast(new Date(startAt))) {
+    if (isPast(parseLocalDateTime(startAt))) {
       return <Badge variant="outline" className="text-destructive border-destructive">Atrasado</Badge>;
     }
     return <Badge variant="outline">Agendado</Badge>;
@@ -106,14 +107,14 @@ export function CaseAgendaTab({ caseId }: CaseAgendaTabProps) {
                   key={event.id}
                   className="flex items-start justify-between p-4 rounded-lg border"
                 >
-                  <div className="flex gap-4">
-                    <div className="flex flex-col items-center text-center min-w-[60px]">
-                      <span className="text-lg font-bold">
-                        {format(new Date(event.start_at), "dd/MM")}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {format(new Date(event.start_at), "HH:mm")}
-                      </span>
+                    <div className="flex gap-4">
+                      <div className="flex flex-col items-center text-center min-w-[60px]">
+                        <span className="text-lg font-bold">
+                          {format(parseLocalDateTime(event.start_at), "dd/MM")}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {format(parseLocalDateTime(event.start_at), "HH:mm")}
+                        </span>
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
