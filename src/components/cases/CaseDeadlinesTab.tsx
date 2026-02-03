@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { AddDeadlineDialog } from "@/components/deadlines/AddDeadlineDialog";
 import { DeadlineActions } from "@/components/deadlines/DeadlineActions";
+import { DeadlineDetailDrawer } from "@/components/deadlines/DeadlineDetailDrawer";
 import { Calendar, Plus } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -24,6 +25,8 @@ interface CaseDeadlinesTabProps {
 
 export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [selectedDeadlineId, setSelectedDeadlineId] = useState<string | null>(null);
+  const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
 
   const { data: deadlines, isLoading } = useQuery({
     queryKey: ["case-deadlines", caseId],
@@ -107,7 +110,14 @@ export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
               </TableHeader>
               <TableBody>
                 {deadlines.map((deadline) => (
-                  <TableRow key={deadline.id}>
+                  <TableRow
+                    key={deadline.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => {
+                      setSelectedDeadlineId(deadline.id);
+                      setDetailDrawerOpen(true);
+                    }}
+                  >
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{deadline.title}</span>
@@ -141,7 +151,7 @@ export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
                         <Badge variant="destructive">Ajuste</Badge>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <DeadlineActions deadline={deadline} />
                     </TableCell>
                   </TableRow>
@@ -157,6 +167,13 @@ export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
         preselectedCaseId={caseId}
+      />
+
+      {/* Detail Drawer */}
+      <DeadlineDetailDrawer
+        deadlineId={selectedDeadlineId}
+        open={detailDrawerOpen}
+        onOpenChange={setDetailDrawerOpen}
       />
     </>
   );
