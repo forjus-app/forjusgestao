@@ -12,6 +12,13 @@ import { parseISO } from "date-fns";
 export function parseLocalDateTime(dateStr: string): Date {
   if (!dateStr) return new Date();
   
+  // For date-only strings like "2026-02-04", parse as local date (not UTC)
+  // new Date("2026-02-04") interprets as UTC midnight, causing timezone issues
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+  
   // For datetime strings from datetime-local input stored without timezone
   // we need to treat them as local time, not UTC
   if (dateStr.includes("T") && !dateStr.includes("Z") && !dateStr.includes("+")) {
