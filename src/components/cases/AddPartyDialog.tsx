@@ -5,9 +5,7 @@ import { useOrganization } from "@/hooks/useOrganization";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Search, Users, Building, User } from "lucide-react";
+import { Search, Building, User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AddPartyDialogProps {
@@ -129,12 +127,15 @@ export function AddPartyDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] p-0 overflow-hidden flex flex-col">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
           <DialogTitle>Adicionar Parte ao Processo</DialogTitle>
-        </DialogHeader>
+        </div>
 
-        <div className="space-y-4 py-4">
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="space-y-4">
           {/* Search and contact selection */}
           <div className="space-y-2">
             <Label>Buscar Contato</Label>
@@ -276,9 +277,11 @@ export function AddPartyDialog({
               rows={2}
             />
           </div>
+          </div>
         </div>
 
-        <DialogFooter>
+        {/* Sticky Footer */}
+        <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4 flex gap-2 justify-end">
           <Button variant="outline" onClick={handleClose}>
             Cancelar
           </Button>
@@ -288,7 +291,7 @@ export function AddPartyDialog({
           >
             {addPartyMutation.isPending ? "Vinculando..." : "Vincular Parte"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
