@@ -27,7 +27,7 @@ import {
   XCircle,
   Video,
 } from "lucide-react";
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isToday, isTomorrow, isPast } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isToday, isTomorrow, isPast, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { AddEventDialog } from "@/components/agenda/AddEventDialog";
 import { EventActions } from "@/components/agenda/EventActions";
@@ -137,8 +137,20 @@ export default function Agenda() {
     enabled: !!organization?.id,
   });
 
+  // Helper to parse datetime preserving local time
+  const parseLocalDateTime = (dateStr: string) => {
+    // For datetime strings from datetime-local input stored without timezone
+    // we need to treat them as local time, not UTC
+    if (dateStr.includes("T") && !dateStr.includes("Z") && !dateStr.includes("+")) {
+      // Already local format like "2025-02-03T14:00"
+      return parseISO(dateStr);
+    }
+    // For ISO strings with Z or offset, parse normally
+    return new Date(dateStr);
+  };
+
   const getDateLabel = (dateStr: string) => {
-    const date = new Date(dateStr);
+    const date = parseLocalDateTime(dateStr);
     if (isToday(date)) return "Hoje";
     if (isTomorrow(date)) return "Amanhã";
     return format(date, "EEEE, dd 'de' MMMM", { locale: ptBR });
@@ -151,7 +163,7 @@ export default function Agenda() {
     if (status === "canceled") {
       return <Badge variant="destructive">Cancelado</Badge>;
     }
-    if (isPast(new Date(startAt))) {
+    if (isPast(parseLocalDateTime(startAt))) {
       return <Badge variant="outline" className="text-destructive border-destructive">Atrasado</Badge>;
     }
     return <Badge variant="outline">Agendado</Badge>;
@@ -159,7 +171,7 @@ export default function Agenda() {
 
   // Group events by date
   const groupedEvents = events?.reduce((groups: Record<string, typeof events>, event) => {
-    const dateKey = format(new Date(event.start_at), "yyyy-MM-dd");
+    const dateKey = format(parseLocalDateTime(event.start_at), "yyyy-MM-dd");
     if (!groups[dateKey]) {
       groups[dateKey] = [];
     }
@@ -302,11 +314,11 @@ export default function Agenda() {
                         <div className="flex gap-4">
                           <div className="flex flex-col items-center text-center min-w-[60px]">
                             <span className="text-2xl font-bold">
-                              {format(new Date(event.start_at), "HH:mm")}
+                              {format(parseLocalDateTime(event.start_at), "HH:mm")}
                             </span>
                             {event.end_at && (
                               <span className="text-xs text-muted-foreground">
-                                até {format(new Date(event.end_at), "HH:mm")}
+                                até {format(parseLocalDateTime(event.end_at), "HH:mm")}
                               </span>
                             )}
                           </div>
