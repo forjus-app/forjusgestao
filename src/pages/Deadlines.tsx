@@ -36,6 +36,9 @@ import {
 } from "lucide-react";
 import { format, isPast, isToday, addDays, isBefore } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import { ExportDropdown } from "@/components/ExportDropdown";
+import { exportToPDF, exportToExcel, deadlinesExportColumns } from "@/lib/exportUtils";
 
 type DeadlineStatus = "open" | "completed" | "reviewed" | "adjustment_requested";
 
@@ -156,6 +159,34 @@ export default function Deadlines() {
     return deadlines.filter((d) => d.status === status).length;
   };
 
+  const handleExportPDF = () => {
+    if (!deadlines || deadlines.length === 0) {
+      toast.error("Nenhum prazo para exportar");
+      return;
+    }
+    exportToPDF({
+      title: "Lista de Prazos",
+      columns: deadlinesExportColumns,
+      data: deadlines,
+      filename: `prazos_${format(new Date(), "yyyy-MM-dd")}`,
+    });
+    toast.success("PDF exportado com sucesso!");
+  };
+
+  const handleExportExcel = () => {
+    if (!deadlines || deadlines.length === 0) {
+      toast.error("Nenhum prazo para exportar");
+      return;
+    }
+    exportToExcel({
+      title: "Prazos",
+      columns: deadlinesExportColumns,
+      data: deadlines,
+      filename: `prazos_${format(new Date(), "yyyy-MM-dd")}`,
+    });
+    toast.success("Excel exportado com sucesso!");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -165,10 +196,17 @@ export default function Deadlines() {
             Gerencie prazos processuais e atividades internas
           </p>
         </div>
-        <Button onClick={() => setAddDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Prazo
-        </Button>
+        <div className="flex items-center gap-2">
+          <ExportDropdown
+            onExportPDF={handleExportPDF}
+            onExportExcel={handleExportExcel}
+            disabled={!deadlines || deadlines.length === 0}
+          />
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Prazo
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
