@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { AddDeadlineDialog } from "@/components/deadlines/AddDeadlineDialog";
 import { DeadlineActions } from "@/components/deadlines/DeadlineActions";
+import { DeadlineDetailDrawer } from "@/components/deadlines/DeadlineDetailDrawer";
 import {
   Plus,
   Calendar,
@@ -32,7 +33,6 @@ import {
   AlertTriangle,
   CheckCircle,
   Search,
-  Filter,
 } from "lucide-react";
 import { format, isPast, isToday, addDays, isBefore } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -53,6 +53,8 @@ export default function Deadlines() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterResponsible, setFilterResponsible] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const [selectedDeadlineId, setSelectedDeadlineId] = useState<string | null>(null);
+  const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -264,7 +266,14 @@ export default function Deadlines() {
                   </TableHeader>
                   <TableBody>
                     {deadlines.map((deadline) => (
-                      <TableRow key={deadline.id}>
+                      <TableRow
+                        key={deadline.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => {
+                          setSelectedDeadlineId(deadline.id);
+                          setDetailDrawerOpen(true);
+                        }}
+                      >
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{deadline.title}</span>
@@ -285,6 +294,7 @@ export default function Deadlines() {
                             <Link
                               to={`/cases/${deadline.cases.id}`}
                               className="text-primary hover:underline"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               {deadline.cases.title}
                             </Link>
@@ -316,7 +326,7 @@ export default function Deadlines() {
                             <Badge variant="destructive">Ajuste</Badge>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
                           <DeadlineActions deadline={deadline} />
                         </TableCell>
                       </TableRow>
@@ -331,6 +341,13 @@ export default function Deadlines() {
 
       {/* Add Dialog */}
       <AddDeadlineDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
+
+      {/* Detail Drawer */}
+      <DeadlineDetailDrawer
+        deadlineId={selectedDeadlineId}
+        open={detailDrawerOpen}
+        onOpenChange={setDetailDrawerOpen}
+      />
     </div>
   );
 }
