@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Plus, Search, FolderOpen, Copy, Check, ExternalLink } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
+import { toLocalISOString } from "@/lib/dateUtils";
 
 interface AddDeadlineDialogProps {
   open: boolean;
@@ -150,8 +151,8 @@ export function AddDeadlineDialog({
             : null,
         title: formData.title,
         responsible_member_id: formData.responsibleMemberId,
-        delivery_due_at: formData.deliveryDueAt,
-        fatal_due_at: formData.fatalDueAt,
+        delivery_due_at: toLocalISOString(formData.deliveryDueAt),
+        fatal_due_at: toLocalISOString(formData.fatalDueAt),
         priority: parseInt(formData.priority),
         notes: formData.notes || null,
         drive_link: formData.driveLink || null,

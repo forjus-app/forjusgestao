@@ -23,6 +23,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
 import { format } from "date-fns";
+import { toLocalISOString } from "@/lib/dateUtils";
 
 interface EditEventDialogProps {
   open: boolean;
@@ -147,8 +148,8 @@ export function EditEventDialog({
           case_id: linkToCase && formData.caseId ? formData.caseId : null,
           title: formData.title,
           responsible_member_id: formData.responsibleMemberId,
-          start_at: new Date(formData.startAt).toISOString(),
-          end_at: formData.endAt ? new Date(formData.endAt).toISOString() : null,
+          start_at: toLocalISOString(formData.startAt),
+          end_at: formData.endAt ? toLocalISOString(formData.endAt) : null,
           location: formData.location || null,
           online_link: formData.onlineLink || null,
           notes: formData.notes || null,
