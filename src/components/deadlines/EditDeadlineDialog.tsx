@@ -23,6 +23,7 @@ import { Search, FolderOpen, Copy, Check, ExternalLink, Plus } from "lucide-reac
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
+import { toLocalISOString } from "@/lib/dateUtils";
 
 interface EditDeadlineDialogProps {
   open: boolean;
@@ -162,8 +163,8 @@ export function EditDeadlineDialog({
           case_id: formData.type === "processual" ? formData.caseId : null,
           title: formData.title,
           responsible_member_id: formData.responsibleMemberId,
-          delivery_due_at: formData.deliveryDueAt,
-          fatal_due_at: formData.fatalDueAt,
+          delivery_due_at: toLocalISOString(formData.deliveryDueAt),
+          fatal_due_at: toLocalISOString(formData.fatalDueAt),
           priority: parseInt(formData.priority),
           notes: formData.notes || null,
           drive_link: formData.driveLink || null,

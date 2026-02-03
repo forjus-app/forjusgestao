@@ -24,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
+import { toLocalISOString } from "@/lib/dateUtils";
 
 interface AddEventDialogProps {
   open: boolean;
@@ -114,8 +115,8 @@ export function AddEventDialog({
           case_id: linkToCase && formData.caseId ? formData.caseId : null,
           title: formData.title,
           responsible_member_id: formData.responsibleMemberId,
-          start_at: formData.startAt,
-          end_at: formData.endAt || null,
+          start_at: toLocalISOString(formData.startAt),
+          end_at: formData.endAt ? toLocalISOString(formData.endAt) : null,
           location: formData.location || null,
           online_link: formData.onlineLink || null,
           notes: formData.notes || null,

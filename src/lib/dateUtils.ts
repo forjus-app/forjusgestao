@@ -29,3 +29,26 @@ export function parseLocalDateTime(dateStr: string): Date {
 export function formatLocalDate(dateStr: string, formatFn: (date: Date) => string): string {
   return formatFn(parseLocalDateTime(dateStr));
 }
+
+/**
+ * Converts a datetime-local input value to an ISO string with local timezone offset.
+ * This ensures the datetime is stored correctly in timestamptz columns.
+ * 
+ * Example: "2026-02-11T16:08" becomes "2026-02-11T16:08:00-03:00" (for BRT timezone)
+ */
+export function toLocalISOString(dateTimeLocalValue: string): string {
+  if (!dateTimeLocalValue) return "";
+  
+  // Create a date object from the datetime-local value
+  // By appending the local timezone offset, we ensure the correct UTC time is stored
+  const date = new Date(dateTimeLocalValue);
+  
+  // Get timezone offset in minutes and convert to hours:minutes format
+  const offset = -date.getTimezoneOffset();
+  const sign = offset >= 0 ? "+" : "-";
+  const hours = String(Math.floor(Math.abs(offset) / 60)).padStart(2, "0");
+  const minutes = String(Math.abs(offset) % 60).padStart(2, "0");
+  
+  // Return ISO string with timezone offset
+  return `${dateTimeLocalValue}:00${sign}${hours}:${minutes}`;
+}
