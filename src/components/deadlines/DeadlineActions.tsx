@@ -24,7 +24,9 @@ import {
   MoreHorizontal,
   RotateCcw,
   AlertTriangle,
+  Pencil,
 } from "lucide-react";
+import { EditDeadlineDialog } from "./EditDeadlineDialog";
 
 interface DeadlineActionsProps {
   deadline: {
@@ -32,6 +34,14 @@ interface DeadlineActionsProps {
     status: string;
     review_status: string;
     title: string;
+    type: string;
+    case_id?: string | null;
+    responsible_member_id: string;
+    delivery_due_at: string;
+    fatal_due_at: string;
+    priority: number;
+    notes?: string | null;
+    drive_link?: string | null;
   };
 }
 
@@ -39,6 +49,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
   const queryClient = useQueryClient();
   const [adjustmentDialogOpen, setAdjustmentDialogOpen] = useState(false);
   const [adjustmentNotes, setAdjustmentNotes] = useState("");
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({
@@ -155,6 +166,10 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar
+            </DropdownMenuItem>
             {showComplete && (
               <DropdownMenuItem onClick={handleComplete}>
                 <Check className="h-4 w-4 mr-2" />
@@ -222,6 +237,13 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Deadline Dialog */}
+      <EditDeadlineDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        deadline={deadline}
+      />
     </>
   );
 }

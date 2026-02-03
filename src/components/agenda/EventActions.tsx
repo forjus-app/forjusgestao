@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -10,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { MoreHorizontal, CheckCircle, XCircle, Eye, Trash2 } from "lucide-react";
+import { MoreHorizontal, CheckCircle, XCircle, Eye, Trash2, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
+import { EditEventDialog } from "./EditEventDialog";
 
 interface EventActionsProps {
   event: {
@@ -20,6 +22,12 @@ interface EventActionsProps {
     case_id?: string | null;
     title: string;
     event_type: string;
+    responsible_member_id: string;
+    start_at: string;
+    end_at?: string | null;
+    location?: string | null;
+    online_link?: string | null;
+    notes?: string | null;
   };
 }
 
@@ -35,6 +43,7 @@ const eventTypeLabels: Record<string, string> = {
 export function EventActions({ event }: EventActionsProps) {
   const { data: organization } = useOrganization();
   const queryClient = useQueryClient();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ status }: { status: string }) => {
@@ -95,79 +104,103 @@ export function EventActions({ event }: EventActionsProps) {
 
   if (event.status === "done" || event.status === "canceled") {
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {event.case_id && (
-            <DropdownMenuItem asChild>
-              <Link to={`/cases/${event.case_id}`}>
-                <Eye className="h-4 w-4 mr-2" />
-                Ver Processo
-              </Link>
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar
             </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => deleteMutation.mutate()}
-            className="text-destructive"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Excluir
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            {event.case_id && (
+              <DropdownMenuItem asChild>
+                <Link to={`/cases/${event.case_id}`}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver Processo
+                </Link>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => deleteMutation.mutate()}
+              className="text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <EditEventDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          event={event}
+        />
+      </>
     );
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => updateStatusMutation.mutate({ status: "done" })}
-        disabled={updateStatusMutation.isPending}
-        className="text-green-600 hover:text-green-700 hover:bg-green-50"
-      >
-        <CheckCircle className="h-4 w-4 mr-1" />
-        Realizado
-      </Button>
+    <>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => updateStatusMutation.mutate({ status: "done" })}
+          disabled={updateStatusMutation.isPending}
+          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+        >
+          <CheckCircle className="h-4 w-4 mr-1" />
+          Realizado
+        </Button>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {event.case_id && (
-            <DropdownMenuItem asChild>
-              <Link to={`/cases/${event.case_id}`}>
-                <Eye className="h-4 w-4 mr-2" />
-                Ver Processo
-              </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Editar
             </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            onClick={() => updateStatusMutation.mutate({ status: "canceled" })}
-            className="text-destructive"
-          >
-            <XCircle className="h-4 w-4 mr-2" />
-            Cancelar
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => deleteMutation.mutate()}
-            className="text-destructive"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Excluir
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+            {event.case_id && (
+              <DropdownMenuItem asChild>
+                <Link to={`/cases/${event.case_id}`}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver Processo
+                </Link>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem
+              onClick={() => updateStatusMutation.mutate({ status: "canceled" })}
+              className="text-destructive"
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Cancelar
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => deleteMutation.mutate()}
+              className="text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <EditEventDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        event={event}
+      />
+    </>
   );
 }

@@ -28,11 +28,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Users, Building2, Loader2, Phone, Mail } from "lucide-react";
+import { Plus, Search, Users, Building2, Loader2, Phone, Mail, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ContactLinkedCases } from "@/components/contacts/ContactLinkedCases";
 
 export default function Contacts() {
   const queryClient = useQueryClient();
@@ -40,6 +47,7 @@ export default function Contacts() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     type: "PF",
     name: "",
@@ -131,6 +139,8 @@ export default function Contacts() {
     }
     createContact.mutate();
   };
+
+  const selectedContact = contacts?.find((c) => c.id === selectedContactId);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -323,6 +333,7 @@ export default function Contacts() {
                   <TableHead>Documento</TableHead>
                   <TableHead>Contato</TableHead>
                   <TableHead>Cidade</TableHead>
+                  <TableHead className="w-[80px]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -370,6 +381,15 @@ export default function Contacts() {
                         ? `${contact.city || ""}${contact.city && contact.state ? " - " : ""}${contact.state || ""}`
                         : "-"}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSelectedContactId(contact.id)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -377,6 +397,74 @@ export default function Contacts() {
           )}
         </CardContent>
       </Card>
+
+      {/* Contact Detail Sheet */}
+      <Sheet open={!!selectedContactId} onOpenChange={(open) => !open && setSelectedContactId(null)}>
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                {selectedContact?.type === "PF" ? (
+                  <Users className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <Building2 className="h-5 w-5 text-muted-foreground" />
+                )}
+              </div>
+              {selectedContact?.name}
+            </SheetTitle>
+          </SheetHeader>
+
+          {selectedContact && (
+            <div className="mt-6 space-y-6">
+              {/* Contact Info */}
+              <div className="space-y-3">
+                <h3 className="font-medium text-sm text-muted-foreground uppercase">Informações</h3>
+                <div className="grid gap-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tipo</span>
+                    <Badge variant="outline">
+                      {selectedContact.type === "PF" ? "Pessoa Física" : "Pessoa Jurídica"}
+                    </Badge>
+                  </div>
+                  {selectedContact.cpf_cnpj && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        {selectedContact.type === "PF" ? "CPF" : "CNPJ"}
+                      </span>
+                      <span>{selectedContact.cpf_cnpj}</span>
+                    </div>
+                  )}
+                  {selectedContact.email && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">E-mail</span>
+                      <span>{selectedContact.email}</span>
+                    </div>
+                  )}
+                  {selectedContact.phone && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Telefone</span>
+                      <span>{selectedContact.phone}</span>
+                    </div>
+                  )}
+                  {(selectedContact.city || selectedContact.state) && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Localização</span>
+                      <span>
+                        {selectedContact.city}
+                        {selectedContact.city && selectedContact.state ? " - " : ""}
+                        {selectedContact.state}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Linked Cases */}
+              <ContactLinkedCases contactId={selectedContact.id} />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
