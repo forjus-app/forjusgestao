@@ -226,15 +226,17 @@ export default function SettlementDetail() {
                 </div>
               </div>
               
-              {settlement.notes && (
-                <>
-                  <Separator />
-                  <div>
-                    <Label className="text-muted-foreground">Observações</Label>
-                    <p className="mt-1 whitespace-pre-wrap">{settlement.notes}</p>
-                  </div>
-                </>
-              )}
+              <Separator />
+              <div>
+                <Label className="text-muted-foreground">Observações</Label>
+                {settlement.notes ? (
+                  <p className="mt-1 whitespace-pre-wrap text-sm">{settlement.notes}</p>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground italic">
+                    Nenhuma observação registrada. Clique em "Editar" para adicionar.
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
 
