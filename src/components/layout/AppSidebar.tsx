@@ -33,6 +33,7 @@ import {
   UsersRound,
   Building2,
   UserCheck,
+  Handshake,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useOrganization } from "@/hooks/useOrganization";
@@ -42,6 +43,7 @@ const navItems = [
   { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Processos", icon: Briefcase, href: "/cases" },
   { title: "Casos Externos", icon: Building2, href: "/external-cases" },
+  { title: "Acordos", icon: Handshake, href: "/settlements" },
   { title: "Prazos", icon: Clock, href: "/deadlines" },
   { title: "Agenda", icon: CalendarDays, href: "/agenda" },
   { title: "Contatos", icon: Users, href: "/contacts" },
