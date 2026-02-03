@@ -22,6 +22,8 @@ import ExternalCaseDetail from "./pages/ExternalCaseDetail";
 import PartnerLawyers from "./pages/PartnerLawyers";
 import TeamMembers from "./pages/TeamMembers";
 import Settings from "./pages/Settings";
+import Settlements from "./pages/Settlements";
+import SettlementDetail from "./pages/SettlementDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -140,6 +142,22 @@ const App = () => (
               element={
                 <AppLayout>
                   <Settings />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/settlements"
+              element={
+                <AppLayout>
+                  <Settlements />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/settlements/:id"
+              element={
+                <AppLayout>
+                  <SettlementDetail />
                 </AppLayout>
               }
             />

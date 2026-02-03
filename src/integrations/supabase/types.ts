@@ -1315,6 +1315,144 @@ export type Database = {
           },
         ]
       }
+      settlement_cases: {
+        Row: {
+          assigned_member_id: string
+          case_id: string | null
+          client_contact_id: string | null
+          counterparty_contact_id: string | null
+          created_at: string
+          followup_enabled: boolean
+          followup_every_n_days: number | null
+          id: string
+          next_followup_at: string | null
+          notes: string | null
+          organization_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_member_id: string
+          case_id?: string | null
+          client_contact_id?: string | null
+          counterparty_contact_id?: string | null
+          created_at?: string
+          followup_enabled?: boolean
+          followup_every_n_days?: number | null
+          id?: string
+          next_followup_at?: string | null
+          notes?: string | null
+          organization_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_member_id?: string
+          case_id?: string | null
+          client_contact_id?: string | null
+          counterparty_contact_id?: string | null
+          created_at?: string
+          followup_enabled?: boolean
+          followup_every_n_days?: number | null
+          id?: string
+          next_followup_at?: string | null
+          notes?: string | null
+          organization_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_cases_assigned_member_id_fkey"
+            columns: ["assigned_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_cases_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_cases_client_contact_id_fkey"
+            columns: ["client_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_cases_counterparty_contact_id_fkey"
+            columns: ["counterparty_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_cases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settlement_interactions: {
+        Row: {
+          created_at: string
+          direction: string | null
+          id: string
+          message: string
+          next_followup_at: string | null
+          occurred_at: string
+          organization_id: string
+          settlement_case_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          direction?: string | null
+          id?: string
+          message: string
+          next_followup_at?: string | null
+          occurred_at?: string
+          organization_id: string
+          settlement_case_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string | null
+          id?: string
+          message?: string
+          next_followup_at?: string | null
+          occurred_at?: string
+          organization_id?: string
+          settlement_case_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_interactions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_interactions_settlement_case_id_fkey"
+            columns: ["settlement_case_id"]
+            isOneToOne: false
+            referencedRelation: "settlement_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           color: string | null
