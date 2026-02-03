@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,8 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Calendar, Plus, Search, FolderOpen, Copy, Check, ExternalLink } from "lucide-react";
+import { Plus, Search, FolderOpen, Copy, Check, ExternalLink } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
 
 interface AddDeadlineDialogProps {
   open: boolean;
@@ -57,6 +56,8 @@ export function AddDeadlineDialog({
   });
   const [caseSearch, setCaseSearch] = useState("");
   const [copied, setCopied] = useState(false);
+  const [quickAddCaseOpen, setQuickAddCaseOpen] = useState(false);
+  const [newlyCreatedCase, setNewlyCreatedCase] = useState<{ id: string; title: string } | null>(null);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -187,7 +188,13 @@ export function AddDeadlineDialog({
     });
     setCaseSearch("");
     setCopied(false);
+    setNewlyCreatedCase(null);
     onOpenChange(false);
+  };
+
+  const handleCaseCreated = (caseId: string, caseTitle: string) => {
+    setFormData({ ...formData, caseId });
+    setNewlyCreatedCase({ id: caseId, title: caseTitle });
   };
 
   const handleUseCaseDriveLink = () => {
@@ -255,55 +262,95 @@ export function AddDeadlineDialog({
             {formData.type === "processual" && !preselectedCaseId && (
               <div className="space-y-2">
                 <Label>Processo *</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Buscar processo..."
-                    value={caseSearch}
-                    onChange={(e) => setCaseSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <ScrollArea className="h-32 rounded-md border">
-                  <div className="p-2 space-y-1">
-                    {cases?.map((c) => (
-                      <button
-                        key={c.id}
+                
+                {/* Show newly created case */}
+                {newlyCreatedCase && formData.caseId === newlyCreatedCase.id ? (
+                  <div className="p-3 rounded-md border bg-primary/5 border-primary/20">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-sm">{newlyCreatedCase.title}</p>
+                        <p className="text-xs text-muted-foreground">Processo recém-criado</p>
+                      </div>
+                      <Button
                         type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, caseId: c.id })
-                        }
-                        className={`w-full text-left p-2 rounded text-sm transition-colors ${
-                          formData.caseId === c.id
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted"
-                        }`}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setFormData({ ...formData, caseId: "" });
+                          setNewlyCreatedCase(null);
+                        }}
                       >
-                        <p className="font-medium truncate">{c.title}</p>
-                        {c.cnj_number && (
-                          <p
-                            className={`text-xs truncate ${
+                        Alterar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Buscar processo..."
+                        value={caseSearch}
+                        onChange={(e) => setCaseSearch(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <ScrollArea className="h-32 rounded-md border">
+                      <div className="p-2 space-y-1">
+                        {cases?.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() =>
+                              setFormData({ ...formData, caseId: c.id })
+                            }
+                            className={`w-full text-left p-2 rounded text-sm transition-colors ${
                               formData.caseId === c.id
-                                ? "text-primary-foreground/70"
-                                : "text-muted-foreground"
+                                ? "bg-primary text-primary-foreground"
+                                : "hover:bg-muted"
                             }`}
                           >
-                            {c.cnj_number}
+                            <p className="font-medium truncate">{c.title}</p>
+                            {c.cnj_number && (
+                              <p
+                                className={`text-xs truncate ${
+                                  formData.caseId === c.id
+                                    ? "text-primary-foreground/70"
+                                    : "text-muted-foreground"
+                                }`}
+                              >
+                                {c.cnj_number}
+                              </p>
+                            )}
+                          </button>
+                        ))}
+                        {cases?.length === 0 && (
+                          <p className="text-center py-2 text-muted-foreground text-sm">
+                            Nenhum processo encontrado
                           </p>
                         )}
-                      </button>
-                    ))}
-                    {cases?.length === 0 && (
-                      <p className="text-center py-2 text-muted-foreground text-sm">
-                        Nenhum processo encontrado
+                      </div>
+                    </ScrollArea>
+                    {selectedCase && (
+                      <p className="text-sm text-muted-foreground">
+                        Selecionado: {selectedCase.title}
                       </p>
                     )}
-                  </div>
-                </ScrollArea>
-                {selectedCase && (
-                  <p className="text-sm text-muted-foreground">
-                    Selecionado: {selectedCase.title}
-                  </p>
+                    
+                    {/* Quick add case button */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-sm text-muted-foreground">Não encontrou o processo?</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setQuickAddCaseOpen(true)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Cadastrar processo
+                      </Button>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -464,6 +511,13 @@ export function AddDeadlineDialog({
           </Button>
         </div>
       </DialogContent>
+
+      {/* Quick Add Case Dialog */}
+      <QuickAddCaseDialog
+        open={quickAddCaseOpen}
+        onOpenChange={setQuickAddCaseOpen}
+        onCaseCreated={handleCaseCreated}
+      />
     </Dialog>
   );
 }
