@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Search, Filter, Briefcase, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import { ExportDropdown } from "@/components/ExportDropdown";
+import { exportToPDF, exportToExcel, casesExportColumns } from "@/lib/exportUtils";
 
 export default function Cases() {
   const { data: organization } = useOrganization();
@@ -88,6 +91,34 @@ export default function Cases() {
     return primaryParty?.contacts?.name || "-";
   };
 
+  const handleExportPDF = () => {
+    if (!cases || cases.length === 0) {
+      toast.error("Nenhum processo para exportar");
+      return;
+    }
+    exportToPDF({
+      title: "Lista de Processos",
+      columns: casesExportColumns,
+      data: cases,
+      filename: `processos_${format(new Date(), "yyyy-MM-dd")}`,
+    });
+    toast.success("PDF exportado com sucesso!");
+  };
+
+  const handleExportExcel = () => {
+    if (!cases || cases.length === 0) {
+      toast.error("Nenhum processo para exportar");
+      return;
+    }
+    exportToExcel({
+      title: "Processos",
+      columns: casesExportColumns,
+      data: cases,
+      filename: `processos_${format(new Date(), "yyyy-MM-dd")}`,
+    });
+    toast.success("Excel exportado com sucesso!");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -95,12 +126,19 @@ export default function Cases() {
           <h1 className="text-2xl font-bold">Processos</h1>
           <p className="text-muted-foreground">Gerencie todos os seus processos</p>
         </div>
-        <Button asChild>
-          <Link to="/cases/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Processo
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ExportDropdown
+            onExportPDF={handleExportPDF}
+            onExportExcel={handleExportExcel}
+            disabled={!cases || cases.length === 0}
+          />
+          <Button asChild>
+            <Link to="/cases/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Processo
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
