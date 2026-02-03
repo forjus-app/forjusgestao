@@ -18,6 +18,7 @@ import { DeadlineDetailDrawer } from "@/components/deadlines/DeadlineDetailDrawe
 import { Calendar, Plus } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDateTime } from "@/lib/dateUtils";
 
 interface CaseDeadlinesTabProps {
   caseId: string;
@@ -49,13 +50,13 @@ export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
   });
 
   const formatDateTime = (date: string) => {
-    return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: ptBR });
+    return format(parseLocalDateTime(date), "dd/MM/yyyy HH:mm", { locale: ptBR });
   };
 
   const getDateBadge = (fatalDate: string, status: string) => {
     if (status !== "open") return null;
 
-    const fatal = new Date(fatalDate);
+    const fatal = parseLocalDateTime(fatalDate);
 
     if (isPast(fatal) && !isToday(fatal)) {
       return <Badge variant="destructive">Vencido</Badge>;

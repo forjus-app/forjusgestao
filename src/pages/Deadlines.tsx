@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { format, isPast, isToday, addDays, isBefore } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDateTime } from "@/lib/dateUtils";
 import { toast } from "sonner";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToPDF, exportToExcel, deadlinesExportColumns } from "@/lib/exportUtils";
@@ -134,7 +135,7 @@ export default function Deadlines() {
   const getDateBadge = (fatalDate: string, status: string) => {
     if (status !== "open") return null;
 
-    const fatal = new Date(fatalDate);
+    const fatal = parseLocalDateTime(fatalDate);
     const now = new Date();
 
     if (isPast(fatal) && !isToday(fatal)) {
@@ -150,7 +151,7 @@ export default function Deadlines() {
   };
 
   const formatDateTime = (date: string) => {
-    return format(new Date(date), "dd/MM/yyyy HH:mm", { locale: ptBR });
+    return format(parseLocalDateTime(date), "dd/MM/yyyy HH:mm", { locale: ptBR });
   };
 
   // Count per status for badges

@@ -27,8 +27,9 @@ import {
   XCircle,
   Video,
 } from "lucide-react";
-import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isToday, isTomorrow, isPast, parseISO } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isToday, isTomorrow, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { parseLocalDateTime } from "@/lib/dateUtils";
 import { AddEventDialog } from "@/components/agenda/AddEventDialog";
 import { EventActions } from "@/components/agenda/EventActions";
 import { Link } from "react-router-dom";
@@ -136,18 +137,6 @@ export default function Agenda() {
     },
     enabled: !!organization?.id,
   });
-
-  // Helper to parse datetime preserving local time
-  const parseLocalDateTime = (dateStr: string) => {
-    // For datetime strings from datetime-local input stored without timezone
-    // we need to treat them as local time, not UTC
-    if (dateStr.includes("T") && !dateStr.includes("Z") && !dateStr.includes("+")) {
-      // Already local format like "2025-02-03T14:00"
-      return parseISO(dateStr);
-    }
-    // For ISO strings with Z or offset, parse normally
-    return new Date(dateStr);
-  };
 
   const getDateLabel = (dateStr: string) => {
     const date = parseLocalDateTime(dateStr);
