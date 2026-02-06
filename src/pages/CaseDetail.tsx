@@ -32,6 +32,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDateTime } from "@/lib/dateUtils";
 import { AddPartyDialog } from "@/components/cases/AddPartyDialog";
+import { EditCaseDialog } from "@/components/cases/EditCaseDialog";
 import { CaseDeadlinesTab } from "@/components/cases/CaseDeadlinesTab";
 import { CaseAgendaTab } from "@/components/cases/CaseAgendaTab";
 
@@ -40,6 +41,7 @@ export default function CaseDetail() {
   const { data: organization } = useOrganization();
   const queryClient = useQueryClient();
   const [addPartyOpen, setAddPartyOpen] = useState(false);
+  const [editCaseOpen, setEditCaseOpen] = useState(false);
   const [editingDriveLink, setEditingDriveLink] = useState(false);
   const [driveLink, setDriveLink] = useState("");
   const [copied, setCopied] = useState(false);
@@ -200,7 +202,7 @@ export default function CaseDetail() {
               </a>
             </Button>
           )}
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setEditCaseOpen(true)}>
             <Edit className="h-4 w-4 mr-2" />
             Editar
           </Button>
@@ -500,6 +502,13 @@ export default function CaseDetail() {
         onOpenChange={setAddPartyOpen}
         caseId={id!}
         existingPartyIds={caseData.case_parties?.map((p: any) => p.contact_id) || []}
+      />
+
+      {/* Edit Case Dialog */}
+      <EditCaseDialog
+        open={editCaseOpen}
+        onOpenChange={setEditCaseOpen}
+        caseData={caseData}
       />
     </div>
   );
