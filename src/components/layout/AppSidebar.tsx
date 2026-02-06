@@ -40,7 +40,7 @@ import { useProfile, useOrganization } from "@/hooks/useOrganization";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { title: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { title: "Hoje", icon: LayoutDashboard, href: "/dashboard" },
   { title: "Processos", icon: Briefcase, href: "/cases" },
   { title: "Casos Externos", icon: Building2, href: "/external-cases" },
   { title: "Acordos", icon: Handshake, href: "/settlements" },
