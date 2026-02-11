@@ -240,7 +240,6 @@ export default function Deadlines() {
     exportDeadlinesPDF({
       deadlines,
       filtersLabel: getAppliedFiltersLabel(),
-      getClientName,
     });
     toast.success("PDF exportado com sucesso!");
   };
