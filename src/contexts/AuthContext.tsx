@@ -19,15 +19,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Set up auth state listener BEFORE checking session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Handle token expiration/invalid
+        if (event === "TOKEN_REFRESHED" && !session) {
+          // Token refresh failed — session expired
+          localStorage.removeItem("forjus_stay_connected");
+          sessionStorage.removeItem("forjus_session_active");
+        }
       }
     );
 
-    // Check current session
+    // Check current session and handle "stay connected" logic
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        const stayConnected = localStorage.getItem("forjus_stay_connected") === "true";
+        const sessionActive = sessionStorage.getItem("forjus_session_active") === "true";
+
+        if (!stayConnected && !sessionActive) {
+          // Browser was closed and user didn't want to stay connected — sign out
+          supabase.auth.signOut().then(() => {
+            setSession(null);
+            setUser(null);
+            setLoading(false);
+          });
+          return;
+        }
+      }
+
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -37,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    // Clear session markers but preserve email if "remember" is set
+    sessionStorage.removeItem("forjus_session_active");
+    localStorage.removeItem("forjus_stay_connected");
     await supabase.auth.signOut();
   };
 

@@ -1,21 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Scale, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+
+const STORAGE_KEYS = {
+  REMEMBER_EMAIL: "forjus_remember_email",
+  SAVED_EMAIL: "forjus_saved_email",
+  STAY_CONNECTED: "forjus_stay_connected",
+};
 
 export default function Auth() {
   const navigate = useNavigate();
+  const { session, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
 
   // Login form
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [rememberEmail, setRememberEmail] = useState(false);
+  const [stayConnected, setStayConnected] = useState(false);
 
   // Signup form
   const [signupEmail, setSignupEmail] = useState("");
@@ -23,6 +34,26 @@ export default function Auth() {
   const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [officeName, setOfficeName] = useState("");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && session) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [session, authLoading, navigate]);
+
+  // Load saved email preference on mount
+  useEffect(() => {
+    const savedRemember = localStorage.getItem(STORAGE_KEYS.REMEMBER_EMAIL) === "true";
+    const savedEmail = localStorage.getItem(STORAGE_KEYS.SAVED_EMAIL) || "";
+    const savedStay = localStorage.getItem(STORAGE_KEYS.STAY_CONNECTED) === "true";
+
+    setRememberEmail(savedRemember);
+    setStayConnected(savedStay);
+    if (savedRemember && savedEmail) {
+      setLoginEmail(savedEmail);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +66,24 @@ export default function Auth() {
       });
 
       if (error) throw error;
+
+      // Save email preference
+      if (rememberEmail) {
+        localStorage.setItem(STORAGE_KEYS.REMEMBER_EMAIL, "true");
+        localStorage.setItem(STORAGE_KEYS.SAVED_EMAIL, loginEmail);
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.REMEMBER_EMAIL);
+        localStorage.removeItem(STORAGE_KEYS.SAVED_EMAIL);
+      }
+
+      // Save stay connected preference
+      if (stayConnected) {
+        localStorage.setItem(STORAGE_KEYS.STAY_CONNECTED, "true");
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.STAY_CONNECTED);
+        // Set a session-only marker so we know to sign out when browser closes
+        sessionStorage.setItem("forjus_session_active", "true");
+      }
 
       toast.success("Login realizado com sucesso!");
       navigate("/dashboard");
@@ -82,6 +131,15 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  // Show nothing while checking auth (prevents flash)
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -131,6 +189,30 @@ export default function Auth() {
                     required
                   />
                 </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="remember-email"
+                      checked={rememberEmail}
+                      onCheckedChange={(checked) => setRememberEmail(checked === true)}
+                    />
+                    <Label htmlFor="remember-email" className="text-sm font-normal cursor-pointer">
+                      Lembrar meu login
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="stay-connected"
+                      checked={stayConnected}
+                      onCheckedChange={(checked) => setStayConnected(checked === true)}
+                    />
+                    <Label htmlFor="stay-connected" className="text-sm font-normal cursor-pointer">
+                      Manter conectado
+                    </Label>
+                  </div>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? (
                     <>
