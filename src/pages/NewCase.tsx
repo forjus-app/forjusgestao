@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { TribunalSelect } from "@/components/cases/TribunalSelect";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -319,12 +320,10 @@ export default function NewCase() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-2">
-                <Label htmlFor="tribunal">Tribunal</Label>
-                <Input
-                  id="tribunal"
-                  placeholder="TJSP, TRF3..."
+                <Label>Tribunal</Label>
+                <TribunalSelect
                   value={formData.tribunal}
-                  onChange={(e) => handleChange("tribunal", e.target.value)}
+                  onChange={(v) => handleChange("tribunal", v)}
                 />
               </div>
 

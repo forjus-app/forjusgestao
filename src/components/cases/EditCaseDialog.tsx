@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Save } from "lucide-react";
+import { TribunalSelect } from "@/components/cases/TribunalSelect";
 import { toast } from "sonner";
 
 interface EditCaseDialogProps {
@@ -341,12 +342,10 @@ export function EditCaseDialog({ open, onOpenChange, caseData }: EditCaseDialogP
             </h3>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-tribunal">Tribunal</Label>
-                <Input
-                  id="edit-tribunal"
-                  placeholder="TJSP, TRF3..."
+                <Label>Tribunal</Label>
+                <TribunalSelect
                   value={formData.tribunal}
-                  onChange={(e) => handleChange("tribunal", e.target.value)}
+                  onChange={(v) => handleChange("tribunal", v)}
                 />
               </div>
 
