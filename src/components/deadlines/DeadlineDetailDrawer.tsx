@@ -271,12 +271,27 @@ export function DeadlineDetailDrawer({
                             </p>
                           )}
                         </div>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/cases/${deadline.cases.id}`}>
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            Abrir
-                          </Link>
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          {deadline.cases.cnj_number ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                navigator.clipboard.writeText(deadline.cases!.cnj_number!);
+                                toast.success("Número do processo copiado!");
+                              }}
+                              title="Copiar nº do processo"
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                          ) : null}
+                          <Button variant="outline" size="sm" asChild>
+                            <Link to={`/cases/${deadline.cases.id}`}>
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Abrir
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ) : (
