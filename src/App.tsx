@@ -24,6 +24,8 @@ import TeamMembers from "./pages/TeamMembers";
 import Settings from "./pages/Settings";
 import Settlements from "./pages/Settlements";
 import SettlementDetail from "./pages/SettlementDetail";
+import ServiceRequests from "./pages/ServiceRequests";
+import ServiceRequestDetail from "./pages/ServiceRequestDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -158,6 +160,22 @@ const App = () => (
               element={
                 <AppLayout>
                   <SettlementDetail />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/service-requests"
+              element={
+                <AppLayout>
+                  <ServiceRequests />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/service-requests/:id"
+              element={
+                <AppLayout>
+                  <ServiceRequestDetail />
                 </AppLayout>
               }
             />

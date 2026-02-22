@@ -1315,6 +1315,153 @@ export type Database = {
           },
         ]
       }
+      service_requests: {
+        Row: {
+          assigned_member_id: string
+          case_description: string
+          case_id: string | null
+          client_contact_id: string | null
+          created_at: string
+          drive_link: string | null
+          evidence_list: string | null
+          facts: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          priority: number
+          related_contact_id: string | null
+          requests: string | null
+          service_type: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_member_id: string
+          case_description: string
+          case_id?: string | null
+          client_contact_id?: string | null
+          created_at?: string
+          drive_link?: string | null
+          evidence_list?: string | null
+          facts?: string | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          priority?: number
+          related_contact_id?: string | null
+          requests?: string | null
+          service_type?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_member_id?: string
+          case_description?: string
+          case_id?: string | null
+          client_contact_id?: string | null
+          created_at?: string
+          drive_link?: string | null
+          evidence_list?: string | null
+          facts?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          priority?: number
+          related_contact_id?: string | null
+          requests?: string | null
+          service_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_assigned_member_id_fkey"
+            columns: ["assigned_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_client_contact_id_fkey"
+            columns: ["client_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_related_contact_id_fkey"
+            columns: ["related_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_timeline_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          event_type: string
+          id: string
+          occurred_at: string
+          organization_id: string
+          service_request_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          event_type: string
+          id?: string
+          occurred_at?: string
+          organization_id: string
+          service_request_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          event_type?: string
+          id?: string
+          occurred_at?: string
+          organization_id?: string
+          service_request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_timeline_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_timeline_events_service_request_id_fkey"
+            columns: ["service_request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settlement_cases: {
         Row: {
           assigned_member_id: string
