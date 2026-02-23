@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -17,8 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { Loader2, ChevronRight, ChevronLeft, Check, AlertTriangle, Link as LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface QuickAddCaseDialogProps {
@@ -44,6 +45,35 @@ export function QuickAddCaseDialog({
     cnj_number: "",
     link_url: "",
     drive_link: "",
+  });
+  const [debouncedCnj, setDebouncedCnj] = useState("");
+
+  // Debounce CNJ lookup
+  useEffect(() => {
+    const trimmed = formData.cnj_number.trim();
+    if (!trimmed) {
+      setDebouncedCnj("");
+      return;
+    }
+    const timer = setTimeout(() => setDebouncedCnj(trimmed), 400);
+    return () => clearTimeout(timer);
+  }, [formData.cnj_number]);
+
+  // Check for existing case by CNJ
+  const { data: existingCase, isFetching: checkingCnj } = useQuery({
+    queryKey: ["cnj-check", organization?.id, debouncedCnj],
+    queryFn: async () => {
+      if (!organization?.id || !debouncedCnj) return null;
+      const { data, error } = await supabase
+        .from("cases")
+        .select("id, title, cnj_number")
+        .eq("organization_id", organization.id)
+        .eq("cnj_number", debouncedCnj)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!organization?.id && !!debouncedCnj,
   });
 
   // Fetch statuses
@@ -81,7 +111,19 @@ export function QuickAddCaseDialog({
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // Handle unique constraint violation - fallback to existing
+        if (error.code === "23505" && formData.cnj_number) {
+          const { data: existing } = await supabase
+            .from("cases")
+            .select("id, title")
+            .eq("organization_id", organization.id)
+            .eq("cnj_number", formData.cnj_number)
+            .single();
+          if (existing) return existing;
+        }
+        throw error;
+      }
       return data;
     },
     onSuccess: (data) => {
@@ -105,7 +147,16 @@ export function QuickAddCaseDialog({
       drive_link: "",
     });
     setCurrentStep(1);
+    setDebouncedCnj("");
     onOpenChange(false);
+  };
+
+  const handleLinkExisting = () => {
+    if (existingCase) {
+      toast.success("Prazo vinculado ao processo já cadastrado.");
+      onCaseCreated(existingCase.id, existingCase.title);
+      handleClose();
+    }
   };
 
   const handleNext = () => {
@@ -127,6 +178,8 @@ export function QuickAddCaseDialog({
   const handleSubmit = () => {
     createCase.mutate();
   };
+
+  const hasDuplicate = !!existingCase && !!debouncedCnj;
 
   const steps = [
     { number: 1, label: "Dados Básicos" },
@@ -233,6 +286,39 @@ export function QuickAddCaseDialog({
                   Opcional. Pode ser adicionado depois.
                 </p>
               </div>
+
+              {/* CNJ duplicate warning */}
+              {checkingCnj && debouncedCnj && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Verificando...
+                </div>
+              )}
+
+              {hasDuplicate && (
+                <div className="p-4 rounded-lg border border-warning bg-warning/10 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        Este processo já está cadastrado:
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        <strong>{existingCase.title}</strong>
+                        {existingCase.cnj_number && (
+                          <span className="block text-xs">{existingCase.cnj_number}</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleLinkExisting}>
+                      <LinkIcon className="h-4 w-4 mr-1" />
+                      Vincular ao existente
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -291,7 +377,7 @@ export function QuickAddCaseDialog({
             ) : (
               <Button
                 onClick={handleSubmit}
-                disabled={createCase.isPending}
+                disabled={createCase.isPending || hasDuplicate}
               >
                 {createCase.isPending ? (
                   <>
