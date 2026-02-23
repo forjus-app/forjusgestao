@@ -11,6 +11,13 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { EditDeadlineDialog } from "./EditDeadlineDialog";
@@ -48,6 +55,7 @@ export function DeadlineDetailDrawer({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesValue, setNotesValue] = useState("");
+  const [reopenDialogOpen, setReopenDialogOpen] = useState(false);
 
   const { data: deadline, isLoading } = useQuery({
     queryKey: ["deadline-detail", deadlineId],
@@ -99,9 +107,10 @@ export function DeadlineDetailDrawer({
       completed_notes: null,
       reviewed_at: null,
       reviewed_notes: null,
-      review_status: "none",
+      review_status: "not_required",
     });
-    toast.success("Prazo reaberto");
+    setReopenDialogOpen(false);
+    toast.success("Prazo reaberto com sucesso");
   };
 
   const handleReview = async () => {
@@ -456,7 +465,7 @@ export function DeadlineDetailDrawer({
 
                 {deadline.status === "completed" && (
                   <>
-                    <Button variant="outline" onClick={handleReopen}>
+                    <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reabrir
                     </Button>
@@ -476,7 +485,7 @@ export function DeadlineDetailDrawer({
 
                 {(deadline.status === "reviewed" ||
                   deadline.status === "adjustment_requested") && (
-                  <Button variant="outline" onClick={handleReopen}>
+                  <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Reabrir
                   </Button>
@@ -491,6 +500,32 @@ export function DeadlineDetailDrawer({
           )}
         </DrawerContent>
       </Drawer>
+
+      {/* Reopen Confirmation Dialog */}
+      <Dialog open={reopenDialogOpen} onOpenChange={setReopenDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reabrir Prazo</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Tem certeza que deseja reabrir o prazo <strong>{deadline?.title}</strong>?
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              O prazo voltará para "Em aberto" e os dados de conclusão/conferência serão removidos.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReopenDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleReopen} disabled={updateDeadline.isPending}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              {updateDeadline.isPending ? "Reabrindo..." : "Reabrir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {deadline && (
         <EditDeadlineDialog

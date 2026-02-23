@@ -50,6 +50,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
   const [adjustmentDialogOpen, setAdjustmentDialogOpen] = useState(false);
   const [adjustmentNotes, setAdjustmentNotes] = useState("");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [reopenDialogOpen, setReopenDialogOpen] = useState(false);
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({
@@ -108,6 +109,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
 
   const handleReopen = () => {
     updateStatusMutation.mutate({ status: "open" });
+    setReopenDialogOpen(false);
   };
 
   const handleRequestAdjustment = () => {
@@ -126,6 +128,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
   const showReview = deadline.status === "completed";
   const showRequestAdjustment = deadline.status === "completed";
   const showReopen =
+    deadline.status === "completed" ||
     deadline.status === "adjustment_requested" ||
     deadline.status === "reviewed";
 
@@ -189,7 +192,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
               </DropdownMenuItem>
             )}
             {showReopen && (
-              <DropdownMenuItem onClick={handleReopen}>
+              <DropdownMenuItem onClick={() => setReopenDialogOpen(true)}>
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reabrir
               </DropdownMenuItem>
@@ -233,6 +236,32 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
               {updateStatusMutation.isPending
                 ? "Enviando..."
                 : "Solicitar Ajuste"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reopen Confirmation Dialog */}
+      <Dialog open={reopenDialogOpen} onOpenChange={setReopenDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reabrir Prazo</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Tem certeza que deseja reabrir o prazo <strong>{deadline.title}</strong>?
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              O prazo voltará para "Em aberto" e os dados de conclusão/conferência serão removidos.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReopenDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleReopen} disabled={updateStatusMutation.isPending}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              {updateStatusMutation.isPending ? "Reabrindo..." : "Reabrir"}
             </Button>
           </DialogFooter>
         </DialogContent>
