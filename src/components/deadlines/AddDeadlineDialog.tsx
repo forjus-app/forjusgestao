@@ -38,6 +38,33 @@ const priorityOptions = [
   { value: "2", label: "Crítica" },
 ];
 
+const datePresets = [
+  { label: "5 dias", days: 5 },
+  { label: "10 dias", days: 10 },
+  { label: "15 dias", days: 15 },
+  { label: "20 dias", days: 20 },
+  { label: "30 dias", days: 30 },
+];
+
+function addBusinessDays(startDate: Date, numDays: number): Date {
+  let current = startDate;
+  let added = 0;
+  while (added < numDays) {
+    current = addDays(current, 1);
+    if (!isWeekend(current)) {
+      added++;
+    }
+  }
+  return current;
+}
+
+function computeTargetDate(numDays: number, useBusinessDays: boolean): string {
+  const now = new Date();
+  const target = useBusinessDays ? addBusinessDays(now, numDays) : addDays(now, numDays);
+  target.setHours(18, 0, 0, 0);
+  return format(target, "yyyy-MM-dd'T'HH:mm");
+}
+
 export function AddDeadlineDialog({
   open,
   onOpenChange,
