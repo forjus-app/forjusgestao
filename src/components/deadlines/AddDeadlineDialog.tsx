@@ -88,6 +88,14 @@ export function AddDeadlineDialog({
   const [copied, setCopied] = useState(false);
   const [quickAddCaseOpen, setQuickAddCaseOpen] = useState(false);
   const [newlyCreatedCase, setNewlyCreatedCase] = useState<{ id: string; title: string } | null>(null);
+  const [dayMode, setDayMode] = useState<"business" | "calendar">("business");
+
+  const applyDatePreset = useCallback((days: number) => {
+    const useBusinessDays = dayMode === "business";
+    const deliveryDate = computeTargetDate(days - 2 > 0 ? days - 2 : days, useBusinessDays);
+    const fatalDate = computeTargetDate(days, useBusinessDays);
+    setFormData(prev => ({ ...prev, deliveryDueAt: deliveryDate, fatalDueAt: fatalDate }));
+  }, [dayMode]);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
