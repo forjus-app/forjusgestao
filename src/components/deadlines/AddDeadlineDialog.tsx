@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { addDays, isWeekend, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import {
@@ -19,8 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Search, FolderOpen, Copy, Check, ExternalLink } from "lucide-react";
+import { Plus, Search, FolderOpen, Copy, Check, ExternalLink, Calendar } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
 import { toLocalISOString } from "@/lib/dateUtils";
 
@@ -35,6 +37,33 @@ const priorityOptions = [
   { value: "1", label: "Alta" },
   { value: "2", label: "Crítica" },
 ];
+
+const datePresets = [
+  { label: "5 dias", days: 5 },
+  { label: "10 dias", days: 10 },
+  { label: "15 dias", days: 15 },
+  { label: "20 dias", days: 20 },
+  { label: "30 dias", days: 30 },
+];
+
+function addBusinessDays(startDate: Date, numDays: number): Date {
+  let current = startDate;
+  let added = 0;
+  while (added < numDays) {
+    current = addDays(current, 1);
+    if (!isWeekend(current)) {
+      added++;
+    }
+  }
+  return current;
+}
+
+function computeTargetDate(numDays: number, useBusinessDays: boolean): string {
+  const now = new Date();
+  const target = useBusinessDays ? addBusinessDays(now, numDays) : addDays(now, numDays);
+  target.setHours(18, 0, 0, 0);
+  return format(target, "yyyy-MM-dd'T'HH:mm");
+}
 
 export function AddDeadlineDialog({
   open,
@@ -59,6 +88,14 @@ export function AddDeadlineDialog({
   const [copied, setCopied] = useState(false);
   const [quickAddCaseOpen, setQuickAddCaseOpen] = useState(false);
   const [newlyCreatedCase, setNewlyCreatedCase] = useState<{ id: string; title: string } | null>(null);
+  const [dayMode, setDayMode] = useState<"business" | "calendar">("business");
+
+  const applyDatePreset = useCallback((days: number) => {
+    const useBusinessDays = dayMode === "business";
+    const deliveryDate = computeTargetDate(days - 2 > 0 ? days - 2 : days, useBusinessDays);
+    const fatalDate = computeTargetDate(days, useBusinessDays);
+    setFormData(prev => ({ ...prev, deliveryDueAt: deliveryDate, fatalDueAt: fatalDate }));
+  }, [dayMode]);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -381,6 +418,44 @@ export function AddDeadlineDialog({
                   Nenhum membro ativo. Cadastre em Configurações → Equipe.
                 </p>
               )}
+            </div>
+
+            {/* Date shortcuts */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Atalho de datas
+              </Label>
+              <div className="flex items-center gap-4 mb-2">
+                <RadioGroup
+                  value={dayMode}
+                  onValueChange={(v) => setDayMode(v as "business" | "calendar")}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem value="business" id="business" />
+                    <Label htmlFor="business" className="text-sm font-normal cursor-pointer">Dias úteis</Label>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem value="calendar" id="calendar" />
+                    <Label htmlFor="calendar" className="text-sm font-normal cursor-pointer">Dias corridos</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {datePresets.map((preset) => (
+                  <Button
+                    key={preset.days}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyDatePreset(preset.days)}
+                    className="text-xs"
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {/* Dates */}
