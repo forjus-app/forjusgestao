@@ -420,6 +420,44 @@ export function AddDeadlineDialog({
               )}
             </div>
 
+            {/* Date shortcuts */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Atalho de datas
+              </Label>
+              <div className="flex items-center gap-4 mb-2">
+                <RadioGroup
+                  value={dayMode}
+                  onValueChange={(v) => setDayMode(v as "business" | "calendar")}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem value="business" id="business" />
+                    <Label htmlFor="business" className="text-sm font-normal cursor-pointer">Dias úteis</Label>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <RadioGroupItem value="calendar" id="calendar" />
+                    <Label htmlFor="calendar" className="text-sm font-normal cursor-pointer">Dias corridos</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {datePresets.map((preset) => (
+                  <Button
+                    key={preset.days}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyDatePreset(preset.days)}
+                    className="text-xs"
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             {/* Dates */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
