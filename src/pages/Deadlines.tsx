@@ -45,14 +45,13 @@ import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToExcel } from "@/lib/exportUtils";
 import { exportDeadlinesPDF } from "@/lib/deadlinesPdfExport";
 
-type DeadlineStatus = "open" | "completed" | "reviewed" | "adjustment_requested";
+type DeadlineStatus = "open" | "in_progress" | "completed";
 type DateFunnel = "all" | "overdue" | "today" | "tomorrow" | "week" | "month";
 
 const statusTabs: { value: DeadlineStatus | "all"; label: string; icon: any }[] = [
   { value: "open", label: "Abertos", icon: Clock },
-  { value: "completed", label: "Pendente Conferência", icon: CheckCircle },
-  { value: "reviewed", label: "Conferidos", icon: CheckCircle },
-  { value: "adjustment_requested", label: "Ajuste Solicitado", icon: AlertTriangle },
+  { value: "in_progress", label: "Em Execução", icon: AlertTriangle },
+  { value: "completed", label: "Concluídos", icon: CheckCircle },
 ];
 
 const dateFunnels: { value: DateFunnel; label: string }[] = [
