@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
+import logoIcon from "@/assets/logo-forjus-icon.png";
 import {
   Sidebar,
   SidebarContent,
