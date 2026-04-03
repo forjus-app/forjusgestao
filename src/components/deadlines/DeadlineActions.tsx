@@ -9,8 +9,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -23,8 +21,8 @@ import {
   CheckCheck,
   MoreHorizontal,
   RotateCcw,
-  AlertTriangle,
   Pencil,
+  Play,
 } from "lucide-react";
 import { EditDeadlineDialog } from "./EditDeadlineDialog";
 
@@ -50,13 +48,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
   const [reopenDialogOpen, setReopenDialogOpen] = useState(false);
 
   const updateStatusMutation = useMutation({
-    mutationFn: async ({
-      status,
-      notes,
-    }: {
-      status: string;
-      notes?: string;
-    }) => {
+    mutationFn: async ({ status }: { status: string }) => {
       const updateData: any = { status };
 
       if (status === "open") {
@@ -107,8 +99,19 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
   return (
     <>
       <div className="flex items-center gap-1">
-        {/* Quick complete button */}
-        {showComplete && (
+        {showStart && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleStartProgress}
+            disabled={updateStatusMutation.isPending}
+            title="Iniciar Execução"
+          >
+            <Play className="h-4 w-4 text-primary" />
+          </Button>
+        )}
+
+        {deadline.status === "in_progress" && (
           <Button
             variant="ghost"
             size="icon"
@@ -116,24 +119,10 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
             disabled={updateStatusMutation.isPending}
             title="Concluir"
           >
-            <Check className="h-4 w-4 text-success" />
+            <CheckCheck className="h-4 w-4 text-success" />
           </Button>
         )}
 
-        {/* Quick review button */}
-        {showReview && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleReview}
-            disabled={updateStatusMutation.isPending}
-            title="Conferir"
-          >
-            <CheckCheck className="h-4 w-4 text-primary" />
-          </Button>
-        )}
-
-        {/* Dropdown for more actions */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -145,22 +134,16 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
               <Pencil className="h-4 w-4 mr-2" />
               Editar
             </DropdownMenuItem>
+            {showStart && (
+              <DropdownMenuItem onClick={handleStartProgress}>
+                <Play className="h-4 w-4 mr-2" />
+                Iniciar Execução
+              </DropdownMenuItem>
+            )}
             {showComplete && (
               <DropdownMenuItem onClick={handleComplete}>
-                <Check className="h-4 w-4 mr-2" />
-                Concluir
-              </DropdownMenuItem>
-            )}
-            {showReview && (
-              <DropdownMenuItem onClick={handleReview}>
                 <CheckCheck className="h-4 w-4 mr-2" />
-                Conferir
-              </DropdownMenuItem>
-            )}
-            {showRequestAdjustment && (
-              <DropdownMenuItem onClick={() => setAdjustmentDialogOpen(true)}>
-                <AlertTriangle className="h-4 w-4 mr-2" />
-                Solicitar Ajuste
+                Concluir
               </DropdownMenuItem>
             )}
             {showReopen && (
@@ -173,46 +156,6 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
         </DropdownMenu>
       </div>
 
-      {/* Adjustment Dialog */}
-      <Dialog open={adjustmentDialogOpen} onOpenChange={setAdjustmentDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Solicitar Ajuste</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground mb-4">
-              Prazo: <strong>{deadline.title}</strong>
-            </p>
-            <div className="space-y-2">
-              <Label>Motivo do ajuste *</Label>
-              <Textarea
-                value={adjustmentNotes}
-                onChange={(e) => setAdjustmentNotes(e.target.value)}
-                placeholder="Descreva o que precisa ser ajustado..."
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setAdjustmentDialogOpen(false)}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleRequestAdjustment}
-              disabled={updateStatusMutation.isPending}
-            >
-              {updateStatusMutation.isPending
-                ? "Enviando..."
-                : "Solicitar Ajuste"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Reopen Confirmation Dialog */}
       <Dialog open={reopenDialogOpen} onOpenChange={setReopenDialogOpen}>
         <DialogContent>
@@ -224,7 +167,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
               Tem certeza que deseja reabrir o prazo <strong>{deadline.title}</strong>?
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              O prazo voltará para "Em aberto" e os dados de conclusão/conferência serão removidos.
+              O prazo voltará para "Aberto" e os dados de conclusão serão removidos.
             </p>
           </div>
           <DialogFooter>
