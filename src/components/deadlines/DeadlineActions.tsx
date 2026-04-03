@@ -73,16 +73,14 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
     },
     onSuccess: (_, variables) => {
       const messages: Record<string, string> = {
+        in_progress: "Prazo em execução!",
         completed: "Prazo concluído!",
-        reviewed: "Prazo conferido!",
-        adjustment_requested: "Ajuste solicitado",
         open: "Prazo reaberto",
       };
       toast.success(messages[variables.status] || "Status atualizado");
       queryClient.invalidateQueries({ queryKey: ["deadlines"] });
       queryClient.invalidateQueries({ queryKey: ["case-deadlines"] });
-      setAdjustmentDialogOpen(false);
-      setAdjustmentNotes("");
+      queryClient.invalidateQueries({ queryKey: ["deadline-detail"] });
     },
     onError: (error: any) => {
       toast.error("Erro: " + error.message);
