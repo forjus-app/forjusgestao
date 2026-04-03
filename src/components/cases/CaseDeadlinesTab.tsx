@@ -138,18 +138,15 @@ export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
                       {deadline.status === "open" && (
                         <Badge variant="outline">Aberto</Badge>
                       )}
+                      {deadline.status === "in_progress" && (
+                        <Badge className="bg-primary text-primary-foreground">
+                          Em Execução
+                        </Badge>
+                      )}
                       {deadline.status === "completed" && (
-                        <Badge className="bg-accent text-accent-foreground">
+                        <Badge className="bg-success text-success-foreground">
                           Concluído
                         </Badge>
-                      )}
-                      {deadline.status === "reviewed" && (
-                        <Badge className="bg-success text-success-foreground">
-                          Conferido
-                        </Badge>
-                      )}
-                      {deadline.status === "adjustment_requested" && (
-                        <Badge variant="destructive">Ajuste</Badge>
                       )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
