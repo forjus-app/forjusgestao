@@ -1,8 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { Loader2, Scale } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import logoFull from "@/assets/logo-forjus.png";
 
 export default function Index() {
   const { user, loading } = useAuth();
@@ -30,9 +31,7 @@ export default function Index() {
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-fade-in">
-          <div className="mx-auto w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-8 shadow-lg">
-            <Scale className="w-10 h-10 text-primary-foreground" />
-          </div>
+          <img src={logoFull} alt="ForJus" className="h-16 mx-auto mb-8" />
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
             Gestão Jurídica

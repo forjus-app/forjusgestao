@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Scale, Users, Briefcase, Clock, ArrowRight } from "lucide-react";
+import { Users, Briefcase, Clock, ArrowRight } from "lucide-react";
+import logoFull from "@/assets/logo-forjus.png";
 
 export function WelcomeDialog() {
   const { data: organization } = useOrganization();
@@ -30,9 +31,7 @@ export function WelcomeDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center items-center">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Scale className="w-8 h-8 text-primary-foreground" />
-          </div>
+          <img src={logoFull} alt="ForJus" className="h-12 mb-4" />
           <DialogTitle className="text-2xl">
             Bem-vindo ao ForJus! 🎉
           </DialogTitle>
