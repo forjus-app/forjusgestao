@@ -138,14 +138,10 @@ export function DeadlineDetailDrawer({
     switch (status) {
       case "open":
         return <Badge variant="outline">Aberto</Badge>;
+      case "in_progress":
+        return <Badge className="bg-primary text-primary-foreground">Em Execução</Badge>;
       case "completed":
-        return <Badge className="bg-accent text-accent-foreground">Concluído</Badge>;
-      case "reviewed":
-        return <Badge className="bg-success text-success-foreground">Conferido</Badge>;
-      case "adjustment_requested":
-        return <Badge variant="destructive">Ajuste Solicitado</Badge>;
-      case "canceled":
-        return <Badge variant="secondary">Cancelado</Badge>;
+        return <Badge className="bg-success text-success-foreground">Concluído</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
