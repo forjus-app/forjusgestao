@@ -40,8 +40,8 @@ export function TodayStatsCards({ stats, followupCount, isLoading }: TodayStatsC
       title: "Follow-ups Pendentes",
       value: followupCount,
       icon: Handshake,
-      color: "text-accent",
-      bgColor: "bg-accent/10",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
       urgent: followupCount > 0,
     },
   ];
