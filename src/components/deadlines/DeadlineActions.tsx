@@ -46,8 +46,6 @@ interface DeadlineActionsProps {
 
 export function DeadlineActions({ deadline }: DeadlineActionsProps) {
   const queryClient = useQueryClient();
-  const [adjustmentDialogOpen, setAdjustmentDialogOpen] = useState(false);
-  const [adjustmentNotes, setAdjustmentNotes] = useState("");
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [reopenDialogOpen, setReopenDialogOpen] = useState(false);
 
