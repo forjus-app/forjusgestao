@@ -284,6 +284,24 @@ export default function Deadlines() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-r-none"
+              onClick={() => setViewMode("table")}
+            >
+              <LayoutList className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "kanban" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-l-none"
+              onClick={() => setViewMode("kanban")}
+            >
+              <Columns3 className="h-4 w-4" />
+            </Button>
+          </div>
           <ExportDropdown
             onExportPDF={handleExportPDF}
             onExportExcel={handleExportExcel}
