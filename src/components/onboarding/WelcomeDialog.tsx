@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Scale, Users, Briefcase, Clock, ArrowRight } from "lucide-react";
+import { Users, Briefcase, Clock, ArrowRight } from "lucide-react";
+import logoFull from "@/assets/logo-forjus.png";
 
 export function WelcomeDialog() {
   const { data: organization } = useOrganization();
