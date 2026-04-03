@@ -422,34 +422,32 @@ export function DeadlineDetailDrawer({
             <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4">
               <div className="flex flex-wrap gap-2 justify-end">
                 {deadline.status === "open" && (
-                  <Button onClick={handleComplete}>
-                    <Check className="h-4 w-4 mr-2" />
-                    Concluir
-                  </Button>
+                  <>
+                    <Button onClick={handleStartProgress}>
+                      <Play className="h-4 w-4 mr-2" />
+                      Iniciar Execução
+                    </Button>
+                    <Button variant="outline" onClick={handleComplete}>
+                      <Check className="h-4 w-4 mr-2" />
+                      Concluir
+                    </Button>
+                  </>
                 )}
 
-                {deadline.status === "completed" && (
+                {deadline.status === "in_progress" && (
                   <>
                     <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reabrir
                     </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleRequestAdjustment}
-                    >
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                      Solicitar Ajuste
-                    </Button>
-                    <Button onClick={handleReview}>
+                    <Button onClick={handleComplete}>
                       <Check className="h-4 w-4 mr-2" />
-                      Conferir
+                      Concluir
                     </Button>
                   </>
                 )}
 
-                {(deadline.status === "reviewed" ||
-                  deadline.status === "adjustment_requested") && (
+                {deadline.status === "completed" && (
                   <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Reabrir
