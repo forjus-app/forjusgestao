@@ -74,6 +74,7 @@ export default function Deadlines() {
   const [filterType, setFilterType] = useState<string>("all");
   const [selectedDeadlineId, setSelectedDeadlineId] = useState<string | null>(null);
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
