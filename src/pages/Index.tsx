@@ -37,7 +37,7 @@ export default function Index() {
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${BORDER_CLR}` }}>
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <img src={logoLight} alt="ForJus Gestão" className="h-10" />
+          <img src={logoLight} alt="ForJus Gestão" className="h-20" />
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild className="text-sm" style={{ color: TEXT_ML }}>
               <Link to="/auth">Já sou cliente</Link>
