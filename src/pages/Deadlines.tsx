@@ -33,7 +33,10 @@ import {
   AlertTriangle,
   CheckCircle,
   Search,
+  LayoutList,
+  Columns3,
 } from "lucide-react";
+import { DeadlineKanbanView } from "@/components/deadlines/DeadlineKanbanView";
 import { format, isPast, isToday, addDays, isBefore, startOfDay, endOfDay, endOfWeek, endOfMonth, isTomorrow, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDateTime } from "@/lib/dateUtils";
