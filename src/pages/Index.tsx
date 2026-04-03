@@ -250,7 +250,7 @@ export default function Index() {
       <footer className="py-8 px-4" style={{ borderTop: `1px solid ${BORDER_CLR}`, background: BG_DARK }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-6">
-            <img src={logoLight} alt="ForJus" className="h-8" />
+            <img src={logoLight} alt="ForJus" className="h-16" />
             <span className="text-sm" style={{ color: TEXT_M }}>Sistema de Gestão Jurídica</span>
           </div>
           <div className="flex items-center gap-6 text-sm" style={{ color: TEXT_M }}>
