@@ -389,48 +389,25 @@ export function DeadlineDetailDrawer({
                   )}
                 </section>
 
-                {/* Conclusão e Conferência */}
-                {(deadline.status === "completed" ||
-                  deadline.status === "reviewed" ||
-                  deadline.status === "adjustment_requested") && (
+                {/* Conclusão */}
+                {deadline.status === "completed" && deadline.completed_at && (
                   <>
                     <Separator />
                     <section>
                       <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                        Conclusão e Conferência
+                        Conclusão
                       </h3>
-                      <div className="space-y-3">
-                        {deadline.completed_at && (
-                          <div className="p-3 border rounded-lg bg-muted/30">
-                            <p className="text-sm text-muted-foreground mb-1">
-                              Concluído em
-                            </p>
-                            <p className="font-medium">
-                              {formatDateTime(deadline.completed_at)}
-                            </p>
-                            {deadline.completed_notes && (
-                              <p className="text-sm mt-2 whitespace-pre-wrap">
-                                {deadline.completed_notes}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                        {deadline.reviewed_at && (
-                          <div className="p-3 border rounded-lg bg-success/10">
-                            <p className="text-sm text-muted-foreground mb-1">
-                              {deadline.status === "reviewed"
-                                ? "Conferido em"
-                                : "Ajuste solicitado em"}
-                            </p>
-                            <p className="font-medium">
-                              {formatDateTime(deadline.reviewed_at)}
-                            </p>
-                            {deadline.reviewed_notes && (
-                              <p className="text-sm mt-2 whitespace-pre-wrap">
-                                {deadline.reviewed_notes}
-                              </p>
-                            )}
-                          </div>
+                      <div className="p-3 border rounded-lg bg-muted/30">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Concluído em
+                        </p>
+                        <p className="font-medium">
+                          {formatDateTime(deadline.completed_at)}
+                        </p>
+                        {deadline.completed_notes && (
+                          <p className="text-sm mt-2 whitespace-pre-wrap">
+                            {deadline.completed_notes}
+                          </p>
                         )}
                       </div>
                     </section>
