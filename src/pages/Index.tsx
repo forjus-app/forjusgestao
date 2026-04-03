@@ -52,7 +52,7 @@ export default function Index() {
       {/* HERO — with green glow gradient */}
       <section className="pt-28 pb-24 px-4 relative overflow-hidden" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 40%, hsl(152 72% 46% / 0.12) 0%, transparent 70%), ${BG_DARK}` }}>
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <img src={logoLight} alt="ForJus" className="h-14 mx-auto mb-10" />
+          <img src={logoLight} alt="ForJus" className="h-28 mx-auto mb-10" />
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
             Organize seu escritório e{" "}
             <br />
