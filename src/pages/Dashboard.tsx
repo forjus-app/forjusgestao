@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import {
   Select,
   SelectContent,
@@ -13,6 +14,9 @@ import { TodayStatsCards } from "@/components/today/TodayStatsCards";
 import { TodayDeadlinesSection } from "@/components/today/TodayDeadlinesSection";
 import { TodayAgendaSection } from "@/components/today/TodayAgendaSection";
 import { TodaySettlementsSection } from "@/components/today/TodaySettlementsSection";
+import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
+import { EmptyStateCards } from "@/components/onboarding/EmptyStateCards";
+import { WelcomeDialog } from "@/components/onboarding/WelcomeDialog";
 import {
   useTodayDeadlines,
   useTodayEvents,
@@ -23,6 +27,7 @@ import { User } from "lucide-react";
 
 export default function Dashboard() {
   const { data: organization } = useOrganization();
+  const { data: onboarding } = useOnboarding();
   const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
 
   const { data: teamMembers } = useQuery({
@@ -51,8 +56,12 @@ export default function Dashboard() {
   const followupCount =
     (followupsData?.overdue?.length || 0) + (followupsData?.today?.length || 0);
 
+  const showOnboarding = onboarding && !onboarding.allCompleted;
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <WelcomeDialog />
+
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
@@ -82,6 +91,23 @@ export default function Dashboard() {
           </Select>
         </div>
       </div>
+
+      {/* Onboarding */}
+      {showOnboarding && (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-1">
+            <OnboardingChecklist />
+          </div>
+          <div className="lg:col-span-2">
+            <EmptyStateCards
+              hasTeam={onboarding.steps.find((s) => s.key === "team")?.completed ?? false}
+              hasContacts={onboarding.steps.find((s) => s.key === "contact")?.completed ?? false}
+              hasCases={onboarding.steps.find((s) => s.key === "case")?.completed ?? false}
+              hasDeadlines={onboarding.steps.find((s) => s.key === "deadline")?.completed ?? false}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <TodayStatsCards
