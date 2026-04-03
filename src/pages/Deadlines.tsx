@@ -379,125 +379,146 @@ export default function Deadlines() {
         </CardContent>
       </Card>
 
-      {/* Status Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          {statusTabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
-              <tab.icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      {/* Kanban View */}
+      {viewMode === "kanban" ? (
+        isLoading ? (
+          <div className="text-center py-8 text-muted-foreground">Carregando...</div>
+        ) : !deadlines || deadlines.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Nenhum prazo encontrado</p>
+          </div>
+        ) : (
+          <DeadlineKanbanView
+            deadlines={deadlines}
+            onDeadlineClick={(id) => {
+              setSelectedDeadlineId(id);
+              setDetailDrawerOpen(true);
+            }}
+          />
+        )
+      ) : (
+        /* Table View with Status Tabs */
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            {statusTabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
+                <tab.icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        <TabsContent value={activeTab} className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                {statusTabs.find((t) => t.value === activeTab)?.label || "Prazos"}
-                {deadlines && (
-                  <Badge variant="secondary" className="ml-2">
-                    {deadlines.length}
-                  </Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  Carregando...
-                </div>
-              ) : !deadlines || deadlines.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhum prazo encontrado</p>
-                  {activeTab === "open" && (
-                    <Button
-                      variant="outline"
-                      className="mt-4"
-                      onClick={() => setAddDialogOpen(true)}
-                    >
-                      Criar primeiro prazo
-                    </Button>
+          <TabsContent value={activeTab} className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  {statusTabs.find((t) => t.value === activeTab)?.label || "Prazos"}
+                  {deadlines && (
+                    <Badge variant="secondary" className="ml-2">
+                      {deadlines.length}
+                    </Badge>
                   )}
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Título</TableHead>
-                      <TableHead>Responsável</TableHead>
-                      <TableHead>Processo</TableHead>
-                      <TableHead>Entrega</TableHead>
-                      <TableHead>Fatal</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="w-[120px]">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {deadlines.map((deadline) => (
-                      <TableRow
-                        key={deadline.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => {
-                          setSelectedDeadlineId(deadline.id);
-                          setDetailDrawerOpen(true);
-                        }}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Carregando...
+                  </div>
+                ) : !deadlines || deadlines.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Nenhum prazo encontrado</p>
+                    {activeTab === "open" && (
+                      <Button
+                        variant="outline"
+                        className="mt-4"
+                        onClick={() => setAddDialogOpen(true)}
                       >
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{deadline.title}</span>
-                            {getPriorityBadge(deadline.priority)}
-                            {getDateBadge(deadline.fatal_due_at, deadline.status)}
-                          </div>
-                          {deadline.type === "interno" && (
-                            <span className="text-xs text-muted-foreground">Interno</span>
-                          )}
-                        </TableCell>
-                        <TableCell>{deadline.team_members?.name || "-"}</TableCell>
-                        <TableCell>
-                          {deadline.cases ? (
-                            <Link
-                              to={`/cases/${deadline.cases.id}`}
-                              className="text-primary hover:underline"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {deadline.cases.title}
-                            </Link>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {formatDateTime(deadline.delivery_due_at)}
-                        </TableCell>
-                        <TableCell className="text-sm font-medium">
-                          {formatDateTime(deadline.fatal_due_at)}
-                        </TableCell>
-                        <TableCell>
-                          {deadline.status === "open" && <Badge variant="outline">Aberto</Badge>}
-                          {deadline.status === "completed" && (
-                            <Badge className="bg-accent text-accent-foreground">Concluído</Badge>
-                          )}
-                          {deadline.status === "reviewed" && (
-                            <Badge className="bg-success text-success-foreground">Conferido</Badge>
-                          )}
-                          {deadline.status === "adjustment_requested" && (
-                            <Badge variant="destructive">Ajuste</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell onClick={(e) => e.stopPropagation()}>
-                          <DeadlineActions deadline={deadline} />
-                        </TableCell>
+                        Criar primeiro prazo
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Responsável</TableHead>
+                        <TableHead>Processo</TableHead>
+                        <TableHead>Entrega</TableHead>
+                        <TableHead>Fatal</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="w-[120px]">Ações</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    </TableHeader>
+                    <TableBody>
+                      {deadlines.map((deadline) => (
+                        <TableRow
+                          key={deadline.id}
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => {
+                            setSelectedDeadlineId(deadline.id);
+                            setDetailDrawerOpen(true);
+                          }}
+                        >
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{deadline.title}</span>
+                              {getPriorityBadge(deadline.priority)}
+                              {getDateBadge(deadline.fatal_due_at, deadline.status)}
+                            </div>
+                            {deadline.type === "interno" && (
+                              <span className="text-xs text-muted-foreground">Interno</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{deadline.team_members?.name || "-"}</TableCell>
+                          <TableCell>
+                            {deadline.cases ? (
+                              <Link
+                                to={`/cases/${deadline.cases.id}`}
+                                className="text-primary hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {deadline.cases.title}
+                              </Link>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {formatDateTime(deadline.delivery_due_at)}
+                          </TableCell>
+                          <TableCell className="text-sm font-medium">
+                            {formatDateTime(deadline.fatal_due_at)}
+                          </TableCell>
+                          <TableCell>
+                            {deadline.status === "open" && <Badge variant="outline">Aberto</Badge>}
+                            {deadline.status === "completed" && (
+                              <Badge className="bg-accent text-accent-foreground">Concluído</Badge>
+                            )}
+                            {deadline.status === "reviewed" && (
+                              <Badge className="bg-success text-success-foreground">Conferido</Badge>
+                            )}
+                            {deadline.status === "adjustment_requested" && (
+                              <Badge variant="destructive">Ajuste</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <DeadlineActions deadline={deadline} />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
       </Tabs>
 
       <AddDeadlineDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
