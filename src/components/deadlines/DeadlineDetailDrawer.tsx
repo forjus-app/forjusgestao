@@ -105,22 +105,14 @@ export function DeadlineDetailDrawer({
       status: "open",
       completed_at: null,
       completed_notes: null,
-      reviewed_at: null,
-      reviewed_notes: null,
-      review_status: "not_required",
     });
     setReopenDialogOpen(false);
     toast.success("Prazo reaberto com sucesso");
   };
 
-  const handleReview = async () => {
-    await updateDeadline.mutateAsync({ status: "reviewed" });
-    toast.success("Prazo conferido com sucesso");
-  };
-
-  const handleRequestAdjustment = async () => {
-    await updateDeadline.mutateAsync({ status: "adjustment_requested" });
-    toast.success("Ajuste solicitado");
+  const handleStartProgress = async () => {
+    await updateDeadline.mutateAsync({ status: "in_progress" });
+    toast.success("Prazo em execução");
   };
 
   const handleSaveNotes = async () => {
