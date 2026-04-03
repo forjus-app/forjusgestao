@@ -37,7 +37,7 @@ export default function Index() {
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: "rgba(10,10,10,0.85)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${BORDER_CLR}` }}>
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <img src={logoLight} alt="ForJus Gestão" className="h-8" />
+          <img src={logoLight} alt="ForJus Gestão" className="h-10" />
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild className="text-sm" style={{ color: TEXT_ML }}>
               <Link to="/auth">Já sou cliente</Link>
@@ -52,7 +52,7 @@ export default function Index() {
       {/* HERO — with green glow gradient */}
       <section className="pt-28 pb-24 px-4 relative overflow-hidden" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 40%, hsl(152 72% 46% / 0.12) 0%, transparent 70%), ${BG_DARK}` }}>
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <img src={logoLight} alt="ForJus" className="h-8 mx-auto mb-10" />
+          <img src={logoLight} alt="ForJus" className="h-14 mx-auto mb-10" />
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
             Organize seu escritório e{" "}
             <br />
@@ -250,7 +250,7 @@ export default function Index() {
       <footer className="py-8 px-4" style={{ borderTop: `1px solid ${BORDER_CLR}`, background: BG_DARK }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-6">
-            <img src={logoLight} alt="ForJus" className="h-6" />
+            <img src={logoLight} alt="ForJus" className="h-8" />
             <span className="text-sm" style={{ color: TEXT_M }}>Sistema de Gestão Jurídica</span>
           </div>
           <div className="flex items-center gap-6 text-sm" style={{ color: TEXT_M }}>
