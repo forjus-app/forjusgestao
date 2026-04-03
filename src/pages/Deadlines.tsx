@@ -400,7 +400,7 @@ export default function Deadlines() {
       ) : (
         /* Table View with Status Tabs */
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             {statusTabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
                 <tab.icon className="h-4 w-4" />
