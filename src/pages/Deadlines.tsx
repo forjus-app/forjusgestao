@@ -379,7 +379,7 @@ export default function Deadlines() {
         </CardContent>
       </Card>
 
-      {/* Kanban View */}
+      {/* Kanban or Table View */}
       {viewMode === "kanban" ? (
         isLoading ? (
           <div className="text-center py-8 text-muted-foreground">Carregando...</div>
