@@ -111,7 +111,7 @@ export default function Deadlines() {
         )
         .order("fatal_due_at", { ascending: true });
 
-      if (activeTab !== "all") {
+      if (viewMode !== "kanban" && activeTab !== "all") {
         query = query.eq("status", activeTab);
       }
       if (filterResponsible && filterResponsible !== "all") {
