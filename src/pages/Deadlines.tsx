@@ -518,7 +518,7 @@ export default function Deadlines() {
             </Card>
           </TabsContent>
         </Tabs>
-      )
+      )}
 
       <AddDeadlineDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
       <DeadlineDetailDrawer
