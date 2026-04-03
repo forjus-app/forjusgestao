@@ -154,7 +154,7 @@ export function DeadlineDetailDrawer({
   };
 
   const getDateWarning = () => {
-    if (!deadline || deadline.status !== "open") return null;
+    if (!deadline || deadline.status === "completed") return null;
     const fatal = parseLocalDateTime(deadline.fatal_due_at);
     if (isPast(fatal) && !isToday(fatal)) {
       return <Badge variant="destructive">Vencido</Badge>;
