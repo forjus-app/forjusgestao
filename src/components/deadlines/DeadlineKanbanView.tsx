@@ -15,9 +15,8 @@ interface DeadlineKanbanViewProps {
 
 const KANBAN_COLUMNS = [
   { status: "open", label: "Abertos", icon: Clock, colorClass: "border-t-blue-500" },
-  { status: "completed", label: "Pendente Conferência", icon: CheckCircle, colorClass: "border-t-yellow-500" },
-  { status: "adjustment_requested", label: "Ajuste Solicitado", icon: AlertTriangle, colorClass: "border-t-destructive" },
-  { status: "reviewed", label: "Conferidos", icon: CheckCircle, colorClass: "border-t-green-500" },
+  { status: "in_progress", label: "Em Execução", icon: Clock, colorClass: "border-t-yellow-500" },
+  { status: "completed", label: "Concluídos", icon: CheckCircle, colorClass: "border-t-green-500" },
 ];
 
 export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanbanViewProps) {
