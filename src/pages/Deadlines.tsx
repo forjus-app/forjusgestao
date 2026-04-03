@@ -94,7 +94,7 @@ export default function Deadlines() {
     queryKey: [
       "deadlines",
       organization?.id,
-      activeTab,
+      viewMode === "kanban" ? "all" : activeTab,
       filterResponsible,
       filterType,
       searchTerm,
