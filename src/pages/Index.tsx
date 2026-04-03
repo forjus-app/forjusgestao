@@ -1,8 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { Loader2, Scale } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import logoFull from "@/assets/logo-forjus.png";
 
 export default function Index() {
   const { user, loading } = useAuth();
