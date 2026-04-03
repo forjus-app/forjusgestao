@@ -32,7 +32,6 @@ interface DeadlineActionsProps {
   deadline: {
     id: string;
     status: string;
-    review_status: string;
     title: string;
     type: string;
     case_id?: string | null;
