@@ -137,9 +137,8 @@ export const deadlinesExportColumns: ExportColumn[] = [
     accessor: (row) => {
       const labels: Record<string, string> = {
         open: "Aberto",
+        in_progress: "Em Execução",
         completed: "Concluído",
-        reviewed: "Conferido",
-        adjustment_requested: "Ajuste Solicitado",
       };
       return labels[row.status] || row.status;
     },

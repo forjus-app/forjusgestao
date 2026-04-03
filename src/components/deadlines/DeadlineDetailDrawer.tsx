@@ -29,12 +29,12 @@ import {
   ExternalLink,
   Copy,
   Check,
-  AlertTriangle,
   RotateCcw,
   Pencil,
   X,
   Save,
   Link as LinkIcon,
+  Play,
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -105,22 +105,14 @@ export function DeadlineDetailDrawer({
       status: "open",
       completed_at: null,
       completed_notes: null,
-      reviewed_at: null,
-      reviewed_notes: null,
-      review_status: "not_required",
     });
     setReopenDialogOpen(false);
     toast.success("Prazo reaberto com sucesso");
   };
 
-  const handleReview = async () => {
-    await updateDeadline.mutateAsync({ status: "reviewed" });
-    toast.success("Prazo conferido com sucesso");
-  };
-
-  const handleRequestAdjustment = async () => {
-    await updateDeadline.mutateAsync({ status: "adjustment_requested" });
-    toast.success("Ajuste solicitado");
+  const handleStartProgress = async () => {
+    await updateDeadline.mutateAsync({ status: "in_progress" });
+    toast.success("Prazo em execução");
   };
 
   const handleSaveNotes = async () => {
@@ -146,14 +138,10 @@ export function DeadlineDetailDrawer({
     switch (status) {
       case "open":
         return <Badge variant="outline">Aberto</Badge>;
+      case "in_progress":
+        return <Badge className="bg-primary text-primary-foreground">Em Execução</Badge>;
       case "completed":
-        return <Badge className="bg-accent text-accent-foreground">Concluído</Badge>;
-      case "reviewed":
-        return <Badge className="bg-success text-success-foreground">Conferido</Badge>;
-      case "adjustment_requested":
-        return <Badge variant="destructive">Ajuste Solicitado</Badge>;
-      case "canceled":
-        return <Badge variant="secondary">Cancelado</Badge>;
+        return <Badge className="bg-success text-success-foreground">Concluído</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -166,7 +154,7 @@ export function DeadlineDetailDrawer({
   };
 
   const getDateWarning = () => {
-    if (!deadline || deadline.status !== "open") return null;
+    if (!deadline || deadline.status === "completed") return null;
     const fatal = parseLocalDateTime(deadline.fatal_due_at);
     if (isPast(fatal) && !isToday(fatal)) {
       return <Badge variant="destructive">Vencido</Badge>;
@@ -401,48 +389,25 @@ export function DeadlineDetailDrawer({
                   )}
                 </section>
 
-                {/* Conclusão e Conferência */}
-                {(deadline.status === "completed" ||
-                  deadline.status === "reviewed" ||
-                  deadline.status === "adjustment_requested") && (
+                {/* Conclusão */}
+                {deadline.status === "completed" && deadline.completed_at && (
                   <>
                     <Separator />
                     <section>
                       <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                        Conclusão e Conferência
+                        Conclusão
                       </h3>
-                      <div className="space-y-3">
-                        {deadline.completed_at && (
-                          <div className="p-3 border rounded-lg bg-muted/30">
-                            <p className="text-sm text-muted-foreground mb-1">
-                              Concluído em
-                            </p>
-                            <p className="font-medium">
-                              {formatDateTime(deadline.completed_at)}
-                            </p>
-                            {deadline.completed_notes && (
-                              <p className="text-sm mt-2 whitespace-pre-wrap">
-                                {deadline.completed_notes}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                        {deadline.reviewed_at && (
-                          <div className="p-3 border rounded-lg bg-success/10">
-                            <p className="text-sm text-muted-foreground mb-1">
-                              {deadline.status === "reviewed"
-                                ? "Conferido em"
-                                : "Ajuste solicitado em"}
-                            </p>
-                            <p className="font-medium">
-                              {formatDateTime(deadline.reviewed_at)}
-                            </p>
-                            {deadline.reviewed_notes && (
-                              <p className="text-sm mt-2 whitespace-pre-wrap">
-                                {deadline.reviewed_notes}
-                              </p>
-                            )}
-                          </div>
+                      <div className="p-3 border rounded-lg bg-muted/30">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Concluído em
+                        </p>
+                        <p className="font-medium">
+                          {formatDateTime(deadline.completed_at)}
+                        </p>
+                        {deadline.completed_notes && (
+                          <p className="text-sm mt-2 whitespace-pre-wrap">
+                            {deadline.completed_notes}
+                          </p>
                         )}
                       </div>
                     </section>
@@ -457,34 +422,32 @@ export function DeadlineDetailDrawer({
             <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4">
               <div className="flex flex-wrap gap-2 justify-end">
                 {deadline.status === "open" && (
-                  <Button onClick={handleComplete}>
-                    <Check className="h-4 w-4 mr-2" />
-                    Concluir
-                  </Button>
+                  <>
+                    <Button onClick={handleStartProgress}>
+                      <Play className="h-4 w-4 mr-2" />
+                      Iniciar Execução
+                    </Button>
+                    <Button variant="outline" onClick={handleComplete}>
+                      <Check className="h-4 w-4 mr-2" />
+                      Concluir
+                    </Button>
+                  </>
                 )}
 
-                {deadline.status === "completed" && (
+                {deadline.status === "in_progress" && (
                   <>
                     <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reabrir
                     </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={handleRequestAdjustment}
-                    >
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                      Solicitar Ajuste
-                    </Button>
-                    <Button onClick={handleReview}>
+                    <Button onClick={handleComplete}>
                       <Check className="h-4 w-4 mr-2" />
-                      Conferir
+                      Concluir
                     </Button>
                   </>
                 )}
 
-                {(deadline.status === "reviewed" ||
-                  deadline.status === "adjustment_requested") && (
+                {deadline.status === "completed" && (
                   <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Reabrir

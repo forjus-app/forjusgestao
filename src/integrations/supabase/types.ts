@@ -647,9 +647,6 @@ export type Database = {
           organization_id: string
           priority: number
           responsible_member_id: string
-          review_status: string
-          reviewed_at: string | null
-          reviewed_notes: string | null
           status: string
           title: string
           type: string
@@ -668,9 +665,6 @@ export type Database = {
           organization_id: string
           priority?: number
           responsible_member_id: string
-          review_status?: string
-          reviewed_at?: string | null
-          reviewed_notes?: string | null
           status?: string
           title: string
           type: string
@@ -689,9 +683,6 @@ export type Database = {
           organization_id?: string
           priority?: number
           responsible_member_id?: string
-          review_status?: string
-          reviewed_at?: string | null
-          reviewed_notes?: string | null
           status?: string
           title?: string
           type?: string

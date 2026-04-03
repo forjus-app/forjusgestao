@@ -45,14 +45,13 @@ import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToExcel } from "@/lib/exportUtils";
 import { exportDeadlinesPDF } from "@/lib/deadlinesPdfExport";
 
-type DeadlineStatus = "open" | "completed" | "reviewed" | "adjustment_requested";
+type DeadlineStatus = "open" | "in_progress" | "completed";
 type DateFunnel = "all" | "overdue" | "today" | "tomorrow" | "week" | "month";
 
 const statusTabs: { value: DeadlineStatus | "all"; label: string; icon: any }[] = [
   { value: "open", label: "Abertos", icon: Clock },
-  { value: "completed", label: "Pendente Conferência", icon: CheckCircle },
-  { value: "reviewed", label: "Conferidos", icon: CheckCircle },
-  { value: "adjustment_requested", label: "Ajuste Solicitado", icon: AlertTriangle },
+  { value: "in_progress", label: "Em Execução", icon: AlertTriangle },
+  { value: "completed", label: "Concluídos", icon: CheckCircle },
 ];
 
 const dateFunnels: { value: DateFunnel; label: string }[] = [
@@ -203,7 +202,7 @@ export default function Deadlines() {
   };
 
   const getDateBadge = (fatalDate: string, status: string) => {
-    if (status !== "open") return null;
+    if (status === "completed") return null;
     const fatal = parseLocalDateTime(fatalDate);
     const now = new Date();
     if (isPast(fatal) && !isToday(fatal)) return <Badge variant="destructive">Vencido</Badge>;
@@ -401,7 +400,7 @@ export default function Deadlines() {
       ) : (
         /* Table View with Status Tabs */
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             {statusTabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
                 <tab.icon className="h-4 w-4" />
@@ -497,14 +496,11 @@ export default function Deadlines() {
                           </TableCell>
                           <TableCell>
                             {deadline.status === "open" && <Badge variant="outline">Aberto</Badge>}
+                            {deadline.status === "in_progress" && (
+                              <Badge className="bg-primary text-primary-foreground">Em Execução</Badge>
+                            )}
                             {deadline.status === "completed" && (
-                              <Badge className="bg-accent text-accent-foreground">Concluído</Badge>
-                            )}
-                            {deadline.status === "reviewed" && (
-                              <Badge className="bg-success text-success-foreground">Conferido</Badge>
-                            )}
-                            {deadline.status === "adjustment_requested" && (
-                              <Badge variant="destructive">Ajuste</Badge>
+                              <Badge className="bg-success text-success-foreground">Concluído</Badge>
                             )}
                           </TableCell>
                           <TableCell onClick={(e) => e.stopPropagation()}>
