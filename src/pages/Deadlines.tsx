@@ -202,7 +202,7 @@ export default function Deadlines() {
   };
 
   const getDateBadge = (fatalDate: string, status: string) => {
-    if (status !== "open") return null;
+    if (status === "completed") return null;
     const fatal = parseLocalDateTime(fatalDate);
     const now = new Date();
     if (isPast(fatal) && !isToday(fatal)) return <Badge variant="destructive">Vencido</Badge>;
