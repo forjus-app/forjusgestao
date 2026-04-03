@@ -59,16 +59,9 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
     }) => {
       const updateData: any = { status };
 
-      if (status === "adjustment_requested" && notes) {
-        updateData.reviewed_notes = notes;
-      }
-
       if (status === "open") {
         updateData.completed_at = null;
         updateData.completed_notes = null;
-        updateData.review_status = "not_required";
-        updateData.reviewed_at = null;
-        updateData.reviewed_notes = null;
       }
 
       const { error } = await supabase
