@@ -87,12 +87,12 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
     },
   });
 
-  const handleComplete = () => {
-    updateStatusMutation.mutate({ status: "completed" });
+  const handleStartProgress = () => {
+    updateStatusMutation.mutate({ status: "in_progress" });
   };
 
-  const handleReview = () => {
-    updateStatusMutation.mutate({ status: "reviewed" });
+  const handleComplete = () => {
+    updateStatusMutation.mutate({ status: "completed" });
   };
 
   const handleReopen = () => {
@@ -100,25 +100,9 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
     setReopenDialogOpen(false);
   };
 
-  const handleRequestAdjustment = () => {
-    if (!adjustmentNotes.trim()) {
-      toast.error("Informe o motivo do ajuste");
-      return;
-    }
-    updateStatusMutation.mutate({
-      status: "adjustment_requested",
-      notes: adjustmentNotes,
-    });
-  };
-
-  // Determine available actions based on status
-  const showComplete = deadline.status === "open";
-  const showReview = deadline.status === "completed";
-  const showRequestAdjustment = deadline.status === "completed";
-  const showReopen =
-    deadline.status === "completed" ||
-    deadline.status === "adjustment_requested" ||
-    deadline.status === "reviewed";
+  const showStart = deadline.status === "open";
+  const showComplete = deadline.status === "open" || deadline.status === "in_progress";
+  const showReopen = deadline.status === "in_progress" || deadline.status === "completed";
 
   return (
     <>
