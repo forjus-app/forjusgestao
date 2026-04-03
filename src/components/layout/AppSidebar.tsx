@@ -78,9 +78,7 @@ export function AppSidebar() {
     <Sidebar className="border-r-0">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <NavLink to="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-sidebar-primary rounded-lg flex items-center justify-center">
-            <Scale className="w-5 h-5 text-sidebar-primary-foreground" />
-          </div>
+          <img src={logoIcon} alt="ForJus" className="w-10 h-10 rounded-lg object-contain" />
           <div className="flex flex-col">
             <span className="font-semibold text-sidebar-foreground">ForJus</span>
             <span className="text-xs text-sidebar-foreground/60 truncate max-w-32">
