@@ -182,6 +182,11 @@ const App = () => (
               }
             />
 
+
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
