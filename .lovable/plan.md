@@ -1,27 +1,28 @@
+## Módulo CRM de Atendimento
 
-## Onboarding + UX para Primeira Experiência
+### 1. Migração do Banco de Dados
+Criar as tabelas:
+- **crm_columns**: colunas do Kanban (nome, cor, ordem, organization_id)
+- **crm_categories**: categorias de caso personalizáveis (nome, organization_id)
+- **crm_leads**: cards/leads (nome, telefone, cidade, email, categoria, resumo, drive_link, coluna, organization_id)
+- **crm_lead_tags**: relação N:N entre leads e tags existentes
+- **crm_lead_history**: histórico de movimentação entre colunas
 
-### 1. Tela de Boas-vindas (Welcome Screen)
-- Após primeiro login, exibir modal/página de boas-vindas com:
-  - Nome do escritório (já cadastrado no signup)
-  - Passos rápidos: "Cadastre seu primeiro membro da equipe", "Cadastre seu primeiro processo", "Crie seu primeiro prazo"
-  - Botão "Começar agora" que leva ao dashboard
+Seed com colunas e categorias padrão via função.
 
-### 2. Dashboard com Estado Vazio Inteligente
-- Quando não houver dados, mostrar cards com CTAs:
-  - "Cadastre seu primeiro processo" → link para /cases/new
-  - "Adicione um membro da equipe" → link para /team
-  - "Crie seu primeiro prazo" → link para /deadlines
-- Barra de progresso de onboarding (ex: 0/3 passos concluídos)
+### 2. Páginas e Componentes
+- **Página `/crm`**: visualização Kanban principal com busca e filtros
+- **CrmKanbanBoard**: board com drag-and-drop entre colunas
+- **CrmLeadCard**: card resumido com nome, telefone, cidade, categoria, tags, atalho WhatsApp
+- **AddLeadDialog**: criação rápida de lead (só nome obrigatório)
+- **LeadDetailDrawer**: drawer lateral com todos os campos editáveis + histórico
+- **ManageColumnsDialog**: CRUD de colunas do Kanban
+- **ManageCategoriesDialog**: CRUD de categorias de caso
 
-### 3. Checklist de Configuração Inicial
-- Pequeno widget no dashboard (dismissível) mostrando:
-  - ☐ Cadastrar membro da equipe
-  - ☐ Cadastrar primeiro contato
-  - ☐ Cadastrar primeiro processo
-  - ☐ Criar primeiro prazo
-- Cada item é marcado automaticamente quando o dado existe no banco
+### 3. Navegação
+- Adicionar "CRM" no sidebar
 
-### 4. Melhorias de UX Gerais
-- Tooltips em ícones/ações principais
-- Breadcrumbs mais claros nas páginas de detalhe
+### 4. Hooks
+- `useCrmColumns`: CRUD colunas
+- `useCrmLeads`: CRUD leads + movimentação
+- `useCrmCategories`: CRUD categorias
