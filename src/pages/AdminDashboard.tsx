@@ -209,7 +209,7 @@ export default function AdminDashboard() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
-                <CheckCircle className="h-8 w-8 text-green-500" />
+                <CheckCircle className="h-8 w-8 text-primary" />
                 <div>
                   <p className="text-2xl font-bold">{users.filter((u) => u.is_approved).length}</p>
                   <p className="text-sm text-muted-foreground">Aprovados</p>
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
-                <XCircle className="h-8 w-8 text-orange-500" />
+                <XCircle className="h-8 w-8 text-muted-foreground" />
                 <div>
                   <p className="text-2xl font-bold">{pendingCount}</p>
                   <p className="text-sm text-muted-foreground">Pendentes</p>
@@ -285,9 +285,9 @@ export default function AdminDashboard() {
                       </TableCell>
                       <TableCell>
                         {user.is_approved ? (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Aprovado</Badge>
+                          <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Aprovado</Badge>
                         ) : (
-                          <Badge variant="secondary" className="bg-orange-100 text-orange-800 hover:bg-orange-100">
+                          <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted">
                             Pendente
                           </Badge>
                         )}
@@ -301,7 +301,7 @@ export default function AdminDashboard() {
                               title="Revogar aprovação"
                               onClick={() => handleApprove(user.id, false)}
                             >
-                              <XCircle className="h-4 w-4 text-orange-500" />
+                              <XCircle className="h-4 w-4 text-muted-foreground" />
                             </Button>
                           ) : (
                             <Button
@@ -310,7 +310,7 @@ export default function AdminDashboard() {
                               title="Aprovar"
                               onClick={() => handleApprove(user.id, true)}
                             >
-                              <CheckCircle className="h-4 w-4 text-green-500" />
+                              <CheckCircle className="h-4 w-4 text-primary" />
                             </Button>
                           )}
                           <Button
