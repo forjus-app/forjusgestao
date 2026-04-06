@@ -60,12 +60,26 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
         password: loginPassword,
       });
 
       if (error) throw error;
+
+      // Check if user is approved
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_approved")
+        .eq("id", signInData.user.id)
+        .single();
+
+      if (profile && !profile.is_approved) {
+        await supabase.auth.signOut();
+        toast.error("Seu cadastro ainda não foi aprovado pelo administrador. Aguarde a liberação do acesso.");
+        setLoading(false);
+        return;
+      }
 
       // Save email preference
       if (rememberEmail) {
@@ -81,7 +95,6 @@ export default function Auth() {
         localStorage.setItem(STORAGE_KEYS.STAY_CONNECTED, "true");
       } else {
         localStorage.removeItem(STORAGE_KEYS.STAY_CONNECTED);
-        // Set a session-only marker so we know to sign out when browser closes
         sessionStorage.setItem("forjus_session_active", "true");
       }
 
