@@ -7,7 +7,6 @@ const corsHeaders = {
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const publishableKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -21,16 +20,8 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const authClient = createClient(supabaseUrl, publishableKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-
     const body = await req.json();
     const action = body.action;
-
-    if (action === "login") {
-      return new Response(JSON.stringify({ error: "Use login via autenticação padrão do app." }), { status: 400, headers });
-    }
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
