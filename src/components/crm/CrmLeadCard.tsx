@@ -1,4 +1,4 @@
-import { Phone, MapPin, FolderOpen, FileText, MessageCircle, MoreHorizontal, Trash2, Copy, Mail, ExternalLink } from "lucide-react";
+import { Phone, MapPin, FolderOpen, FileText, MessageCircle, MoreHorizontal, Trash2, Copy, Mail, ExternalLink, GripVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,17 +9,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface CrmLeadCardProps {
   lead: any;
   columns: any[];
+  isDragging?: boolean;
   onOpen: () => void;
   onMove: (toColumnId: string) => void;
   onDelete: () => void;
   onDragStart: (e: React.DragEvent) => void;
+  onDragEnd: (e: React.DragEvent) => void;
 }
 
-export function CrmLeadCard({ lead, columns, onOpen, onMove, onDelete, onDragStart }: CrmLeadCardProps) {
+export function CrmLeadCard({ lead, columns, isDragging, onOpen, onMove, onDelete, onDragStart, onDragEnd }: CrmLeadCardProps) {
   const whatsappUrl = lead.phone
     ? `https://wa.me/${lead.phone.replace(/\D/g, "")}`
     : null;
@@ -35,14 +38,23 @@ export function CrmLeadCard({ lead, columns, onOpen, onMove, onDelete, onDragSta
     <div
       draggable
       onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
       onClick={onOpen}
-      className="bg-card border rounded-lg p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow space-y-2"
+      className={cn(
+        "bg-card border rounded-lg p-3 hover:shadow-md transition-all duration-200 space-y-2 group",
+        isDragging
+          ? "opacity-40 scale-95 ring-2 ring-primary/30 shadow-lg rotate-1"
+          : "cursor-grab active:cursor-grabbing active:shadow-lg active:scale-[1.02] active:ring-2 active:ring-primary/20"
+      )}
     >
       <div className="flex items-start justify-between gap-2">
-        <h4 className="font-medium text-sm text-foreground leading-tight">{lead.name}</h4>
+        <div className="flex items-center gap-1.5">
+          <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-muted-foreground/70 transition-colors shrink-0" />
+          <h4 className="font-medium text-sm text-foreground leading-tight">{lead.name}</h4>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0">
+            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
               <MoreHorizontal className="h-3.5 w-3.5" />
             </Button>
           </DropdownMenuTrigger>
@@ -122,7 +134,7 @@ export function CrmLeadCard({ lead, columns, onOpen, onMove, onDelete, onDragSta
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 ml-auto text-green-600 hover:text-green-700"
+            className="h-6 w-6 ml-auto text-primary/70 hover:text-primary"
             onClick={(e) => {
               e.stopPropagation();
               window.open(whatsappUrl, "_blank");
