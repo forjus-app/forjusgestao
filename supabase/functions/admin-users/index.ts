@@ -29,33 +29,7 @@ Deno.serve(async (req) => {
     const action = body.action;
 
     if (action === "login") {
-      const email = String(body.email ?? "").trim().toLowerCase();
-      const password = String(body.password ?? "");
-
-      const { data: signInData, error: signInError } = await authClient.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        return new Response(JSON.stringify({ error: "Credenciais inválidas" }), { status: 401, headers });
-      }
-
-      const { data: adminRecord, error: adminError } = await adminClient
-        .from("saas_admins")
-        .select("id")
-        .eq("email", email)
-        .maybeSingle();
-
-      if (adminError) {
-        throw adminError;
-      }
-
-      if (!adminRecord) {
-        return new Response(JSON.stringify({ error: "Acesso negado. Você não é administrador." }), { status: 403, headers });
-      }
-
-      return new Response(JSON.stringify({ session: signInData.session, user: signInData.user }), { headers });
+      return new Response(JSON.stringify({ error: "Use login via autenticação padrão do app." }), { status: 400, headers });
     }
 
     const authHeader = req.headers.get("Authorization");

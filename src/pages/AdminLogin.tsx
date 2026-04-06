@@ -19,17 +19,33 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("admin-users", {
-        body: { action: "login", email, password },
+      const normalizedEmail = email.trim().toLowerCase();
+
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
       });
 
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (signInError) throw signInError;
+      if (!signInData.session?.access_token) {
+        throw new Error("Sessão de administrador não encontrada");
+      }
 
-      // Store admin session
-      localStorage.setItem("forjus_admin_token", data.session.access_token);
-      localStorage.setItem("forjus_admin_email", email);
-      
+      localStorage.setItem("forjus_admin_token", signInData.session.access_token);
+      localStorage.setItem("forjus_admin_email", normalizedEmail);
+
+      const { data, error } = await supabase.functions.invoke("admin-users", {
+        headers: { Authorization: `Bearer ${signInData.session.access_token}` },
+        body: { action: "list-users" },
+      });
+
+      if (error || data?.error) {
+        await supabase.auth.signOut();
+        localStorage.removeItem("forjus_admin_token");
+        localStorage.removeItem("forjus_admin_email");
+        throw new Error(data?.error || error?.message || "Acesso negado. Você não é administrador.");
+      }
+
       toast.success("Login de administrador realizado!");
       navigate("/admin/dashboard");
     } catch (error: any) {
