@@ -45,14 +45,16 @@ Deno.serve(async (req) => {
       }
 
       // Check if user is admin
-      const { data: adminRecord } = await supabaseAdmin
+      const { data: adminRecord, error: adminError } = await supabaseAdmin
         .from("saas_admins")
         .select("id")
         .eq("email", email)
         .maybeSingle();
 
+      console.log("Admin check:", { email, adminRecord, adminError });
+
       if (!adminRecord) {
-        return new Response(JSON.stringify({ error: "Acesso negado. Você não é administrador." }), {
+        return new Response(JSON.stringify({ error: "Acesso negado. Você não é administrador.", debug: { email, adminError } }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
