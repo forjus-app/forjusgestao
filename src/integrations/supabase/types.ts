@@ -532,6 +532,248 @@ export type Database = {
           },
         ]
       }
+      crm_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_columns: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          sort_order: number
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          sort_order?: number
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_columns_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_lead_history: {
+        Row: {
+          from_column_id: string | null
+          id: string
+          lead_id: string
+          moved_at: string
+          moved_by: string | null
+          organization_id: string
+          to_column_id: string
+        }
+        Insert: {
+          from_column_id?: string | null
+          id?: string
+          lead_id: string
+          moved_at?: string
+          moved_by?: string | null
+          organization_id: string
+          to_column_id: string
+        }
+        Update: {
+          from_column_id?: string | null
+          id?: string
+          lead_id?: string
+          moved_at?: string
+          moved_by?: string | null
+          organization_id?: string
+          to_column_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_lead_history_from_column_id_fkey"
+            columns: ["from_column_id"]
+            isOneToOne: false
+            referencedRelation: "crm_columns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_lead_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_lead_history_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_lead_history_to_column_id_fkey"
+            columns: ["to_column_id"]
+            isOneToOne: false
+            referencedRelation: "crm_columns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_lead_tags: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          organization_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          organization_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          organization_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_lead_tags_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_lead_tags_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_lead_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_leads: {
+        Row: {
+          category_id: string | null
+          city: string | null
+          column_id: string
+          created_at: string
+          drive_link: string | null
+          email: string | null
+          id: string
+          name: string
+          organization_id: string
+          phone: string | null
+          sort_order: number
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          city?: string | null
+          column_id: string
+          created_at?: string
+          drive_link?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          phone?: string | null
+          sort_order?: number
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          city?: string | null
+          column_id?: string
+          created_at?: string
+          drive_link?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          phone?: string | null
+          sort_order?: number
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_leads_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "crm_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_column_id_fkey"
+            columns: ["column_id"]
+            isOneToOne: false
+            referencedRelation: "crm_columns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_leads_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_field_values: {
         Row: {
           created_at: string
@@ -1736,6 +1978,7 @@ export type Database = {
     Functions: {
       current_org_id: { Args: never; Returns: string }
       seed_case_taxonomy: { Args: { org_id: string }; Returns: undefined }
+      seed_crm_taxonomy: { Args: { org_id: string }; Returns: undefined }
       seed_external_case_taxonomy: {
         Args: { org_id: string }
         Returns: undefined
