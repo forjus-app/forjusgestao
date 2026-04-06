@@ -26,6 +26,7 @@ import Settlements from "./pages/Settlements";
 import SettlementDetail from "./pages/SettlementDetail";
 import ServiceRequests from "./pages/ServiceRequests";
 import ServiceRequestDetail from "./pages/ServiceRequestDetail";
+import Crm from "./pages/Crm";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -182,6 +183,15 @@ const App = () => (
               }
             />
 
+
+            <Route
+              path="/crm"
+              element={
+                <AppLayout>
+                  <Crm />
+                </AppLayout>
+              }
+            />
 
             {/* Admin routes */}
             <Route path="/admin" element={<AdminLogin />} />
