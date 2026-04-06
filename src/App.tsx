@@ -27,6 +27,8 @@ import SettlementDetail from "./pages/SettlementDetail";
 import ServiceRequests from "./pages/ServiceRequests";
 import ServiceRequestDetail from "./pages/ServiceRequestDetail";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
