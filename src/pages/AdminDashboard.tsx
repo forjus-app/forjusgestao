@@ -50,8 +50,9 @@ export default function AdminDashboard() {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke("admin-users?action=list-users", {
+      const { data, error } = await supabase.functions.invoke("admin-users", {
         headers: { Authorization: `Bearer ${token}` },
+        body: { action: "list-users" },
       });
 
       if (error) throw error;
@@ -78,9 +79,9 @@ export default function AdminDashboard() {
 
   const handleApprove = async (userId: string, approved: boolean) => {
     try {
-      const { data, error } = await supabase.functions.invoke("admin-users?action=approve-user", {
+      const { data, error } = await supabase.functions.invoke("admin-users", {
         headers: { Authorization: `Bearer ${token}` },
-        body: { userId, approved },
+        body: { action: "approve-user", userId, approved },
       });
 
       if (error) throw error;
@@ -104,9 +105,10 @@ export default function AdminDashboard() {
     setSaving(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("admin-users?action=update-user", {
+      const { data, error } = await supabase.functions.invoke("admin-users", {
         headers: { Authorization: `Bearer ${token}` },
         body: {
+          action: "update-user",
           userId: editUser.id,
           email: editForm.email !== editUser.email ? editForm.email : undefined,
           password: editForm.password || undefined,
@@ -131,9 +133,9 @@ export default function AdminDashboard() {
     if (!confirm(`Tem certeza que deseja excluir o usuário ${email}? Esta ação é irreversível.`)) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke("admin-users?action=delete-user", {
+      const { data, error } = await supabase.functions.invoke("admin-users", {
         headers: { Authorization: `Bearer ${token}` },
-        body: { userId },
+        body: { action: "delete-user", userId },
       });
 
       if (error) throw error;
