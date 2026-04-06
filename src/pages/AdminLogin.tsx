@@ -19,8 +19,8 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("admin-users?action=login", {
-        body: { email, password },
+      const { data, error } = await supabase.functions.invoke("admin-users", {
+        body: { action: "login", email, password },
       });
 
       if (error) throw error;
