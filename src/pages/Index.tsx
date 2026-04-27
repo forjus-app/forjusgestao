@@ -4,7 +4,7 @@ import { Loader2, CheckCircle2, AlertTriangle, ArrowRight, Shield, Clock, BarCha
 import { Button } from "@/components/ui/button";
 import logoLight from "@/assets/logo-forjus-light.png";
 
-const KIWIFY_LINK = "https://pay.kiwify.com.br/1janI9l";
+const KIWIFY_LINK = "https://pay.kiwify.com.br/6iJny5A";
 
 // ForJus brand — dark + green (matching smart-law-alerts style)
 const GREEN = "hsl(152 72% 46%)";
