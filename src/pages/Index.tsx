@@ -183,7 +183,7 @@ export default function Index() {
           <p className="mb-8" style={{ color: TEXT_M }}>Tudo incluso. Sem surpresas.</p>
           <div className="rounded-2xl p-8" style={{ background: BG_DARK, border: `2px solid hsl(152 72% 46% / 0.35)` }}>
             <div className="mb-6">
-              <span className="text-5xl font-bold" style={{ color: GREEN }}>R$ 99</span>
+              <span className="text-5xl font-bold" style={{ color: GREEN }}>R$ 49,90</span>
               <span className="text-lg" style={{ color: TEXT_M }}>/mês</span>
             </div>
             <ul className="text-left space-y-3 mb-8">
