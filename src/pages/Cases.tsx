@@ -35,7 +35,24 @@ export default function Cases() {
   const { data: organization } = useOrganization();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
   const [importOpen, setImportOpen] = useState(false);
+
+  const { data: teamMembers } = useQuery({
+    queryKey: ["team-members-active", organization?.id],
+    queryFn: async () => {
+      if (!organization) return [];
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("organization_id", organization.id)
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!organization,
+  });
 
   const { data: statuses } = useQuery({
     queryKey: ["case-statuses", organization?.id],
