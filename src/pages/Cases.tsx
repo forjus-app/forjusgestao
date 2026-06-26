@@ -276,6 +276,9 @@ export default function Cases() {
                     </TableCell>
                     <TableCell>{getPrimaryClient(caseItem)}</TableCell>
                     <TableCell>
+                      {caseItem.team_members?.name || "—"}
+                    </TableCell>
+                    <TableCell>
                       {caseItem.case_statuses && (
                         <Badge
                           variant="outline"
