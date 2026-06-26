@@ -219,25 +219,29 @@ export function DeadlineDetailDrawer({
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Prazo de Entrega</p>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">
-                          {formatDateTime(deadline.delivery_due_at)}
-                        </span>
+                    {deadline.fatal_due_at && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Prazo Fatal</p>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-destructive" />
+                          <span className="font-medium text-destructive">
+                            {formatDateTime(deadline.fatal_due_at)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Prazo Fatal</p>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-destructive" />
-                        <span className="font-medium text-destructive">
-                          {formatDateTime(deadline.fatal_due_at)}
-                        </span>
+                    {(deadline as any).transit_judged_at && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Trânsito em Julgado</p>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">
+                            {formatDateTime((deadline as any).transit_judged_at)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Criado em</p>
