@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Search, Filter, Briefcase, ExternalLink, FileSpreadsheet } from "lucide-react";
+import { Plus, Search, Filter, Briefcase, ExternalLink, FileSpreadsheet, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
