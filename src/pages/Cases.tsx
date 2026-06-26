@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Search, Filter, Briefcase, ExternalLink, FileSpreadsheet } from "lucide-react";
+import { Plus, Search, Filter, Briefcase, ExternalLink, FileSpreadsheet, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -35,7 +35,24 @@ export default function Cases() {
   const { data: organization } = useOrganization();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
   const [importOpen, setImportOpen] = useState(false);
+
+  const { data: teamMembers } = useQuery({
+    queryKey: ["team-members-active", organization?.id],
+    queryFn: async () => {
+      if (!organization) return [];
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("organization_id", organization.id)
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!organization,
+  });
 
   const { data: statuses } = useQuery({
     queryKey: ["case-statuses", organization?.id],
@@ -53,7 +70,7 @@ export default function Cases() {
   });
 
   const { data: cases, isLoading } = useQuery({
-    queryKey: ["cases", organization?.id, search, statusFilter],
+    queryKey: ["cases", organization?.id, search, statusFilter, responsibleFilter],
     queryFn: async () => {
       if (!organization) return [];
 
@@ -68,13 +85,18 @@ export default function Cases() {
             id,
             is_primary_client,
             contacts (id, name)
-          )
+          ),
+          team_members:default_deadline_responsible_id (id, name)
         `)
         .eq("organization_id", organization.id)
         .order("updated_at", { ascending: false });
 
       if (statusFilter && statusFilter !== "all") {
         query = query.eq("status_id", statusFilter);
+      }
+
+      if (responsibleFilter && responsibleFilter !== "all") {
+        query = query.eq("default_deadline_responsible_id", responsibleFilter);
       }
 
       if (search) {
@@ -176,6 +198,20 @@ export default function Cases() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={responsibleFilter} onValueChange={setResponsibleFilter}>
+              <SelectTrigger className="w-full sm:w-52">
+                <User className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Responsável" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os responsáveis</SelectItem>
+                {teamMembers?.map((member) => (
+                  <SelectItem key={member.id} value={member.id}>
+                    {member.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -194,11 +230,11 @@ export default function Cases() {
               <Briefcase className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
               <p className="text-lg font-medium mb-1">Nenhum processo encontrado</p>
               <p className="text-muted-foreground mb-4">
-                {search || statusFilter !== "all"
+                {search || statusFilter !== "all" || responsibleFilter !== "all"
                   ? "Tente ajustar os filtros"
                   : "Comece cadastrando seu primeiro processo"}
               </p>
-              {!search && statusFilter === "all" && (
+              {!search && statusFilter === "all" && responsibleFilter === "all" && (
                 <Button asChild>
                   <Link to="/cases/new">
                     <Plus className="h-4 w-4 mr-2" />
@@ -213,6 +249,7 @@ export default function Cases() {
                 <TableRow>
                   <TableHead>Processo</TableHead>
                   <TableHead>Cliente</TableHead>
+                  <TableHead>Responsável</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Área</TableHead>
                   <TableHead>Atualizado</TableHead>
@@ -238,6 +275,9 @@ export default function Cases() {
                       </div>
                     </TableCell>
                     <TableCell>{getPrimaryClient(caseItem)}</TableCell>
+                    <TableCell>
+                      {caseItem.team_members?.name || "—"}
+                    </TableCell>
                     <TableCell>
                       {caseItem.case_statuses && (
                         <Badge
