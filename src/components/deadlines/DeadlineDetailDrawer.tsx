@@ -34,7 +34,6 @@ import {
   X,
   Save,
   Link as LinkIcon,
-  Play,
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
