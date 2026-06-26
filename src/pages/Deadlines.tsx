@@ -142,7 +142,7 @@ export default function Deadlines() {
     const monthEnd = endOfMonth(now);
 
     return rawDeadlines.filter((d: any) => {
-      if (!d.fatal_due_at) return activeFunnel === "all";
+      if (!d.fatal_due_at) return false;
       const fatal = parseLocalDateTime(d.fatal_due_at);
       switch (activeFunnel) {
         case "overdue":
