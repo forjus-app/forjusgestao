@@ -103,7 +103,6 @@ export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
                 <TableRow>
                   <TableHead>Título</TableHead>
                   <TableHead>Responsável</TableHead>
-                  <TableHead>Entrega</TableHead>
                   <TableHead>Fatal</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-[120px]">Ações</TableHead>
@@ -128,20 +127,16 @@ export function CaseDeadlinesTab({ caseId }: CaseDeadlinesTabProps) {
                     <TableCell>
                       {deadline.team_members?.name || "-"}
                     </TableCell>
-                    <TableCell className="text-sm">
-                      {formatDateTime(deadline.delivery_due_at)}
-                    </TableCell>
                     <TableCell className="text-sm font-medium">
-                      {formatDateTime(deadline.fatal_due_at)}
+                      {deadline.fatal_due_at
+                        ? formatDateTime(deadline.fatal_due_at)
+                        : (deadline as any).transit_judged_at
+                        ? `Trânsito: ${formatDateTime((deadline as any).transit_judged_at)}`
+                        : "—"}
                     </TableCell>
                     <TableCell>
                       {deadline.status === "open" && (
                         <Badge variant="outline">Aberto</Badge>
-                      )}
-                      {deadline.status === "in_progress" && (
-                        <Badge className="bg-primary text-primary-foreground">
-                          Em Execução
-                        </Badge>
                       )}
                       {deadline.status === "completed" && (
                         <Badge className="bg-success text-success-foreground">

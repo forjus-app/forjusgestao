@@ -34,7 +34,6 @@ import {
   X,
   Save,
   Link as LinkIcon,
-  Play,
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -110,11 +109,6 @@ export function DeadlineDetailDrawer({
     toast.success("Prazo reaberto com sucesso");
   };
 
-  const handleStartProgress = async () => {
-    await updateDeadline.mutateAsync({ status: "in_progress" });
-    toast.success("Prazo em execução");
-  };
-
   const handleSaveNotes = async () => {
     await updateDeadline.mutateAsync({ notes: notesValue });
     setEditingNotes(false);
@@ -138,8 +132,6 @@ export function DeadlineDetailDrawer({
     switch (status) {
       case "open":
         return <Badge variant="outline">Aberto</Badge>;
-      case "in_progress":
-        return <Badge className="bg-primary text-primary-foreground">Em Execução</Badge>;
       case "completed":
         return <Badge className="bg-success text-success-foreground">Concluído</Badge>;
       default:
@@ -154,7 +146,7 @@ export function DeadlineDetailDrawer({
   };
 
   const getDateWarning = () => {
-    if (!deadline || deadline.status === "completed") return null;
+    if (!deadline || deadline.status === "completed" || !deadline.fatal_due_at) return null;
     const fatal = parseLocalDateTime(deadline.fatal_due_at);
     if (isPast(fatal) && !isToday(fatal)) {
       return <Badge variant="destructive">Vencido</Badge>;
@@ -219,25 +211,29 @@ export function DeadlineDetailDrawer({
                       </div>
                     </div>
 
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Prazo de Entrega</p>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">
-                          {formatDateTime(deadline.delivery_due_at)}
-                        </span>
+                    {deadline.fatal_due_at && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Prazo Fatal</p>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-destructive" />
+                          <span className="font-medium text-destructive">
+                            {formatDateTime(deadline.fatal_due_at)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Prazo Fatal</p>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-destructive" />
-                        <span className="font-medium text-destructive">
-                          {formatDateTime(deadline.fatal_due_at)}
-                        </span>
+                    {(deadline as any).transit_judged_at && (
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Trânsito em Julgado</p>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">
+                            {formatDateTime((deadline as any).transit_judged_at)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Criado em</p>
@@ -423,23 +419,6 @@ export function DeadlineDetailDrawer({
               <div className="flex flex-wrap gap-2 justify-end">
                 {deadline.status === "open" && (
                   <>
-                    <Button onClick={handleStartProgress}>
-                      <Play className="h-4 w-4 mr-2" />
-                      Iniciar Execução
-                    </Button>
-                    <Button variant="outline" onClick={handleComplete}>
-                      <Check className="h-4 w-4 mr-2" />
-                      Concluir
-                    </Button>
-                  </>
-                )}
-
-                {deadline.status === "in_progress" && (
-                  <>
-                    <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Reabrir
-                    </Button>
                     <Button onClick={handleComplete}>
                       <Check className="h-4 w-4 mr-2" />
                       Concluir

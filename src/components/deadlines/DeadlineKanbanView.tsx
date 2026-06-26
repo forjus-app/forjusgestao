@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { format, isPast, isToday, isBefore, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDateTime } from "@/lib/dateUtils";
-import { Clock, AlertTriangle, CheckCircle, User, Briefcase } from "lucide-react";
+import { Clock, CheckCircle, User, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DeadlineActions } from "./DeadlineActions";
 
@@ -15,7 +15,6 @@ interface DeadlineKanbanViewProps {
 
 const KANBAN_COLUMNS = [
   { status: "open", label: "Abertos", icon: Clock, colorClass: "border-t-blue-500" },
-  { status: "in_progress", label: "Em Execução", icon: Clock, colorClass: "border-t-yellow-500" },
   { status: "completed", label: "Concluídos", icon: CheckCircle, colorClass: "border-t-green-500" },
 ];
 
@@ -31,8 +30,8 @@ export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanba
     return null;
   };
 
-  const getDateBadge = (fatalDate: string, status: string) => {
-    if (status === "completed") return null;
+  const getDateBadge = (fatalDate: string | null, status: string) => {
+    if (status === "completed" || !fatalDate) return null;
     const fatal = parseLocalDateTime(fatalDate);
     if (isPast(fatal) && !isToday(fatal)) return <Badge variant="destructive" className="text-[10px] px-1.5">Vencido</Badge>;
     if (isToday(fatal)) return <Badge variant="destructive" className="text-[10px] px-1.5">Hoje!</Badge>;
@@ -41,7 +40,7 @@ export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanba
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {grouped.map((col) => (
         <div key={col.status} className="flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-3 px-1">
@@ -85,7 +84,13 @@ export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanba
                       <div className="text-xs text-muted-foreground space-y-1">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-3 w-3 shrink-0" />
-                          <span>Fatal: {format(parseLocalDateTime(deadline.fatal_due_at), "dd/MM HH:mm", { locale: ptBR })}</span>
+                          <span>
+                            {deadline.fatal_due_at
+                              ? `Fatal: ${format(parseLocalDateTime(deadline.fatal_due_at), "dd/MM HH:mm", { locale: ptBR })}`
+                              : deadline.transit_judged_at
+                              ? `Trânsito: ${format(parseLocalDateTime(deadline.transit_judged_at), "dd/MM/yyyy", { locale: ptBR })}`
+                              : "—"}
+                          </span>
                         </div>
                         {deadline.team_members?.name && (
                           <div className="flex items-center gap-1.5">

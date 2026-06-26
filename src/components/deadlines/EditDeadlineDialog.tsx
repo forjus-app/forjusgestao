@@ -24,6 +24,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
 import { toLocalISOString } from "@/lib/dateUtils";
+import { DEADLINE_TITLE_PRESETS, isCumprimentoSentenca } from "./deadlineTitlePresets";
 
 interface EditDeadlineDialogProps {
   open: boolean;
@@ -34,8 +35,8 @@ interface EditDeadlineDialogProps {
     type: string;
     case_id?: string | null;
     responsible_member_id: string;
-    delivery_due_at: string;
-    fatal_due_at: string;
+    fatal_due_at: string | null;
+    transit_judged_at?: string | null;
     priority: number;
     notes?: string | null;
     drive_link?: string | null;
@@ -64,11 +65,13 @@ export function EditDeadlineDialog({
 
   const [formData, setFormData] = useState({
     title: "",
+    titlePreset: "",
+    customTitle: "",
     type: "interno",
     caseId: "",
     responsibleMemberId: "",
-    deliveryDueAt: "",
     fatalDueAt: "",
+    transitJudgedAt: "",
     priority: "0",
     notes: "",
     driveLink: "",
@@ -81,13 +84,16 @@ export function EditDeadlineDialog({
   // Initialize form when deadline changes
   useEffect(() => {
     if (deadline) {
+      const isPreset = (DEADLINE_TITLE_PRESETS as readonly string[]).includes(deadline.title || "");
       setFormData({
         title: deadline.title || "",
+        titlePreset: isPreset ? deadline.title : (deadline.title ? "__custom__" : ""),
+        customTitle: isPreset ? "" : (deadline.title || ""),
         type: deadline.type || "interno",
         caseId: deadline.case_id || "",
         responsibleMemberId: deadline.responsible_member_id || "",
-        deliveryDueAt: deadline.delivery_due_at ? formatDateTimeLocal(deadline.delivery_due_at) : "",
         fatalDueAt: deadline.fatal_due_at ? formatDateTimeLocal(deadline.fatal_due_at) : "",
+        transitJudgedAt: deadline.transit_judged_at ? formatDateTimeLocal(deadline.transit_judged_at) : "",
         priority: String(deadline.priority || 0),
         notes: deadline.notes || "",
         driveLink: deadline.drive_link || "",
@@ -134,6 +140,7 @@ export function EditDeadlineDialog({
 
   const selectedCase = cases?.find((c) => c.id === formData.caseId);
   const caseDriveLink = selectedCase?.drive_link;
+  const isCumprimento = isCumprimentoSentenca(formData.title);
 
   const updateMutation = useMutation({
     mutationFn: async () => {
@@ -143,17 +150,14 @@ export function EditDeadlineDialog({
       if (!formData.title) throw new Error("Título é obrigatório");
       if (!formData.responsibleMemberId)
         throw new Error("Responsável é obrigatório");
-      if (!formData.deliveryDueAt)
-        throw new Error("Data de entrega é obrigatória");
-      if (!formData.fatalDueAt) throw new Error("Data fatal é obrigatória");
+      if (isCumprimento) {
+        if (!formData.transitJudgedAt)
+          throw new Error("Data de Trânsito em Julgado é obrigatória");
+      } else {
+        if (!formData.fatalDueAt) throw new Error("Data fatal é obrigatória");
+      }
       if (formData.type === "processual" && !formData.caseId) {
         throw new Error("Processo é obrigatório para prazos processuais");
-      }
-
-      const deliveryDate = new Date(formData.deliveryDueAt);
-      const fatalDate = new Date(formData.fatalDueAt);
-      if (fatalDate < deliveryDate) {
-        throw new Error("Data fatal deve ser maior ou igual à data de entrega");
       }
 
       const { error } = await supabase
@@ -163,8 +167,8 @@ export function EditDeadlineDialog({
           case_id: formData.type === "processual" ? formData.caseId : null,
           title: formData.title,
           responsible_member_id: formData.responsibleMemberId,
-          delivery_due_at: toLocalISOString(formData.deliveryDueAt),
-          fatal_due_at: toLocalISOString(formData.fatalDueAt),
+          fatal_due_at: isCumprimento ? null : toLocalISOString(formData.fatalDueAt),
+          transit_judged_at: isCumprimento ? toLocalISOString(formData.transitJudgedAt) : null,
           priority: parseInt(formData.priority),
           notes: formData.notes || null,
           drive_link: formData.driveLink || null,
@@ -180,7 +184,9 @@ export function EditDeadlineDialog({
           case_id: formData.caseId,
           event_type: "deadline_update",
           title: `Prazo atualizado: ${formData.title}`,
-          description: `Data fatal: ${new Date(formData.fatalDueAt).toLocaleString("pt-BR")}`,
+          description: isCumprimento
+            ? `Trânsito em julgado: ${new Date(formData.transitJudgedAt).toLocaleString("pt-BR")}`
+            : `Data fatal: ${new Date(formData.fatalDueAt).toLocaleString("pt-BR")}`,
           occurred_at: new Date().toISOString(),
         });
       }
@@ -189,6 +195,7 @@ export function EditDeadlineDialog({
       toast.success("Prazo atualizado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["deadlines"] });
       queryClient.invalidateQueries({ queryKey: ["case-deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -231,13 +238,35 @@ export function EditDeadlineDialog({
             {/* Title */}
             <div className="space-y-2">
               <Label>Título *</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                placeholder="Ex: Contestação, Petição inicial..."
-              />
+              <Select
+                value={formData.titlePreset}
+                onValueChange={(v) => {
+                  if (v === "__custom__") {
+                    setFormData({ ...formData, titlePreset: v, title: formData.customTitle });
+                  } else {
+                    setFormData({ ...formData, titlePreset: v, title: v });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um tipo de peça..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEADLINE_TITLE_PRESETS.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                  <SelectItem value="__custom__">Outro (personalizado)</SelectItem>
+                </SelectContent>
+              </Select>
+              {formData.titlePreset === "__custom__" && (
+                <Input
+                  value={formData.customTitle}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customTitle: e.target.value, title: e.target.value })
+                  }
+                  placeholder="Digite o título do prazo..."
+                />
+              )}
             </div>
 
             {/* Type */}
@@ -379,19 +408,23 @@ export function EditDeadlineDialog({
             </div>
 
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-4">
+            {isCumprimento ? (
               <div className="space-y-2">
-                <Label>Data de Entrega *</Label>
+                <Label>Data de Trânsito em Julgado *</Label>
                 <Input
                   type="datetime-local"
-                  value={formData.deliveryDueAt}
+                  value={formData.transitJudgedAt}
                   onChange={(e) =>
-                    setFormData({ ...formData, deliveryDueAt: e.target.value })
+                    setFormData({ ...formData, transitJudgedAt: e.target.value })
                   }
                 />
+                <p className="text-xs text-muted-foreground">
+                  Cumprimento de Sentença não possui prazo fatal.
+                </p>
               </div>
+            ) : (
               <div className="space-y-2">
-                <Label>Data Fatal *</Label>
+                <Label>Prazo Fatal *</Label>
                 <Input
                   type="datetime-local"
                   value={formData.fatalDueAt}
@@ -400,7 +433,7 @@ export function EditDeadlineDialog({
                   }
                 />
               </div>
-            </div>
+            )}
 
             {/* Priority */}
             <div className="space-y-2">
