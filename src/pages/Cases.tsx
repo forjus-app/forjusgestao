@@ -230,11 +230,11 @@ export default function Cases() {
               <Briefcase className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
               <p className="text-lg font-medium mb-1">Nenhum processo encontrado</p>
               <p className="text-muted-foreground mb-4">
-                {search || statusFilter !== "all"
+                {search || statusFilter !== "all" || responsibleFilter !== "all"
                   ? "Tente ajustar os filtros"
                   : "Comece cadastrando seu primeiro processo"}
               </p>
-              {!search && statusFilter === "all" && (
+              {!search && statusFilter === "all" && responsibleFilter === "all" && (
                 <Button asChild>
                   <Link to="/cases/new">
                     <Plus className="h-4 w-4 mr-2" />
