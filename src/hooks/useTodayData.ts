@@ -32,7 +32,7 @@ export function useTodayDeadlines(responsibleId?: string) {
         overdueQuery = overdueQuery.eq("responsible_member_id", responsibleId);
       }
 
-      // Today: delivery_due_at between start and end of today, status = open
+      // Today: fatal_due_at between start and end of today, status = open
       let todayQuery = supabase
         .from("deadlines")
         .select(`
@@ -41,9 +41,9 @@ export function useTodayDeadlines(responsibleId?: string) {
           cases:case_id (id, title, cnj_number)
         `)
         .eq("status", "open")
-        .gte("delivery_due_at", todayStart)
-        .lte("delivery_due_at", todayEnd)
-        .order("delivery_due_at", { ascending: true })
+        .gte("fatal_due_at", todayStart)
+        .lte("fatal_due_at", todayEnd)
+        .order("fatal_due_at", { ascending: true })
         .limit(8);
 
       if (responsibleId && responsibleId !== "all") {
@@ -178,8 +178,8 @@ export function useTodayStats(responsibleId?: string) {
         .from("deadlines")
         .select("id", { count: "exact", head: true })
         .eq("status", "open")
-        .gte("delivery_due_at", todayStart)
-        .lte("delivery_due_at", todayEnd);
+        .gte("fatal_due_at", todayStart)
+        .lte("fatal_due_at", todayEnd);
 
       // Upcoming events (7 days)
       let eventsQ = supabase
