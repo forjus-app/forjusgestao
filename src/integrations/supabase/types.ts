@@ -358,6 +358,7 @@ export type Database = {
           court: string | null
           court_division: string | null
           created_at: string
+          default_deadline_responsible_id: string | null
           drive_link: string | null
           fee_percent: number | null
           fee_value: number | null
@@ -388,6 +389,7 @@ export type Database = {
           court?: string | null
           court_division?: string | null
           created_at?: string
+          default_deadline_responsible_id?: string | null
           drive_link?: string | null
           fee_percent?: number | null
           fee_value?: number | null
@@ -418,6 +420,7 @@ export type Database = {
           court?: string | null
           court_division?: string | null
           created_at?: string
+          default_deadline_responsible_id?: string | null
           drive_link?: string | null
           fee_percent?: number | null
           fee_value?: number | null
@@ -444,6 +447,13 @@ export type Database = {
             columns: ["area_id"]
             isOneToOne: false
             referencedRelation: "case_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_default_deadline_responsible_id_fkey"
+            columns: ["default_deadline_responsible_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
             referencedColumns: ["id"]
           },
           {
@@ -881,9 +891,8 @@ export type Database = {
           completed_at: string | null
           completed_notes: string | null
           created_at: string
-          delivery_due_at: string
           drive_link: string | null
-          fatal_due_at: string
+          fatal_due_at: string | null
           id: string
           notes: string | null
           organization_id: string
@@ -891,6 +900,7 @@ export type Database = {
           responsible_member_id: string
           status: string
           title: string
+          transit_judged_at: string | null
           type: string
           updated_at: string
         }
@@ -899,9 +909,8 @@ export type Database = {
           completed_at?: string | null
           completed_notes?: string | null
           created_at?: string
-          delivery_due_at: string
           drive_link?: string | null
-          fatal_due_at: string
+          fatal_due_at?: string | null
           id?: string
           notes?: string | null
           organization_id: string
@@ -909,6 +918,7 @@ export type Database = {
           responsible_member_id: string
           status?: string
           title: string
+          transit_judged_at?: string | null
           type: string
           updated_at?: string
         }
@@ -917,9 +927,8 @@ export type Database = {
           completed_at?: string | null
           completed_notes?: string | null
           created_at?: string
-          delivery_due_at?: string
           drive_link?: string | null
-          fatal_due_at?: string
+          fatal_due_at?: string | null
           id?: string
           notes?: string | null
           organization_id?: string
@@ -927,6 +936,7 @@ export type Database = {
           responsible_member_id?: string
           status?: string
           title?: string
+          transit_judged_at?: string | null
           type?: string
           updated_at?: string
         }
