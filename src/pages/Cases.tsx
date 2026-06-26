@@ -70,7 +70,7 @@ export default function Cases() {
   });
 
   const { data: cases, isLoading } = useQuery({
-    queryKey: ["cases", organization?.id, search, statusFilter],
+    queryKey: ["cases", organization?.id, search, statusFilter, responsibleFilter],
     queryFn: async () => {
       if (!organization) return [];
 
@@ -85,13 +85,18 @@ export default function Cases() {
             id,
             is_primary_client,
             contacts (id, name)
-          )
+          ),
+          team_members:default_deadline_responsible_id (id, name)
         `)
         .eq("organization_id", organization.id)
         .order("updated_at", { ascending: false });
 
       if (statusFilter && statusFilter !== "all") {
         query = query.eq("status_id", statusFilter);
+      }
+
+      if (responsibleFilter && responsibleFilter !== "all") {
+        query = query.eq("default_deadline_responsible_id", responsibleFilter);
       }
 
       if (search) {
