@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { addDays, isWeekend, format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
 import { toLocalISOString } from "@/lib/dateUtils";
+import { DEADLINE_TITLE_PRESETS, isCumprimentoSentenca } from "./deadlineTitlePresets";
 
 interface AddDeadlineDialogProps {
   open: boolean;
@@ -75,11 +76,13 @@ export function AddDeadlineDialog({
 
   const [formData, setFormData] = useState({
     title: "",
+    titlePreset: "",
+    customTitle: "",
     type: preselectedCaseId ? "processual" : "interno",
     caseId: preselectedCaseId || "",
     responsibleMemberId: "",
-    deliveryDueAt: "",
     fatalDueAt: "",
+    transitJudgedAt: "",
     priority: "0",
     notes: "",
     driveLink: "",
@@ -92,9 +95,8 @@ export function AddDeadlineDialog({
 
   const applyDatePreset = useCallback((days: number) => {
     const useBusinessDays = dayMode === "business";
-    const deliveryDate = computeTargetDate(days - 2 > 0 ? days - 2 : days, useBusinessDays);
     const fatalDate = computeTargetDate(days, useBusinessDays);
-    setFormData(prev => ({ ...prev, deliveryDueAt: deliveryDate, fatalDueAt: fatalDate }));
+    setFormData(prev => ({ ...prev, fatalDueAt: fatalDate }));
   }, [dayMode]);
 
   const { data: teamMembers } = useQuery({
@@ -116,7 +118,7 @@ export function AddDeadlineDialog({
     queryFn: async () => {
       let query = supabase
         .from("cases")
-        .select("id, title, cnj_number, drive_link")
+        .select("id, title, cnj_number, drive_link, default_deadline_responsible_id")
         .order("updated_at", { ascending: false })
         .limit(20);
 
@@ -143,7 +145,7 @@ export function AddDeadlineDialog({
       if (!preselectedCaseId) return null;
       const { data, error } = await supabase
         .from("cases")
-        .select("id, title, drive_link")
+        .select("id, title, drive_link, default_deadline_responsible_id")
         .eq("id", preselectedCaseId)
         .single();
       if (error) throw error;
@@ -153,6 +155,19 @@ export function AddDeadlineDialog({
   });
 
   const caseDriveLink = preselectedCaseId ? preselectedCase?.drive_link : selectedCase?.drive_link;
+  const caseDefaultResponsible = preselectedCaseId
+    ? preselectedCase?.default_deadline_responsible_id
+    : selectedCase?.default_deadline_responsible_id;
+
+  // Auto-preencher responsável padrão do processo
+  useEffect(() => {
+    if (caseDefaultResponsible && !formData.responsibleMemberId) {
+      setFormData(prev => ({ ...prev, responsibleMemberId: caseDefaultResponsible }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseDefaultResponsible]);
+
+  const isCumprimento = isCumprimentoSentenca(formData.title);
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -162,21 +177,18 @@ export function AddDeadlineDialog({
       if (!formData.title) throw new Error("Título é obrigatório");
       if (!formData.responsibleMemberId)
         throw new Error("Responsável é obrigatório");
-      if (!formData.deliveryDueAt)
-        throw new Error("Data de entrega é obrigatória");
-      if (!formData.fatalDueAt) throw new Error("Data fatal é obrigatória");
+      if (isCumprimento) {
+        if (!formData.transitJudgedAt)
+          throw new Error("Data de Trânsito em Julgado é obrigatória");
+      } else {
+        if (!formData.fatalDueAt) throw new Error("Data fatal é obrigatória");
+      }
       if (
         formData.type === "processual" &&
         !formData.caseId &&
         !preselectedCaseId
       ) {
         throw new Error("Processo é obrigatório para prazos processuais");
-      }
-
-      const deliveryDate = new Date(formData.deliveryDueAt);
-      const fatalDate = new Date(formData.fatalDueAt);
-      if (fatalDate < deliveryDate) {
-        throw new Error("Data fatal deve ser maior ou igual à data de entrega");
       }
 
       const { error } = await supabase.from("deadlines").insert({
@@ -188,8 +200,8 @@ export function AddDeadlineDialog({
             : null,
         title: formData.title,
         responsible_member_id: formData.responsibleMemberId,
-        delivery_due_at: toLocalISOString(formData.deliveryDueAt),
-        fatal_due_at: toLocalISOString(formData.fatalDueAt),
+        fatal_due_at: isCumprimento ? null : toLocalISOString(formData.fatalDueAt),
+        transit_judged_at: isCumprimento ? toLocalISOString(formData.transitJudgedAt) : null,
         priority: parseInt(formData.priority),
         notes: formData.notes || null,
         drive_link: formData.driveLink || null,
@@ -200,6 +212,8 @@ export function AddDeadlineDialog({
     onSuccess: () => {
       toast.success("Prazo criado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["cases-search"] });
       if (preselectedCaseId) {
         queryClient.invalidateQueries({
           queryKey: ["case-deadlines", preselectedCaseId],
@@ -215,11 +229,13 @@ export function AddDeadlineDialog({
   const handleClose = () => {
     setFormData({
       title: "",
+      titlePreset: "",
+      customTitle: "",
       type: preselectedCaseId ? "processual" : "interno",
       caseId: preselectedCaseId || "",
       responsibleMemberId: "",
-      deliveryDueAt: "",
       fatalDueAt: "",
+      transitJudgedAt: "",
       priority: "0",
       notes: "",
       driveLink: "",
@@ -266,13 +282,35 @@ export function AddDeadlineDialog({
             {/* Title */}
             <div className="space-y-2">
               <Label>Título *</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                placeholder="Ex: Contestação, Petição inicial..."
-              />
+              <Select
+                value={formData.titlePreset}
+                onValueChange={(v) => {
+                  if (v === "__custom__") {
+                    setFormData({ ...formData, titlePreset: v, title: formData.customTitle });
+                  } else {
+                    setFormData({ ...formData, titlePreset: v, title: v });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um tipo de peça..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEADLINE_TITLE_PRESETS.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                  <SelectItem value="__custom__">Outro (personalizado)</SelectItem>
+                </SelectContent>
+              </Select>
+              {formData.titlePreset === "__custom__" && (
+                <Input
+                  value={formData.customTitle}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customTitle: e.target.value, title: e.target.value })
+                  }
+                  placeholder="Digite o título do prazo..."
+                />
+              )}
             </div>
 
             {/* Type */}
@@ -420,7 +458,8 @@ export function AddDeadlineDialog({
               )}
             </div>
 
-            {/* Date shortcuts */}
+            {/* Date shortcuts (apenas para prazos com data fatal) */}
+            {!isCumprimento && (
             <div className="space-y-3">
               <Label className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
@@ -457,21 +496,26 @@ export function AddDeadlineDialog({
                 ))}
               </div>
             </div>
+            )}
 
             {/* Dates */}
-            <div className="grid grid-cols-2 gap-4">
+            {isCumprimento ? (
               <div className="space-y-2">
-                <Label>Data de Entrega *</Label>
+                <Label>Data de Trânsito em Julgado *</Label>
                 <Input
                   type="datetime-local"
-                  value={formData.deliveryDueAt}
+                  value={formData.transitJudgedAt}
                   onChange={(e) =>
-                    setFormData({ ...formData, deliveryDueAt: e.target.value })
+                    setFormData({ ...formData, transitJudgedAt: e.target.value })
                   }
                 />
+                <p className="text-xs text-muted-foreground">
+                  Cumprimento de Sentença não possui prazo fatal.
+                </p>
               </div>
+            ) : (
               <div className="space-y-2">
-                <Label>Data Fatal *</Label>
+                <Label>Prazo Fatal *</Label>
                 <Input
                   type="datetime-local"
                   value={formData.fatalDueAt}
@@ -480,7 +524,7 @@ export function AddDeadlineDialog({
                   }
                 />
               </div>
-            </div>
+            )}
 
             {/* Priority */}
             <div className="space-y-2">
