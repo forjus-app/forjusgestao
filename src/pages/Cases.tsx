@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Search, Filter, Briefcase, ExternalLink } from "lucide-react";
+import { Plus, Search, Filter, Briefcase, ExternalLink, FileSpreadsheet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -29,11 +29,13 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToPDF, exportToExcel, casesExportColumns } from "@/lib/exportUtils";
+import { BulkImportCasesDialog } from "@/components/cases/BulkImportCasesDialog";
 
 export default function Cases() {
   const { data: organization } = useOrganization();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [importOpen, setImportOpen] = useState(false);
 
   const { data: statuses } = useQuery({
     queryKey: ["case-statuses", organization?.id],
@@ -132,6 +134,10 @@ export default function Cases() {
             onExportExcel={handleExportExcel}
             disabled={!cases || cases.length === 0}
           />
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <FileSpreadsheet className="h-4 w-4 mr-2" />
+            Importar Planilha
+          </Button>
           <Button asChild>
             <Link to="/cases/new">
               <Plus className="h-4 w-4 mr-2" />
@@ -140,6 +146,8 @@ export default function Cases() {
           </Button>
         </div>
       </div>
+
+      <BulkImportCasesDialog open={importOpen} onOpenChange={setImportOpen} />
 
       {/* Filters */}
       <Card>
