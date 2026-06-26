@@ -249,6 +249,7 @@ export default function Cases() {
                 <TableRow>
                   <TableHead>Processo</TableHead>
                   <TableHead>Cliente</TableHead>
+                  <TableHead>Responsável</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Área</TableHead>
                   <TableHead>Atualizado</TableHead>
