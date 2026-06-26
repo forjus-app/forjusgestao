@@ -110,11 +110,6 @@ export function DeadlineDetailDrawer({
     toast.success("Prazo reaberto com sucesso");
   };
 
-  const handleStartProgress = async () => {
-    await updateDeadline.mutateAsync({ status: "in_progress" });
-    toast.success("Prazo em execução");
-  };
-
   const handleSaveNotes = async () => {
     await updateDeadline.mutateAsync({ notes: notesValue });
     setEditingNotes(false);
@@ -138,8 +133,6 @@ export function DeadlineDetailDrawer({
     switch (status) {
       case "open":
         return <Badge variant="outline">Aberto</Badge>;
-      case "in_progress":
-        return <Badge className="bg-primary text-primary-foreground">Em Execução</Badge>;
       case "completed":
         return <Badge className="bg-success text-success-foreground">Concluído</Badge>;
       default:
@@ -154,7 +147,7 @@ export function DeadlineDetailDrawer({
   };
 
   const getDateWarning = () => {
-    if (!deadline || deadline.status === "completed") return null;
+    if (!deadline || deadline.status === "completed" || !deadline.fatal_due_at) return null;
     const fatal = parseLocalDateTime(deadline.fatal_due_at);
     if (isPast(fatal) && !isToday(fatal)) {
       return <Badge variant="destructive">Vencido</Badge>;
@@ -427,23 +420,6 @@ export function DeadlineDetailDrawer({
               <div className="flex flex-wrap gap-2 justify-end">
                 {deadline.status === "open" && (
                   <>
-                    <Button onClick={handleStartProgress}>
-                      <Play className="h-4 w-4 mr-2" />
-                      Iniciar Execução
-                    </Button>
-                    <Button variant="outline" onClick={handleComplete}>
-                      <Check className="h-4 w-4 mr-2" />
-                      Concluir
-                    </Button>
-                  </>
-                )}
-
-                {deadline.status === "in_progress" && (
-                  <>
-                    <Button variant="outline" onClick={() => setReopenDialogOpen(true)}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Reabrir
-                    </Button>
                     <Button onClick={handleComplete}>
                       <Check className="h-4 w-4 mr-2" />
                       Concluir
