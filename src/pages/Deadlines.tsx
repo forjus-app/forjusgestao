@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -26,6 +26,17 @@ import {
 import { AddDeadlineDialog } from "@/components/deadlines/AddDeadlineDialog";
 import { DeadlineActions } from "@/components/deadlines/DeadlineActions";
 import { DeadlineDetailDrawer } from "@/components/deadlines/DeadlineDetailDrawer";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Plus,
   Calendar,
@@ -34,6 +45,9 @@ import {
   Search,
   LayoutList,
   Columns3,
+  Trash2,
+  UserCog,
+  X,
 } from "lucide-react";
 import { DeadlineKanbanView } from "@/components/deadlines/DeadlineKanbanView";
 import { format, isPast, isToday, addDays, isBefore, startOfDay, endOfDay, endOfWeek, endOfMonth, isTomorrow, isWithinInterval } from "date-fns";
@@ -63,6 +77,7 @@ const dateFunnels: { value: DateFunnel; label: string }[] = [
 
 export default function Deadlines() {
   const { data: organization } = useOrganization();
+  const queryClient = useQueryClient();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("open");
   const [activeFunnel, setActiveFunnel] = useState<DateFunnel>("all");
@@ -72,6 +87,48 @@ export default function Deadlines() {
   const [selectedDeadlineId, setSelectedDeadlineId] = useState<string | null>(null);
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkResponsible, setBulkResponsible] = useState<string>("");
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const bulkUpdateResponsible = useMutation({
+    mutationFn: async ({ ids, responsibleId }: { ids: string[]; responsibleId: string }) => {
+      const { error } = await supabase
+        .from("deadlines")
+        .update({ responsible_member_id: responsibleId })
+        .in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Responsável atualizado nos prazos selecionados");
+      queryClient.invalidateQueries({ queryKey: ["deadlines"] });
+      setSelectedIds([]);
+      setBulkResponsible("");
+    },
+    onError: (e: any) => toast.error("Erro: " + e.message),
+  });
+
+  const bulkDelete = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("deadlines").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Prazos excluídos");
+      queryClient.invalidateQueries({ queryKey: ["deadlines"] });
+      setSelectedIds([]);
+      setBulkDeleteOpen(false);
+    },
+    onError: (e: any) => toast.error("Erro: " + e.message),
+  });
+
+  const toggleOne = (id: string) =>
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const toggleAll = (rows: any[]) => {
+    const ids = rows.map((r) => r.id);
+    const allSelected = ids.every((id) => selectedIds.includes(id));
+    setSelectedIds(allSelected ? selectedIds.filter((id) => !ids.includes(id)) : Array.from(new Set([...selectedIds, ...ids])));
+  };
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -424,6 +481,52 @@ export default function Deadlines() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {selectedIds.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-3 mb-4 p-3 rounded-md border bg-muted/40">
+                    <span className="text-sm font-medium">
+                      {selectedIds.length} selecionado(s)
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Select value={bulkResponsible} onValueChange={setBulkResponsible}>
+                        <SelectTrigger className="w-[220px] h-9">
+                          <SelectValue placeholder="Alterar responsável para..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teamMembers?.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        disabled={!bulkResponsible || bulkUpdateResponsible.isPending}
+                        onClick={() =>
+                          bulkUpdateResponsible.mutate({
+                            ids: selectedIds,
+                            responsibleId: bulkResponsible,
+                          })
+                        }
+                      >
+                        <UserCog className="h-4 w-4 mr-2" />
+                        Aplicar
+                      </Button>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => setBulkDeleteOpen(true)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Excluir
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>
+                      <X className="h-4 w-4 mr-1" />
+                      Limpar
+                    </Button>
+                  </div>
+                )}
                 {isLoading ? (
                   <div className="text-center py-8 text-muted-foreground">
                     Carregando...
@@ -446,6 +549,15 @@ export default function Deadlines() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-[40px]">
+                          <Checkbox
+                            checked={
+                              deadlines.length > 0 &&
+                              deadlines.every((d: any) => selectedIds.includes(d.id))
+                            }
+                            onCheckedChange={() => toggleAll(deadlines)}
+                          />
+                        </TableHead>
                         <TableHead>Título</TableHead>
                         <TableHead>Responsável</TableHead>
                         <TableHead>Processo</TableHead>
@@ -464,6 +576,12 @@ export default function Deadlines() {
                             setDetailDrawerOpen(true);
                           }}
                         >
+                          <TableCell onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              checked={selectedIds.includes(deadline.id)}
+                              onCheckedChange={() => toggleOne(deadline.id)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{deadline.title}</span>
@@ -521,6 +639,25 @@ export default function Deadlines() {
         open={detailDrawerOpen}
         onOpenChange={setDetailDrawerOpen}
       />
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir prazos selecionados?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação excluirá {selectedIds.length} prazo(s) permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => bulkDelete.mutate(selectedIds)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
