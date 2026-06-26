@@ -29,14 +29,18 @@ export function exportDeadlinesPDF({ deadlines, filtersLabel }: ExportDeadlinesP
   const startY = 40;
 
   // Table data — only 6 columns
-  const tableData = deadlines.map((d) => {
-    const fatalStr = format(parseLocalDateTime(d.fatal_due_at), "dd/MM/yyyy HH:mm", { locale: ptBR });
-    const deliveryStr = format(parseLocalDateTime(d.delivery_due_at), "dd/MM/yyyy HH:mm", { locale: ptBR });
+  const tableData = deadlines.map((d: any) => {
+    const fatalStr = d.fatal_due_at
+      ? format(parseLocalDateTime(d.fatal_due_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+      : "—";
+    const transitStr = d.transit_judged_at
+      ? format(parseLocalDateTime(d.transit_judged_at), "dd/MM/yyyy", { locale: ptBR })
+      : "—";
     const title = d.title && d.title.length > 60 ? d.title.substring(0, 57) + "..." : (d.title || "—");
 
     return [
       fatalStr,
-      deliveryStr,
+      transitStr,
       title,
       d.team_members?.name || "—",
       d.cases?.title || "—",
@@ -49,7 +53,7 @@ export function exportDeadlinesPDF({ deadlines, filtersLabel }: ExportDeadlinesP
   autoTable(doc, {
     head: [[
       "Prazo Fatal",
-      "Entrega",
+      "Trânsito",
       "Título",
       "Responsável",
       "Processo",
