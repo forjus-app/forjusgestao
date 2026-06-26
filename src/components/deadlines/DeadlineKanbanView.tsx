@@ -30,8 +30,8 @@ export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanba
     return null;
   };
 
-  const getDateBadge = (fatalDate: string, status: string) => {
-    if (status === "completed") return null;
+  const getDateBadge = (fatalDate: string | null, status: string) => {
+    if (status === "completed" || !fatalDate) return null;
     const fatal = parseLocalDateTime(fatalDate);
     if (isPast(fatal) && !isToday(fatal)) return <Badge variant="destructive" className="text-[10px] px-1.5">Vencido</Badge>;
     if (isToday(fatal)) return <Badge variant="destructive" className="text-[10px] px-1.5">Hoje!</Badge>;
