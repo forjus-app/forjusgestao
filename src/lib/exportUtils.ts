@@ -123,21 +123,20 @@ export const deadlinesExportColumns: ExportColumn[] = [
   { header: "Processo", accessor: (row) => row.cases?.title || "-" },
   { header: "Número CNJ", accessor: (row) => row.cases?.cnj_number || "-" },
   {
-    header: "Data Entrega",
-    accessor: (row) =>
-      format(new Date(row.delivery_due_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
-  },
-  {
     header: "Data Fatal",
     accessor: (row) =>
-      format(new Date(row.fatal_due_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      row.fatal_due_at ? format(new Date(row.fatal_due_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+  },
+  {
+    header: "Trânsito em Julgado",
+    accessor: (row) =>
+      row.transit_judged_at ? format(new Date(row.transit_judged_at), "dd/MM/yyyy", { locale: ptBR }) : "-",
   },
   {
     header: "Status",
     accessor: (row) => {
       const labels: Record<string, string> = {
         open: "Aberto",
-        in_progress: "Em Execução",
         completed: "Concluído",
       };
       return labels[row.status] || row.status;
