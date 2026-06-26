@@ -22,7 +22,6 @@ import {
   MoreHorizontal,
   RotateCcw,
   Pencil,
-  Play,
 } from "lucide-react";
 import { EditDeadlineDialog } from "./EditDeadlineDialog";
 
@@ -34,8 +33,8 @@ interface DeadlineActionsProps {
     type: string;
     case_id?: string | null;
     responsible_member_id: string;
-    delivery_due_at: string;
-    fatal_due_at: string;
+    fatal_due_at: string | null;
+    transit_judged_at?: string | null;
     priority: number;
     notes?: string | null;
     drive_link?: string | null;
@@ -55,6 +54,9 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
         updateData.completed_at = null;
         updateData.completed_notes = null;
       }
+      if (status === "completed") {
+        updateData.completed_at = new Date().toISOString();
+      }
 
       const { error } = await supabase
         .from("deadlines")
@@ -65,7 +67,6 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
     },
     onSuccess: (_, variables) => {
       const messages: Record<string, string> = {
-        in_progress: "Prazo em execução!",
         completed: "Prazo concluído!",
         open: "Prazo reaberto",
       };
@@ -79,10 +80,6 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
     },
   });
 
-  const handleStartProgress = () => {
-    updateStatusMutation.mutate({ status: "in_progress" });
-  };
-
   const handleComplete = () => {
     updateStatusMutation.mutate({ status: "completed" });
   };
@@ -92,26 +89,13 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
     setReopenDialogOpen(false);
   };
 
-  const showStart = deadline.status === "open";
-  const showComplete = deadline.status === "open" || deadline.status === "in_progress";
-  const showReopen = deadline.status === "in_progress" || deadline.status === "completed";
+  const showComplete = deadline.status === "open";
+  const showReopen = deadline.status === "completed";
 
   return (
     <>
       <div className="flex items-center gap-1">
-        {showStart && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleStartProgress}
-            disabled={updateStatusMutation.isPending}
-            title="Iniciar Execução"
-          >
-            <Play className="h-4 w-4 text-primary" />
-          </Button>
-        )}
-
-        {deadline.status === "in_progress" && (
+        {showComplete && (
           <Button
             variant="ghost"
             size="icon"
@@ -134,12 +118,6 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
               <Pencil className="h-4 w-4 mr-2" />
               Editar
             </DropdownMenuItem>
-            {showStart && (
-              <DropdownMenuItem onClick={handleStartProgress}>
-                <Play className="h-4 w-4 mr-2" />
-                Iniciar Execução
-              </DropdownMenuItem>
-            )}
             {showComplete && (
               <DropdownMenuItem onClick={handleComplete}>
                 <CheckCheck className="h-4 w-4 mr-2" />
