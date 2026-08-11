@@ -546,19 +546,28 @@ export function AddDeadlineDialog({
 
             {/* Dates */}
             {isCumprimento ? (
-              <div className="space-y-2">
-                <Label>Data de Trânsito em Julgado *</Label>
-                <Input
-                  type="datetime-local"
-                  value={formData.transitJudgedAt}
-                  onChange={(e) =>
-                    setFormData({ ...formData, transitJudgedAt: e.target.value })
-                  }
-                />
-                <p className="text-xs text-muted-foreground">
-                  Cumprimento de Sentença não possui prazo fatal.
-                </p>
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label>Data de Trânsito em Julgado *</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.transitJudgedAt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, transitJudgedAt: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Prazo Fatal (opcional)</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.fatalDueAt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fatalDueAt: e.target.value })
+                    }
+                  />
+                </div>
+              </>
             ) : (
               <div className="space-y-2">
                 <Label>Prazo Fatal *</Label>
@@ -571,6 +580,9 @@ export function AddDeadlineDialog({
                 />
               </div>
             )}
+
+            {/* Tags */}
+            <DeadlineTagsField value={tagIds} onChange={setTagIds} />
 
             {/* Priority */}
             <div className="space-y-2">
