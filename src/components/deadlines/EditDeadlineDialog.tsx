@@ -269,6 +269,28 @@ export function EditDeadlineDialog({
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-4">
+            {/* Category */}
+            <div className="space-y-2">
+              <Label>Categoria do prazo *</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(v) =>
+                  setFormData({ ...formData, category: v as "normal" | "cumprimento_sentenca" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEADLINE_CATEGORY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Title */}
             <div className="space-y-2">
               <Label>Título *</Label>
@@ -443,19 +465,28 @@ export function EditDeadlineDialog({
 
             {/* Dates */}
             {isCumprimento ? (
-              <div className="space-y-2">
-                <Label>Data de Trânsito em Julgado *</Label>
-                <Input
-                  type="datetime-local"
-                  value={formData.transitJudgedAt}
-                  onChange={(e) =>
-                    setFormData({ ...formData, transitJudgedAt: e.target.value })
-                  }
-                />
-                <p className="text-xs text-muted-foreground">
-                  Cumprimento de Sentença não possui prazo fatal.
-                </p>
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label>Data de Trânsito em Julgado *</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.transitJudgedAt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, transitJudgedAt: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Prazo Fatal (opcional)</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.fatalDueAt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fatalDueAt: e.target.value })
+                    }
+                  />
+                </div>
+              </>
             ) : (
               <div className="space-y-2">
                 <Label>Prazo Fatal *</Label>
@@ -468,6 +499,9 @@ export function EditDeadlineDialog({
                 />
               </div>
             )}
+
+            {/* Tags */}
+            <DeadlineTagsField value={tagIds} onChange={setTagIds} />
 
             {/* Priority */}
             <div className="space-y-2">
