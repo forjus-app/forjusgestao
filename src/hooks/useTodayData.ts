@@ -25,6 +25,7 @@ export function useTodayDeadlines(responsibleId?: string) {
         `)
         .eq("status", "open")
         .lt("fatal_due_at", todayStart)
+        .eq("deadline_category", "normal")
         .order("fatal_due_at", { ascending: true })
         .limit(8);
 
@@ -43,6 +44,7 @@ export function useTodayDeadlines(responsibleId?: string) {
         .eq("status", "open")
         .gte("fatal_due_at", todayStart)
         .lte("fatal_due_at", todayEnd)
+        .eq("deadline_category", "normal")
         .order("fatal_due_at", { ascending: true })
         .limit(8);
 
@@ -171,6 +173,7 @@ export function useTodayStats(responsibleId?: string) {
         .from("deadlines")
         .select("id", { count: "exact", head: true })
         .eq("status", "open")
+        .eq("deadline_category", "normal")
         .lt("fatal_due_at", todayStart);
 
       // Today's deadlines count
@@ -178,6 +181,7 @@ export function useTodayStats(responsibleId?: string) {
         .from("deadlines")
         .select("id", { count: "exact", head: true })
         .eq("status", "open")
+        .eq("deadline_category", "normal")
         .gte("fatal_due_at", todayStart)
         .lte("fatal_due_at", todayEnd);
 
