@@ -214,3 +214,56 @@ export function useTodayStats(responsibleId?: string) {
     enabled: !!organization,
   });
 }
+
+export function useTodayCumprimentos(responsibleId?: string) {
+  const { data: organization } = useOrganization();
+
+  return useQuery({
+    queryKey: ["today-cumprimentos", organization?.id, responsibleId],
+    queryFn: async () => {
+      if (!organization) return { items: [], openCount: 0 };
+
+      let query = supabase
+        .from("deadlines")
+        .select(`
+          *,
+          team_members:responsible_member_id (id, name),
+          cases:case_id (id, title, cnj_number)
+        `)
+        .eq("deadline_category", "cumprimento_sentenca")
+        .eq("status", "open")
+        .order("fatal_due_at", { ascending: true, nullsFirst: false })
+        .limit(50);
+
+      if (responsibleId && responsibleId !== "all") {
+        query = query.eq("responsible_member_id", responsibleId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      const rows = data || [];
+      const now = new Date();
+      const todayEndMs = endOfDay(now).getTime();
+
+      const rank = (d: any) => {
+        if (!d.fatal_due_at) return 3;
+        const fatal = new Date(d.fatal_due_at).getTime();
+        if (fatal < startOfDay(now).getTime()) return 0; // atrasado
+        if (fatal <= todayEndMs) return 1; // hoje
+        return 2; // próximos
+      };
+
+      const sorted = [...rows].sort((a, b) => {
+        const r = rank(a) - rank(b);
+        if (r !== 0) return r;
+        const av = a.fatal_due_at ? new Date(a.fatal_due_at).getTime() : Infinity;
+        const bv = b.fatal_due_at ? new Date(b.fatal_due_at).getTime() : Infinity;
+        return av - bv;
+      });
+
+      return { items: sorted.slice(0, 6), openCount: rows.length };
+    },
+    enabled: !!organization,
+  });
+}
