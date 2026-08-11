@@ -885,12 +885,91 @@ export type Database = {
           },
         ]
       }
+      deadline_tag_links: {
+        Row: {
+          created_at: string
+          deadline_id: string
+          id: string
+          organization_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          deadline_id: string
+          id?: string
+          organization_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          deadline_id?: string
+          id?: string
+          organization_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deadline_tag_links_deadline_id_fkey"
+            columns: ["deadline_id"]
+            isOneToOne: false
+            referencedRelation: "deadlines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deadline_tag_links_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deadline_tag_links_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "deadline_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deadline_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deadline_tags_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deadlines: {
         Row: {
           case_id: string | null
           completed_at: string | null
           completed_notes: string | null
           created_at: string
+          deadline_category: string
           drive_link: string | null
           fatal_due_at: string | null
           id: string
@@ -909,6 +988,7 @@ export type Database = {
           completed_at?: string | null
           completed_notes?: string | null
           created_at?: string
+          deadline_category?: string
           drive_link?: string | null
           fatal_due_at?: string | null
           id?: string
@@ -927,6 +1007,7 @@ export type Database = {
           completed_at?: string | null
           completed_notes?: string | null
           created_at?: string
+          deadline_category?: string
           drive_link?: string | null
           fatal_due_at?: string | null
           id?: string
