@@ -37,6 +37,7 @@ import {
   Handshake,
   FileEdit,
   Contact,
+  Gavel,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useOrganization } from "@/hooks/useOrganization";
@@ -50,6 +51,7 @@ const navItems = [
   { title: "CRM", icon: Contact, href: "/crm" },
   { title: "Petições Novas", icon: FileEdit, href: "/service-requests" },
   { title: "Prazos", icon: Clock, href: "/deadlines" },
+  { title: "Cumprimentos de Sentença", icon: Gavel, href: "/cumprimentos-sentenca" },
   { title: "Agenda", icon: CalendarDays, href: "/agenda" },
   { title: "Contatos", icon: Users, href: "/contacts" },
   { title: "Tags", icon: Tags, href: "/tags" },
