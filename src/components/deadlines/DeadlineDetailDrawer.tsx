@@ -21,6 +21,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { EditDeadlineDialog } from "./EditDeadlineDialog";
+import { DeadlineTagBadges } from "./DeadlineTagBadges";
+import { useDeadlineTagLinks } from "@/hooks/useDeadlineTags";
 import {
   Calendar,
   Clock,
@@ -55,6 +57,7 @@ export function DeadlineDetailDrawer({
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesValue, setNotesValue] = useState("");
   const [reopenDialogOpen, setReopenDialogOpen] = useState(false);
+  const { data: tagLinks } = useDeadlineTagLinks();
 
   const { data: deadline, isLoading } = useQuery({
     queryKey: ["deadline-detail", deadlineId],
@@ -179,7 +182,17 @@ export function DeadlineDetailDrawer({
                       </Badge>
                       {getPriorityBadge(deadline.priority)}
                       {getDateWarning()}
+                      {deadline.deadline_category === "cumprimento_sentenca" && (
+                        <Badge variant="outline">Cumprimento de Sentença</Badge>
+                      )}
                     </div>
+                  )}
+                  {deadline && (
+                    <DeadlineTagBadges
+                      tags={tagLinks?.[deadline.id]}
+                      max={6}
+                      className="mt-2"
+                    />
                   )}
                 </div>
               </div>

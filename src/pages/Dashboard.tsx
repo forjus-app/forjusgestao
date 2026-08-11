@@ -14,6 +14,7 @@ import { TodayStatsCards } from "@/components/today/TodayStatsCards";
 import { TodayDeadlinesSection } from "@/components/today/TodayDeadlinesSection";
 import { TodayAgendaSection } from "@/components/today/TodayAgendaSection";
 import { TodaySettlementsSection } from "@/components/today/TodaySettlementsSection";
+import { TodayCumprimentosSection } from "@/components/today/TodayCumprimentosSection";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import { EmptyStateCards } from "@/components/onboarding/EmptyStateCards";
 import { WelcomeDialog } from "@/components/onboarding/WelcomeDialog";
@@ -22,6 +23,7 @@ import {
   useTodayEvents,
   useTodayFollowups,
   useTodayStats,
+  useTodayCumprimentos,
 } from "@/hooks/useTodayData";
 import { User } from "lucide-react";
 
@@ -52,6 +54,8 @@ export default function Dashboard() {
     useTodayFollowups(responsibleFilter);
   const { data: stats, isLoading: loadingStats } =
     useTodayStats(responsibleFilter);
+  const { data: cumprimentos, isLoading: loadingCumprimentos } =
+    useTodayCumprimentos(responsibleFilter);
 
   const followupCount =
     (followupsData?.overdue?.length || 0) + (followupsData?.today?.length || 0);
@@ -121,6 +125,13 @@ export default function Dashboard() {
         overdue={deadlinesData?.overdue || []}
         today={deadlinesData?.today || []}
         isLoading={loadingDeadlines}
+      />
+
+      {/* Cumprimentos de Sentença */}
+      <TodayCumprimentosSection
+        items={cumprimentos?.items || []}
+        openCount={cumprimentos?.openCount || 0}
+        isLoading={loadingCumprimentos}
       />
 
       {/* Agenda + Acordos */}

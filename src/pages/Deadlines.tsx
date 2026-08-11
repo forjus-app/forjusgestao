@@ -57,6 +57,8 @@ import { toast } from "sonner";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToExcel } from "@/lib/exportUtils";
 import { exportDeadlinesPDF } from "@/lib/deadlinesPdfExport";
+import { DeadlineTagBadges } from "@/components/deadlines/DeadlineTagBadges";
+import { useDeadlineTags, useDeadlineTagLinks } from "@/hooks/useDeadlineTags";
 
 type DeadlineStatus = "open" | "completed";
 type DateFunnel = "all" | "overdue" | "today" | "tomorrow" | "week" | "month";
@@ -84,6 +86,7 @@ export default function Deadlines() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterResponsible, setFilterResponsible] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const [filterTag, setFilterTag] = useState<string>("all");
   const [selectedDeadlineId, setSelectedDeadlineId] = useState<string | null>(null);
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
@@ -130,6 +133,9 @@ export default function Deadlines() {
     setSelectedIds(allSelected ? selectedIds.filter((id) => !ids.includes(id)) : Array.from(new Set([...selectedIds, ...ids])));
   };
 
+  const { data: allTags } = useDeadlineTags();
+  const { data: tagLinks } = useDeadlineTagLinks();
+
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
     queryFn: async () => {
@@ -164,6 +170,7 @@ export default function Deadlines() {
           cases:case_id (id, title, cnj_number, case_parties (is_primary_client, contacts (name)))
         `
         )
+        .eq("deadline_category", "normal")
         .order("fatal_due_at", { ascending: true });
 
       if (viewMode !== "kanban" && activeTab !== "all") {
@@ -186,9 +193,17 @@ export default function Deadlines() {
     enabled: !!organization?.id,
   });
 
-  // Apply date funnel filter client-side
+  // Apply tag filter + date funnel filter client-side
+  const taggedDeadlines = useMemo(() => {
+    if (!rawDeadlines) return rawDeadlines;
+    if (filterTag === "all") return rawDeadlines;
+    return rawDeadlines.filter((d: any) =>
+      (tagLinks?.[d.id] || []).some((t) => t.id === filterTag)
+    );
+  }, [rawDeadlines, filterTag, tagLinks]);
+
   const deadlines = useMemo(() => {
-    if (!rawDeadlines || activeFunnel === "all") return rawDeadlines;
+    if (!taggedDeadlines || activeFunnel === "all") return taggedDeadlines;
 
     const now = new Date();
     const todayStart = startOfDay(now);
@@ -198,7 +213,7 @@ export default function Deadlines() {
     const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
     const monthEnd = endOfMonth(now);
 
-    return rawDeadlines.filter((d: any) => {
+    return taggedDeadlines.filter((d: any) => {
       if (!d.fatal_due_at) return false;
       const fatal = parseLocalDateTime(d.fatal_due_at);
       switch (activeFunnel) {
@@ -216,11 +231,11 @@ export default function Deadlines() {
           return true;
       }
     });
-  }, [rawDeadlines, activeFunnel]);
+  }, [taggedDeadlines, activeFunnel]);
 
   // Funnel counts
   const funnelCounts = useMemo(() => {
-    if (!rawDeadlines) return {} as Record<DateFunnel, number>;
+    if (!taggedDeadlines) return {} as Record<DateFunnel, number>;
 
     const now = new Date();
     const todayStart = startOfDay(now);
@@ -231,7 +246,7 @@ export default function Deadlines() {
     const monthEnd = endOfMonth(now);
 
     const counts: Record<DateFunnel, number> = {
-      all: rawDeadlines.length,
+      all: taggedDeadlines.length,
       overdue: 0,
       today: 0,
       tomorrow: 0,
@@ -239,7 +254,7 @@ export default function Deadlines() {
       month: 0,
     };
 
-    rawDeadlines.forEach((d: any) => {
+    taggedDeadlines.forEach((d: any) => {
       if (!d.fatal_due_at) return;
       const fatal = parseLocalDateTime(d.fatal_due_at);
       if (d.status === "open" && isPast(fatal) && !isToday(fatal)) counts.overdue++;
@@ -250,7 +265,7 @@ export default function Deadlines() {
     });
 
     return counts;
-  }, [rawDeadlines]);
+  }, [taggedDeadlines]);
 
   const getPriorityBadge = (priority: number) => {
     if (priority === 2) return <Badge variant="destructive">Crítica</Badge>;
@@ -284,6 +299,10 @@ export default function Deadlines() {
       if (name) parts.push(`Responsável: ${name}`);
     }
     if (filterType !== "all") parts.push(`Tipo: ${filterType === "processual" ? "Processual" : "Interno"}`);
+    if (filterTag !== "all") {
+      const tagName = allTags?.find((t) => t.id === filterTag)?.name;
+      if (tagName) parts.push(`Etiqueta: ${tagName}`);
+    }
     if (searchTerm) parts.push(`Busca: "${searchTerm}"`);
     return parts.length > 0 ? parts.join(" | ") : "Todos";
   };
@@ -408,6 +427,19 @@ export default function Deadlines() {
                 <SelectItem value="all">Todos tipos</SelectItem>
                 <SelectItem value="processual">Processual</SelectItem>
                 <SelectItem value="interno">Interno</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterTag} onValueChange={setFilterTag}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Etiqueta" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas etiquetas</SelectItem>
+                {allTags?.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -591,6 +623,7 @@ export default function Deadlines() {
                             {deadline.type === "interno" && (
                               <span className="text-xs text-muted-foreground">Interno</span>
                             )}
+                            <DeadlineTagBadges tags={tagLinks?.[deadline.id]} className="mt-1" />
                           </TableCell>
                           <TableCell>{deadline.team_members?.name || "-"}</TableCell>
                           <TableCell>

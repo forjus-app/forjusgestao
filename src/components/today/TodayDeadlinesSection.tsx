@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DeadlineDetailDrawer } from "@/components/deadlines/DeadlineDetailDrawer";
 import { EditDeadlineDialog } from "@/components/deadlines/EditDeadlineDialog";
+import { DeadlineTagBadges } from "@/components/deadlines/DeadlineTagBadges";
+import { useDeadlineTagLinks } from "@/hooks/useDeadlineTags";
 import {
   AlertTriangle,
   Clock,
@@ -34,6 +36,7 @@ export function TodayDeadlinesSection({
   isLoading,
 }: TodayDeadlinesSectionProps) {
   const queryClient = useQueryClient();
+  const { data: tagLinks } = useDeadlineTagLinks();
   const [selectedDeadlineId, setSelectedDeadlineId] = useState<string | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [editDeadline, setEditDeadline] = useState<any | null>(null);
@@ -103,6 +106,7 @@ export function TodayDeadlinesSection({
             </Link>
           )}
         </div>
+        <DeadlineTagBadges tags={tagLinks?.[deadline.id]} className="mt-1" />
       </div>
       <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
         <Button

@@ -16,6 +16,7 @@ import CaseDetail from "./pages/CaseDetail";
 import Contacts from "./pages/Contacts";
 import Tags from "./pages/Tags";
 import Deadlines from "./pages/Deadlines";
+import CumprimentosSentenca from "./pages/CumprimentosSentenca";
 import Agenda from "./pages/Agenda";
 import ExternalCases from "./pages/ExternalCases";
 import ExternalCaseDetail from "./pages/ExternalCaseDetail";
@@ -107,6 +108,14 @@ const App = () => (
               element={
                 <AppLayout>
                   <Agenda />
+                </AppLayout>
+              }
+            />
+            <Route
+              path="/cumprimentos-sentenca"
+              element={
+                <AppLayout>
+                  <CumprimentosSentenca />
                 </AppLayout>
               }
             />

@@ -25,6 +25,7 @@ export function useTodayDeadlines(responsibleId?: string) {
         `)
         .eq("status", "open")
         .lt("fatal_due_at", todayStart)
+        .eq("deadline_category", "normal")
         .order("fatal_due_at", { ascending: true })
         .limit(8);
 
@@ -43,6 +44,7 @@ export function useTodayDeadlines(responsibleId?: string) {
         .eq("status", "open")
         .gte("fatal_due_at", todayStart)
         .lte("fatal_due_at", todayEnd)
+        .eq("deadline_category", "normal")
         .order("fatal_due_at", { ascending: true })
         .limit(8);
 
@@ -171,6 +173,7 @@ export function useTodayStats(responsibleId?: string) {
         .from("deadlines")
         .select("id", { count: "exact", head: true })
         .eq("status", "open")
+        .eq("deadline_category", "normal")
         .lt("fatal_due_at", todayStart);
 
       // Today's deadlines count
@@ -178,6 +181,7 @@ export function useTodayStats(responsibleId?: string) {
         .from("deadlines")
         .select("id", { count: "exact", head: true })
         .eq("status", "open")
+        .eq("deadline_category", "normal")
         .gte("fatal_due_at", todayStart)
         .lte("fatal_due_at", todayEnd);
 
@@ -206,6 +210,59 @@ export function useTodayStats(responsibleId?: string) {
         todayDeadlines: todayR.count || 0,
         upcomingEvents: eventsR.count || 0,
       };
+    },
+    enabled: !!organization,
+  });
+}
+
+export function useTodayCumprimentos(responsibleId?: string) {
+  const { data: organization } = useOrganization();
+
+  return useQuery({
+    queryKey: ["today-cumprimentos", organization?.id, responsibleId],
+    queryFn: async () => {
+      if (!organization) return { items: [], openCount: 0 };
+
+      let query = supabase
+        .from("deadlines")
+        .select(`
+          *,
+          team_members:responsible_member_id (id, name),
+          cases:case_id (id, title, cnj_number)
+        `)
+        .eq("deadline_category", "cumprimento_sentenca")
+        .eq("status", "open")
+        .order("fatal_due_at", { ascending: true, nullsFirst: false })
+        .limit(50);
+
+      if (responsibleId && responsibleId !== "all") {
+        query = query.eq("responsible_member_id", responsibleId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      const rows = data || [];
+      const now = new Date();
+      const todayEndMs = endOfDay(now).getTime();
+
+      const rank = (d: any) => {
+        if (!d.fatal_due_at) return 3;
+        const fatal = new Date(d.fatal_due_at).getTime();
+        if (fatal < startOfDay(now).getTime()) return 0; // atrasado
+        if (fatal <= todayEndMs) return 1; // hoje
+        return 2; // próximos
+      };
+
+      const sorted = [...rows].sort((a, b) => {
+        const r = rank(a) - rank(b);
+        if (r !== 0) return r;
+        const av = a.fatal_due_at ? new Date(a.fatal_due_at).getTime() : Infinity;
+        const bv = b.fatal_due_at ? new Date(b.fatal_due_at).getTime() : Infinity;
+        return av - bv;
+      });
+
+      return { items: sorted.slice(0, 6), openCount: rows.length };
     },
     enabled: !!organization,
   });

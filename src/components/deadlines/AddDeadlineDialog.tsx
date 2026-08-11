@@ -25,12 +25,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
 import { toLocalISOString } from "@/lib/dateUtils";
-import { DEADLINE_TITLE_PRESETS, isCumprimentoSentenca } from "./deadlineTitlePresets";
+import { DEADLINE_TITLE_PRESETS, CUMPRIMENTO_SENTENCA_TITLE } from "./deadlineTitlePresets";
+import { DEADLINE_CATEGORY_OPTIONS } from "./deadlineCategory";
+import { DeadlineTagsField } from "./DeadlineTagsField";
+import { saveDeadlineTagLinks } from "@/hooks/useDeadlineTags";
 
 interface AddDeadlineDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   preselectedCaseId?: string;
+  defaultCategory?: "normal" | "cumprimento_sentenca";
 }
 
 const priorityOptions = [
@@ -70,14 +74,16 @@ export function AddDeadlineDialog({
   open,
   onOpenChange,
   preselectedCaseId,
+  defaultCategory = "normal",
 }: AddDeadlineDialogProps) {
   const { data: organization } = useOrganization();
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
-    title: "",
-    titlePreset: "",
+    title: defaultCategory === "cumprimento_sentenca" ? CUMPRIMENTO_SENTENCA_TITLE : "",
+    titlePreset: defaultCategory === "cumprimento_sentenca" ? CUMPRIMENTO_SENTENCA_TITLE : "",
     customTitle: "",
+    category: defaultCategory as "normal" | "cumprimento_sentenca",
     type: preselectedCaseId ? "processual" : "interno",
     caseId: preselectedCaseId || "",
     responsibleMemberId: "",
@@ -87,6 +93,7 @@ export function AddDeadlineDialog({
     notes: "",
     driveLink: "",
   });
+  const [tagIds, setTagIds] = useState<string[]>([]);
   const [caseSearch, setCaseSearch] = useState("");
   const [copied, setCopied] = useState(false);
   const [quickAddCaseOpen, setQuickAddCaseOpen] = useState(false);
@@ -167,7 +174,7 @@ export function AddDeadlineDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseDefaultResponsible]);
 
-  const isCumprimento = isCumprimentoSentenca(formData.title);
+  const isCumprimento = formData.category === "cumprimento_sentenca";
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -191,27 +198,36 @@ export function AddDeadlineDialog({
         throw new Error("Processo é obrigatório para prazos processuais");
       }
 
-      const { error } = await supabase.from("deadlines").insert({
+      const { data: created, error } = await supabase.from("deadlines").insert({
         organization_id: organization.id,
         type: formData.type,
+        deadline_category: formData.category,
         case_id:
           formData.type === "processual"
             ? formData.caseId || preselectedCaseId
             : null,
         title: formData.title,
         responsible_member_id: formData.responsibleMemberId,
-        fatal_due_at: isCumprimento ? null : toLocalISOString(formData.fatalDueAt),
+        fatal_due_at: formData.fatalDueAt ? toLocalISOString(formData.fatalDueAt) : null,
         transit_judged_at: isCumprimento ? toLocalISOString(formData.transitJudgedAt) : null,
         priority: parseInt(formData.priority),
         notes: formData.notes || null,
         drive_link: formData.driveLink || null,
-      });
+      }).select("id").single();
 
       if (error) throw error;
+
+      if (created?.id && tagIds.length > 0) {
+        await saveDeadlineTagLinks(organization.id, created.id, tagIds);
+      }
     },
     onSuccess: () => {
       toast.success("Prazo criado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["cumprimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["deadline-tag-links"] });
+      queryClient.invalidateQueries({ queryKey: ["today-deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["today-cumprimentos"] });
       queryClient.invalidateQueries({ queryKey: ["cases"] });
       queryClient.invalidateQueries({ queryKey: ["cases-search"] });
       if (preselectedCaseId) {
@@ -228,9 +244,10 @@ export function AddDeadlineDialog({
 
   const handleClose = () => {
     setFormData({
-      title: "",
-      titlePreset: "",
+      title: defaultCategory === "cumprimento_sentenca" ? CUMPRIMENTO_SENTENCA_TITLE : "",
+      titlePreset: defaultCategory === "cumprimento_sentenca" ? CUMPRIMENTO_SENTENCA_TITLE : "",
       customTitle: "",
+      category: defaultCategory,
       type: preselectedCaseId ? "processual" : "interno",
       caseId: preselectedCaseId || "",
       responsibleMemberId: "",
@@ -240,6 +257,7 @@ export function AddDeadlineDialog({
       notes: "",
       driveLink: "",
     });
+    setTagIds([]);
     setCaseSearch("");
     setCopied(false);
     setNewlyCreatedCase(null);
@@ -279,6 +297,34 @@ export function AddDeadlineDialog({
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-4">
+            {/* Category */}
+            <div className="space-y-2">
+              <Label>Categoria do prazo *</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(v) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    category: v as "normal" | "cumprimento_sentenca",
+                    ...(v === "cumprimento_sentenca" && !prev.title
+                      ? { title: CUMPRIMENTO_SENTENCA_TITLE, titlePreset: CUMPRIMENTO_SENTENCA_TITLE }
+                      : {}),
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEADLINE_CATEGORY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Title */}
             <div className="space-y-2">
               <Label>Título *</Label>
@@ -500,19 +546,28 @@ export function AddDeadlineDialog({
 
             {/* Dates */}
             {isCumprimento ? (
-              <div className="space-y-2">
-                <Label>Data de Trânsito em Julgado *</Label>
-                <Input
-                  type="datetime-local"
-                  value={formData.transitJudgedAt}
-                  onChange={(e) =>
-                    setFormData({ ...formData, transitJudgedAt: e.target.value })
-                  }
-                />
-                <p className="text-xs text-muted-foreground">
-                  Cumprimento de Sentença não possui prazo fatal.
-                </p>
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label>Data de Trânsito em Julgado *</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.transitJudgedAt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, transitJudgedAt: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Prazo Fatal (opcional)</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.fatalDueAt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, fatalDueAt: e.target.value })
+                    }
+                  />
+                </div>
+              </>
             ) : (
               <div className="space-y-2">
                 <Label>Prazo Fatal *</Label>
@@ -525,6 +580,9 @@ export function AddDeadlineDialog({
                 />
               </div>
             )}
+
+            {/* Tags */}
+            <DeadlineTagsField value={tagIds} onChange={setTagIds} />
 
             {/* Priority */}
             <div className="space-y-2">
