@@ -31,6 +31,7 @@ interface DeadlineActionsProps {
     status: string;
     title: string;
     type: string;
+    deadline_category?: string | null;
     case_id?: string | null;
     responsible_member_id: string;
     fatal_due_at: string | null;
@@ -72,6 +73,9 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
       };
       toast.success(messages[variables.status] || "Status atualizado");
       queryClient.invalidateQueries({ queryKey: ["deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["cumprimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["today-deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["today-cumprimentos"] });
       queryClient.invalidateQueries({ queryKey: ["case-deadlines"] });
       queryClient.invalidateQueries({ queryKey: ["deadline-detail"] });
     },
