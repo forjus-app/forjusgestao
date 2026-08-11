@@ -297,6 +297,34 @@ export function AddDeadlineDialog({
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
           <div className="space-y-4">
+            {/* Category */}
+            <div className="space-y-2">
+              <Label>Categoria do prazo *</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(v) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    category: v as "normal" | "cumprimento_sentenca",
+                    ...(v === "cumprimento_sentenca" && !prev.title
+                      ? { title: CUMPRIMENTO_SENTENCA_TITLE, titlePreset: CUMPRIMENTO_SENTENCA_TITLE }
+                      : {}),
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEADLINE_CATEGORY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Title */}
             <div className="space-y-2">
               <Label>Título *</Label>
