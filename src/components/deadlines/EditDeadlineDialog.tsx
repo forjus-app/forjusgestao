@@ -24,7 +24,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { QuickAddCaseDialog } from "./QuickAddCaseDialog";
 import { toLocalISOString } from "@/lib/dateUtils";
-import { DEADLINE_TITLE_PRESETS, isCumprimentoSentenca } from "./deadlineTitlePresets";
+import { DEADLINE_TITLE_PRESETS } from "./deadlineTitlePresets";
+import { DEADLINE_CATEGORY_OPTIONS } from "./deadlineCategory";
+import { DeadlineTagsField } from "./DeadlineTagsField";
+import { saveDeadlineTagLinks } from "@/hooks/useDeadlineTags";
 
 interface EditDeadlineDialogProps {
   open: boolean;
@@ -33,6 +36,7 @@ interface EditDeadlineDialogProps {
     id: string;
     title: string;
     type: string;
+    deadline_category?: string | null;
     case_id?: string | null;
     responsible_member_id: string;
     fatal_due_at: string | null;
@@ -67,6 +71,7 @@ export function EditDeadlineDialog({
     title: "",
     titlePreset: "",
     customTitle: "",
+    category: "normal" as "normal" | "cumprimento_sentenca",
     type: "interno",
     caseId: "",
     responsibleMemberId: "",
@@ -80,6 +85,7 @@ export function EditDeadlineDialog({
   const [copied, setCopied] = useState(false);
   const [quickAddCaseOpen, setQuickAddCaseOpen] = useState(false);
   const [newlyCreatedCase, setNewlyCreatedCase] = useState<{ id: string; title: string } | null>(null);
+  const [tagIds, setTagIds] = useState<string[]>([]);
 
   // Initialize form when deadline changes
   useEffect(() => {
@@ -89,6 +95,9 @@ export function EditDeadlineDialog({
         title: deadline.title || "",
         titlePreset: isPreset ? deadline.title : (deadline.title ? "__custom__" : ""),
         customTitle: isPreset ? "" : (deadline.title || ""),
+        category: (deadline.deadline_category === "cumprimento_sentenca"
+          ? "cumprimento_sentenca"
+          : "normal"),
         type: deadline.type || "interno",
         caseId: deadline.case_id || "",
         responsibleMemberId: deadline.responsible_member_id || "",
@@ -101,6 +110,23 @@ export function EditDeadlineDialog({
       setNewlyCreatedCase(null);
     }
   }, [deadline]);
+
+  // Load current tags of the deadline
+  useEffect(() => {
+    let active = true;
+    if (open && deadline?.id) {
+      supabase
+        .from("deadline_tag_links")
+        .select("tag_id")
+        .eq("deadline_id", deadline.id)
+        .then(({ data }) => {
+          if (active) setTagIds((data || []).map((r: any) => r.tag_id));
+        });
+    }
+    return () => {
+      active = false;
+    };
+  }, [open, deadline?.id]);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -140,7 +166,7 @@ export function EditDeadlineDialog({
 
   const selectedCase = cases?.find((c) => c.id === formData.caseId);
   const caseDriveLink = selectedCase?.drive_link;
-  const isCumprimento = isCumprimentoSentenca(formData.title);
+  const isCumprimento = formData.category === "cumprimento_sentenca";
 
   const updateMutation = useMutation({
     mutationFn: async () => {
@@ -164,10 +190,11 @@ export function EditDeadlineDialog({
         .from("deadlines")
         .update({
           type: formData.type,
+          deadline_category: formData.category,
           case_id: formData.type === "processual" ? formData.caseId : null,
           title: formData.title,
           responsible_member_id: formData.responsibleMemberId,
-          fatal_due_at: isCumprimento ? null : toLocalISOString(formData.fatalDueAt),
+          fatal_due_at: formData.fatalDueAt ? toLocalISOString(formData.fatalDueAt) : null,
           transit_judged_at: isCumprimento ? toLocalISOString(formData.transitJudgedAt) : null,
           priority: parseInt(formData.priority),
           notes: formData.notes || null,
@@ -176,6 +203,8 @@ export function EditDeadlineDialog({
         .eq("id", deadline.id);
 
       if (error) throw error;
+
+      await saveDeadlineTagLinks(organization.id, deadline.id, tagIds);
 
       // Create timeline event if linked to a case
       if (formData.type === "processual" && formData.caseId) {
@@ -194,6 +223,11 @@ export function EditDeadlineDialog({
     onSuccess: () => {
       toast.success("Prazo atualizado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["cumprimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["deadline-tag-links"] });
+      queryClient.invalidateQueries({ queryKey: ["today-deadlines"] });
+      queryClient.invalidateQueries({ queryKey: ["today-cumprimentos"] });
+      queryClient.invalidateQueries({ queryKey: ["deadline-detail"] });
       queryClient.invalidateQueries({ queryKey: ["case-deadlines"] });
       queryClient.invalidateQueries({ queryKey: ["cases"] });
       onOpenChange(false);
