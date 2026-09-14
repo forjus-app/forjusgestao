@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, User } from "lucide-react";
 import { TribunalSelect } from "@/components/cases/TribunalSelect";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ export default function NewCase() {
     phase_id: "",
     area_id: "",
     type_id: "",
+    responsible_id: "",
     tribunal: "",
     court: "",
     court_division: "",
@@ -100,6 +101,22 @@ export default function NewCase() {
     enabled: !!organization,
   });
 
+  const { data: teamMembers } = useQuery({
+    queryKey: ["team-members-active", organization?.id],
+    queryFn: async () => {
+      if (!organization) return [];
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("organization_id", organization.id)
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!organization,
+  });
+
   const createCase = useMutation({
     mutationFn: async () => {
       if (!organization) throw new Error("Organização não encontrada");
@@ -116,6 +133,7 @@ export default function NewCase() {
           phase_id: formData.phase_id || null,
           area_id: formData.area_id || null,
           type_id: formData.type_id || null,
+          default_deadline_responsible_id: formData.responsible_id || null,
           tribunal: formData.tribunal || null,
           court: formData.court || null,
           court_division: formData.court_division || null,
@@ -146,6 +164,10 @@ export default function NewCase() {
     e.preventDefault();
     if (!formData.title.trim()) {
       toast.error("O título é obrigatório");
+      return;
+    }
+    if (!formData.responsible_id) {
+      toast.error("O responsável é obrigatório");
       return;
     }
     createCase.mutate();
@@ -228,10 +250,10 @@ export default function NewCase() {
         <Card>
           <CardHeader>
             <CardTitle>Classificação</CardTitle>
-            <CardDescription>Status, fase e área do processo</CardDescription>
+            <CardDescription>Status, fase, área e responsável do processo</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
               <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
@@ -302,6 +324,27 @@ export default function NewCase() {
                     {types?.map((type) => (
                       <SelectItem key={type.id} value={type.id}>
                         {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="responsible_id">
+                  Responsável <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.responsible_id}
+                  onValueChange={(v) => handleChange("responsible_id", v)}
+                >
+                  <SelectTrigger id="responsible_id">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teamMembers?.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
