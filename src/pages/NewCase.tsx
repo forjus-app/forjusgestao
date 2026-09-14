@@ -101,6 +101,22 @@ export default function NewCase() {
     enabled: !!organization,
   });
 
+  const { data: teamMembers } = useQuery({
+    queryKey: ["team-members-active", organization?.id],
+    queryFn: async () => {
+      if (!organization) return [];
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("organization_id", organization.id)
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!organization,
+  });
+
   const createCase = useMutation({
     mutationFn: async () => {
       if (!organization) throw new Error("Organização não encontrada");
@@ -117,6 +133,7 @@ export default function NewCase() {
           phase_id: formData.phase_id || null,
           area_id: formData.area_id || null,
           type_id: formData.type_id || null,
+          default_deadline_responsible_id: formData.responsible_id || null,
           tribunal: formData.tribunal || null,
           court: formData.court || null,
           court_division: formData.court_division || null,
