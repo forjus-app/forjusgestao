@@ -170,8 +170,13 @@ export default function Deadlines() {
           cases:case_id (id, title, cnj_number, case_parties (is_primary_client, contacts (name)))
         `
         )
-        .eq("deadline_category", "normal")
-        .order("fatal_due_at", { ascending: true });
+        .eq("deadline_category", "normal");
+
+      if (viewMode !== "kanban" && activeTab === "completed") {
+        query = query.order("completed_at", { ascending: false, nullsFirst: false });
+      } else {
+        query = query.order("fatal_due_at", { ascending: true });
+      }
 
       if (viewMode !== "kanban" && activeTab !== "all") {
         query = query.eq("status", activeTab);
