@@ -604,6 +604,7 @@ export default function Deadlines() {
                         <TableHead>Responsável</TableHead>
                         <TableHead>Processo</TableHead>
                         <TableHead>Fatal</TableHead>
+                        {activeTab === "completed" && <TableHead>Concluído em</TableHead>}
                         <TableHead>Status</TableHead>
                         <TableHead className="w-[120px]">Ações</TableHead>
                       </TableRow>
@@ -656,6 +657,11 @@ export default function Deadlines() {
                               ? `Trânsito: ${format(parseLocalDateTime(deadline.transit_judged_at), "dd/MM/yyyy", { locale: ptBR })}`
                               : "—"}
                           </TableCell>
+                          {activeTab === "completed" && (
+                            <TableCell className="text-sm">
+                              {formatDateTime(deadline.completed_at)}
+                            </TableCell>
+                          )}
                           <TableCell>
                             {deadline.status === "open" && <Badge variant="outline">Aberto</Badge>}
                             {deadline.status === "completed" && (
