@@ -370,6 +370,7 @@ export default function CumprimentosSentenca() {
                   <TableHead>Responsável</TableHead>
                   <TableHead>Trânsito</TableHead>
                   <TableHead>Prazo Fatal</TableHead>
+                  {activeStatus !== "open" && <TableHead>Concluído em</TableHead>}
                   <TableHead>Status</TableHead>
                   <TableHead className="w-[160px]">Ações</TableHead>
                 </TableRow>
@@ -412,6 +413,9 @@ export default function CumprimentosSentenca() {
                     <TableCell>{item.team_members?.name || "—"}</TableCell>
                     <TableCell className="text-sm">{formatDate(item.transit_judged_at)}</TableCell>
                     <TableCell className="text-sm">{formatDateTime(item.fatal_due_at)}</TableCell>
+                    {activeStatus !== "open" && (
+                      <TableCell className="text-sm">{formatDateTime(item.completed_at)}</TableCell>
+                    )}
                     <TableCell>
                       {item.status === "open" ? (
                         <Badge variant="outline">Aberto</Badge>
