@@ -103,8 +103,13 @@ export default function CumprimentosSentenca() {
           cases:case_id (id, title, cnj_number)
         `
         )
-        .eq("deadline_category", "cumprimento_sentenca")
-        .order("fatal_due_at", { ascending: true, nullsFirst: false });
+        .eq("deadline_category", "cumprimento_sentenca");
+
+      if (activeStatus === "completed") {
+        query = query.order("completed_at", { ascending: false, nullsFirst: false });
+      } else {
+        query = query.order("fatal_due_at", { ascending: true, nullsFirst: false });
+      }
 
       if (activeStatus !== "all") query = query.eq("status", activeStatus);
       if (filterResponsible !== "all")
@@ -145,13 +150,15 @@ export default function CumprimentosSentenca() {
       const tomorrowEnd = endOfDay(addDays(now, 1));
       const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
       const monthEnd = endOfMonth(now);
+      const useCompletedDate = activeStatus === "completed";
 
       rows = rows.filter((d: any) => {
-        if (!d.fatal_due_at) return false;
-        const fatal = parseLocalDateTime(d.fatal_due_at);
+        const baseDate = useCompletedDate ? d.completed_at : d.fatal_due_at;
+        if (!baseDate) return false;
+        const fatal = parseLocalDateTime(baseDate);
         switch (activeFunnel) {
           case "overdue":
-            return d.status === "open" && isPast(fatal) && !isToday(fatal);
+            return !useCompletedDate && d.status === "open" && isPast(fatal) && !isToday(fatal);
           case "today":
             return isWithinInterval(fatal, { start: todayStart, end: todayEnd });
           case "tomorrow":
@@ -167,7 +174,7 @@ export default function CumprimentosSentenca() {
     }
 
     return rows;
-  }, [rawItems, filterTag, tagLinks, activeFunnel]);
+  }, [rawItems, filterTag, tagLinks, activeFunnel, activeStatus]);
 
   const formatDateTime = (date: string | null) =>
     date ? format(parseLocalDateTime(date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "—";
