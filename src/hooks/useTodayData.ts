@@ -199,6 +199,7 @@ export function useTodayStats(responsibleId?: string) {
       let casesQ = supabase
         .from("cases")
         .select("id", { count: "exact", head: true })
+        .eq("organization_id", organization.id)
         .gte("created_at", monthStart)
         .lte("created_at", monthEnd);
 
