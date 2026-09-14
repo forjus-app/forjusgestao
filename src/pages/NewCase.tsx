@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, User } from "lucide-react";
 import { TribunalSelect } from "@/components/cases/TribunalSelect";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ export default function NewCase() {
     phase_id: "",
     area_id: "",
     type_id: "",
+    responsible_id: "",
     tribunal: "",
     court: "",
     court_division: "",
