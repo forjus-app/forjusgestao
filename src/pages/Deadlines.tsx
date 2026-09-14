@@ -170,8 +170,13 @@ export default function Deadlines() {
           cases:case_id (id, title, cnj_number, case_parties (is_primary_client, contacts (name)))
         `
         )
-        .eq("deadline_category", "normal")
-        .order("fatal_due_at", { ascending: true });
+        .eq("deadline_category", "normal");
+
+      if (viewMode !== "kanban" && activeTab === "completed") {
+        query = query.order("completed_at", { ascending: false, nullsFirst: false });
+      } else {
+        query = query.order("fatal_due_at", { ascending: true });
+      }
 
       if (viewMode !== "kanban" && activeTab !== "all") {
         query = query.eq("status", activeTab);
@@ -212,13 +217,15 @@ export default function Deadlines() {
     const tomorrowEnd = endOfDay(addDays(now, 1));
     const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
     const monthEnd = endOfMonth(now);
+    const useCompletedDate = activeTab === "completed";
 
     return taggedDeadlines.filter((d: any) => {
-      if (!d.fatal_due_at) return false;
-      const fatal = parseLocalDateTime(d.fatal_due_at);
+      const baseDate = useCompletedDate ? d.completed_at : d.fatal_due_at;
+      if (!baseDate) return false;
+      const fatal = parseLocalDateTime(baseDate);
       switch (activeFunnel) {
         case "overdue":
-          return d.status === "open" && isPast(fatal) && !isToday(fatal);
+          return !useCompletedDate && d.status === "open" && isPast(fatal) && !isToday(fatal);
         case "today":
           return isWithinInterval(fatal, { start: todayStart, end: todayEnd });
         case "tomorrow":
@@ -231,7 +238,7 @@ export default function Deadlines() {
           return true;
       }
     });
-  }, [taggedDeadlines, activeFunnel]);
+  }, [taggedDeadlines, activeFunnel, activeTab]);
 
   // Funnel counts
   const funnelCounts = useMemo(() => {
@@ -254,10 +261,13 @@ export default function Deadlines() {
       month: 0,
     };
 
+    const useCompletedDate = activeTab === "completed";
+
     taggedDeadlines.forEach((d: any) => {
-      if (!d.fatal_due_at) return;
-      const fatal = parseLocalDateTime(d.fatal_due_at);
-      if (d.status === "open" && isPast(fatal) && !isToday(fatal)) counts.overdue++;
+      const baseDate = useCompletedDate ? d.completed_at : d.fatal_due_at;
+      if (!baseDate) return;
+      const fatal = parseLocalDateTime(baseDate);
+      if (!useCompletedDate && d.status === "open" && isPast(fatal) && !isToday(fatal)) counts.overdue++;
       if (isWithinInterval(fatal, { start: todayStart, end: todayEnd })) counts.today++;
       if (isWithinInterval(fatal, { start: tomorrowStart, end: tomorrowEnd })) counts.tomorrow++;
       if (isWithinInterval(fatal, { start: todayStart, end: endOfDay(weekEnd) })) counts.week++;
@@ -265,7 +275,7 @@ export default function Deadlines() {
     });
 
     return counts;
-  }, [taggedDeadlines]);
+  }, [taggedDeadlines, activeTab]);
 
   const getPriorityBadge = (priority: number) => {
     if (priority === 2) return <Badge variant="destructive">Crítica</Badge>;
@@ -445,7 +455,12 @@ export default function Deadlines() {
           </div>
 
           {/* Date Funnel Chips */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          {activeTab === "completed" && viewMode === "table" && (
+            <p className="text-xs text-muted-foreground mt-4">
+              Período filtrado pela data de conclusão
+            </p>
+          )}
+          <div className={`flex flex-wrap gap-2 ${activeTab === "completed" && viewMode === "table" ? "mt-2" : "mt-4"}`}>
             {dateFunnels.map((funnel) => (
               <Button
                 key={funnel.value}
@@ -594,6 +609,7 @@ export default function Deadlines() {
                         <TableHead>Responsável</TableHead>
                         <TableHead>Processo</TableHead>
                         <TableHead>Fatal</TableHead>
+                        {activeTab === "completed" && <TableHead>Concluído em</TableHead>}
                         <TableHead>Status</TableHead>
                         <TableHead className="w-[120px]">Ações</TableHead>
                       </TableRow>
@@ -646,6 +662,11 @@ export default function Deadlines() {
                               ? `Trânsito: ${format(parseLocalDateTime(deadline.transit_judged_at), "dd/MM/yyyy", { locale: ptBR })}`
                               : "—"}
                           </TableCell>
+                          {activeTab === "completed" && (
+                            <TableCell className="text-sm">
+                              {formatDateTime(deadline.completed_at)}
+                            </TableCell>
+                          )}
                           <TableCell>
                             {deadline.status === "open" && <Badge variant="outline">Aberto</Badge>}
                             {deadline.status === "completed" && (
