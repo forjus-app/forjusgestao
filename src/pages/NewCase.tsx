@@ -166,6 +166,10 @@ export default function NewCase() {
       toast.error("O título é obrigatório");
       return;
     }
+    if (!formData.responsible_id) {
+      toast.error("O responsável é obrigatório");
+      return;
+    }
     createCase.mutate();
   };
 
