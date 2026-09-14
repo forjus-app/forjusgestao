@@ -455,7 +455,12 @@ export default function Deadlines() {
           </div>
 
           {/* Date Funnel Chips */}
-          <div className="flex flex-wrap gap-2 mt-4">
+          {activeTab === "completed" && viewMode === "table" && (
+            <p className="text-xs text-muted-foreground mt-4">
+              Período filtrado pela data de conclusão
+            </p>
+          )}
+          <div className={`flex flex-wrap gap-2 ${activeTab === "completed" && viewMode === "table" ? "mt-2" : "mt-4"}`}>
             {dateFunnels.map((funnel) => (
               <Button
                 key={funnel.value}
