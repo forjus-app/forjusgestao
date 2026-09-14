@@ -1,12 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, Clock, CalendarDays, Handshake } from "lucide-react";
+import { AlertTriangle, Clock, CalendarDays, Handshake, Briefcase } from "lucide-react";
 
 interface TodayStatsCardsProps {
   stats: {
     overdueDeadlines: number;
     todayDeadlines: number;
     upcomingEvents: number;
+    monthlyCases: number;
   } | null | undefined;
   followupCount: number;
   isLoading: boolean;
@@ -44,10 +45,17 @@ export function TodayStatsCards({ stats, followupCount, isLoading }: TodayStatsC
       bgColor: "bg-primary/10",
       urgent: followupCount > 0,
     },
+    {
+      title: "Processos no Mês",
+      value: stats?.monthlyCases || 0,
+      icon: Briefcase,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+    },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
       {cards.map((card) => (
         <Card
           key={card.title}
