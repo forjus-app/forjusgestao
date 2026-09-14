@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
-import { startOfDay, endOfDay, addDays } from "date-fns";
+import { startOfDay, endOfDay, addDays, startOfMonth, endOfMonth } from "date-fns";
 
 export function useTodayDeadlines(responsibleId?: string) {
   const { data: organization } = useOrganization();
@@ -193,22 +193,34 @@ export function useTodayStats(responsibleId?: string) {
         .gte("start_at", now.toISOString())
         .lte("start_at", addDays(now, 7).toISOString());
 
+      // Cases created this month
+      const monthStart = startOfMonth(now).toISOString();
+      const monthEnd = endOfMonth(now).toISOString();
+      let casesQ = supabase
+        .from("cases")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", monthStart)
+        .lte("created_at", monthEnd);
+
       if (responsibleId && responsibleId !== "all") {
         overdueQ = overdueQ.eq("responsible_member_id", responsibleId);
         todayQ = todayQ.eq("responsible_member_id", responsibleId);
         eventsQ = eventsQ.eq("responsible_member_id", responsibleId);
+        casesQ = casesQ.eq("default_deadline_responsible_id", responsibleId);
       }
 
-      const [overdueR, todayR, eventsR] = await Promise.all([
+      const [overdueR, todayR, eventsR, casesR] = await Promise.all([
         overdueQ,
         todayQ,
         eventsQ,
+        casesQ,
       ]);
 
       return {
         overdueDeadlines: overdueR.count || 0,
         todayDeadlines: todayR.count || 0,
         upcomingEvents: eventsR.count || 0,
+        monthlyCases: casesR.count || 0,
       };
     },
     enabled: !!organization,
