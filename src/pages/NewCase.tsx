@@ -250,10 +250,10 @@ export default function NewCase() {
         <Card>
           <CardHeader>
             <CardTitle>Classificação</CardTitle>
-            <CardDescription>Status, fase e área do processo</CardDescription>
+            <CardDescription>Status, fase, área e responsável do processo</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
               <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
@@ -324,6 +324,27 @@ export default function NewCase() {
                     {types?.map((type) => (
                       <SelectItem key={type.id} value={type.id}>
                         {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="responsible_id">
+                  Responsável <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.responsible_id}
+                  onValueChange={(v) => handleChange("responsible_id", v)}
+                >
+                  <SelectTrigger id="responsible_id">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teamMembers?.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
