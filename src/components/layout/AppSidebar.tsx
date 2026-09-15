@@ -49,7 +49,7 @@ const navItems = [
   { title: "Casos Externos", icon: Building2, href: "/external-cases" },
   { title: "Acordos", icon: Handshake, href: "/settlements" },
   { title: "CRM", icon: Contact, href: "/crm" },
-  { title: "Petições Novas", icon: FileEdit, href: "/service-requests" },
+  { title: "Petição Inicial", icon: FileEdit, href: "/service-requests" },
   { title: "Prazos", icon: Clock, href: "/deadlines" },
   { title: "Cumprimentos de Sentença", icon: Gavel, href: "/cumprimentos-sentenca" },
   { title: "Agenda", icon: CalendarDays, href: "/agenda" },
