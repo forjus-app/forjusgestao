@@ -120,7 +120,14 @@ export default function Dashboard() {
       <TodayStatsCards
         stats={stats}
         followupCount={followupCount}
-        isLoading={loadingStats || loadingFollowups}
+        openPeticoesCount={openPeticoesCount}
+        isLoading={loadingStats || loadingFollowups || loadingOpenPeticoes}
+      />
+
+      {/* Prazos Cumpridos + Iniciais em Aberto */}
+      <TodayCompletedDeadlinesChart
+        data={completedDeadlines}
+        isLoading={loadingCompletedDeadlines}
       />
 
       {/* Prazos Section */}
@@ -128,13 +135,6 @@ export default function Dashboard() {
         overdue={deadlinesData?.overdue || []}
         today={deadlinesData?.today || []}
         isLoading={loadingDeadlines}
-      />
-
-      {/* Cumprimentos de Sentença */}
-      <TodayCumprimentosSection
-        items={cumprimentos?.items || []}
-        openCount={cumprimentos?.openCount || 0}
-        isLoading={loadingCumprimentos}
       />
 
       {/* Agenda + Acordos */}
