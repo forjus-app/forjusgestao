@@ -14,7 +14,7 @@ interface TodayStatsCardsProps {
   isLoading: boolean;
 }
 
-export function TodayStatsCards({ stats, followupCount, isLoading }: TodayStatsCardsProps) {
+export function TodayStatsCards({ stats, followupCount, openPeticoesCount, isLoading }: TodayStatsCardsProps) {
   const cards = [
     {
       title: "Prazos Atrasados",
@@ -52,6 +52,14 @@ export function TodayStatsCards({ stats, followupCount, isLoading }: TodayStatsC
       icon: Briefcase,
       color: "text-primary",
       bgColor: "bg-primary/10",
+    },
+    {
+      title: "Iniciais em Aberto",
+      value: openPeticoesCount || 0,
+      icon: FileText,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+      urgent: (openPeticoesCount || 0) > 0,
     },
   ];
 
