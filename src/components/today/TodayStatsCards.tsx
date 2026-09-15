@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, Clock, CalendarDays, Handshake, Briefcase } from "lucide-react";
+import { AlertTriangle, Clock, CalendarDays, Handshake, Briefcase, FileText } from "lucide-react";
 
 interface TodayStatsCardsProps {
   stats: {
@@ -10,10 +10,11 @@ interface TodayStatsCardsProps {
     monthlyCases: number;
   } | null | undefined;
   followupCount: number;
+  openPeticoesCount: number | undefined;
   isLoading: boolean;
 }
 
-export function TodayStatsCards({ stats, followupCount, isLoading }: TodayStatsCardsProps) {
+export function TodayStatsCards({ stats, followupCount, openPeticoesCount, isLoading }: TodayStatsCardsProps) {
   const cards = [
     {
       title: "Prazos Atrasados",
@@ -52,10 +53,18 @@ export function TodayStatsCards({ stats, followupCount, isLoading }: TodayStatsC
       color: "text-primary",
       bgColor: "bg-primary/10",
     },
+    {
+      title: "Iniciais em Aberto",
+      value: openPeticoesCount || 0,
+      icon: FileText,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+      urgent: (openPeticoesCount || 0) > 0,
+    },
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-6">
       {cards.map((card) => (
         <Card
           key={card.title}

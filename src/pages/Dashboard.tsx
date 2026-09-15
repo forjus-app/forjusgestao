@@ -14,7 +14,7 @@ import { TodayStatsCards } from "@/components/today/TodayStatsCards";
 import { TodayDeadlinesSection } from "@/components/today/TodayDeadlinesSection";
 import { TodayAgendaSection } from "@/components/today/TodayAgendaSection";
 import { TodaySettlementsSection } from "@/components/today/TodaySettlementsSection";
-import { TodayCumprimentosSection } from "@/components/today/TodayCumprimentosSection";
+import { TodayCompletedDeadlinesChart } from "@/components/today/TodayCompletedDeadlinesChart";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import { EmptyStateCards } from "@/components/onboarding/EmptyStateCards";
 import { WelcomeDialog } from "@/components/onboarding/WelcomeDialog";
@@ -23,7 +23,8 @@ import {
   useTodayEvents,
   useTodayFollowups,
   useTodayStats,
-  useTodayCumprimentos,
+  useTodayCompletedDeadlines,
+  useTodayOpenPeticoes,
 } from "@/hooks/useTodayData";
 import { User } from "lucide-react";
 
@@ -54,8 +55,10 @@ export default function Dashboard() {
     useTodayFollowups(responsibleFilter);
   const { data: stats, isLoading: loadingStats } =
     useTodayStats(responsibleFilter);
-  const { data: cumprimentos, isLoading: loadingCumprimentos } =
-    useTodayCumprimentos(responsibleFilter);
+  const { data: completedDeadlines, isLoading: loadingCompletedDeadlines } =
+    useTodayCompletedDeadlines(responsibleFilter);
+  const { data: openPeticoesCount, isLoading: loadingOpenPeticoes } =
+    useTodayOpenPeticoes(responsibleFilter);
 
   const followupCount =
     (followupsData?.overdue?.length || 0) + (followupsData?.today?.length || 0);
@@ -117,7 +120,14 @@ export default function Dashboard() {
       <TodayStatsCards
         stats={stats}
         followupCount={followupCount}
-        isLoading={loadingStats || loadingFollowups}
+        openPeticoesCount={openPeticoesCount}
+        isLoading={loadingStats || loadingFollowups || loadingOpenPeticoes}
+      />
+
+      {/* Prazos Cumpridos + Iniciais em Aberto */}
+      <TodayCompletedDeadlinesChart
+        data={completedDeadlines}
+        isLoading={loadingCompletedDeadlines}
       />
 
       {/* Prazos Section */}
@@ -125,13 +135,6 @@ export default function Dashboard() {
         overdue={deadlinesData?.overdue || []}
         today={deadlinesData?.today || []}
         isLoading={loadingDeadlines}
-      />
-
-      {/* Cumprimentos de Sentença */}
-      <TodayCumprimentosSection
-        items={cumprimentos?.items || []}
-        openCount={cumprimentos?.openCount || 0}
-        isLoading={loadingCumprimentos}
       />
 
       {/* Agenda + Acordos */}
