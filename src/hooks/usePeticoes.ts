@@ -54,6 +54,7 @@ export interface Peticao {
   action_type: string | null;
   assigned_member_id: string;
   status: string;
+  priority: number | null;
   facts: string | null;
   case_description: string | null;
   notes: string | null;

@@ -1,4 +1,4 @@
-import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2 } from "lucide-react";
+import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +22,7 @@ interface Props {
   onTransfer: (memberId: string) => void;
   onDelete: () => void;
   onFile: () => void;
+  onToggleUrgent?: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: (e: React.DragEvent) => void;
 }
@@ -35,9 +36,11 @@ export function PeticaoCard({
   onTransfer,
   onDelete,
   onFile,
+  onToggleUrgent,
   onDragStart,
   onDragEnd,
 }: Props) {
+  const isUrgent = (peticao.priority ?? 0) >= 2;
   const status = getPeticaoStatus(peticao.status);
   const created = new Date(peticao.created_at);
   const days = differenceInCalendarDays(new Date(), created);
@@ -53,13 +56,19 @@ export function PeticaoCard({
         "bg-card border rounded-md px-3 py-2.5 space-y-1.5 group transition-all duration-200",
         isDragging
           ? "opacity-40 scale-95 ring-2 ring-primary/30"
-          : "cursor-grab active:cursor-grabbing hover:shadow-md hover:border-primary/30"
+          : "cursor-grab active:cursor-grabbing hover:shadow-md hover:border-primary/30",
+        isUrgent && !isDragging && "border-destructive/50 bg-destructive/5"
       )}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-start gap-1.5 min-w-0">
           <GripVertical className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground/30 group-hover:text-muted-foreground/60" />
           <div className="min-w-0">
+            {isUrgent && (
+              <span className="inline-flex items-center gap-1 rounded-sm bg-destructive/15 text-destructive text-[10px] font-semibold uppercase px-1.5 py-0.5 mb-1">
+                <Flame className="h-3 w-3" /> Urgente
+              </span>
+            )}
             <p className="text-sm font-medium leading-tight truncate uppercase">
               {peticao.client_name || peticao.title}
             </p>
@@ -96,6 +105,15 @@ export function PeticaoCard({
             <DropdownMenuItem onClick={onFile}>
               <CheckCircle2 className="h-4 w-4 mr-2" /> Marcar protocolada
             </DropdownMenuItem>
+            {onToggleUrgent && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onToggleUrgent}>
+                  <Flame className="h-4 w-4 mr-2" />
+                  {isUrgent ? "Remover etiqueta Urgente" : "Marcar como Urgente"}
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs">Transferir para</DropdownMenuLabel>
             {members
