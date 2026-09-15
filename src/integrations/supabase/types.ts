@@ -1666,6 +1666,7 @@ export type Database = {
           assigned_member_id: string
           case_description: string
           case_id: string | null
+          checklist: Json
           client_contact_id: string | null
           client_name: string | null
           comarca: string | null
@@ -1692,6 +1693,7 @@ export type Database = {
           assigned_member_id: string
           case_description?: string
           case_id?: string | null
+          checklist?: Json
           client_contact_id?: string | null
           client_name?: string | null
           comarca?: string | null
@@ -1718,6 +1720,7 @@ export type Database = {
           assigned_member_id?: string
           case_description?: string
           case_id?: string | null
+          checklist?: Json
           client_contact_id?: string | null
           client_name?: string | null
           comarca?: string | null
