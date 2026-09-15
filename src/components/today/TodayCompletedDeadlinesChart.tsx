@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2 } from "lucide-react";
 import {
-  Bar,
-  BarChart,
+  Area,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
