@@ -64,7 +64,7 @@ export function TodayStatsCards({ stats, followupCount, openPeticoesCount, isLoa
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-6">
       {cards.map((card) => (
         <Card
           key={card.title}
