@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, Clock, CalendarDays, Handshake, Briefcase } from "lucide-react";
+import { AlertTriangle, Clock, CalendarDays, Handshake, Briefcase, FileText } from "lucide-react";
 
 interface TodayStatsCardsProps {
   stats: {
@@ -10,6 +10,7 @@ interface TodayStatsCardsProps {
     monthlyCases: number;
   } | null | undefined;
   followupCount: number;
+  openPeticoesCount: number | undefined;
   isLoading: boolean;
 }
 
