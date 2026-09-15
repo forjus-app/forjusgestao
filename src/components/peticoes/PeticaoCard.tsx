@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { PETICAO_STATUSES, getPeticaoStatus, type Peticao } from "@/hooks/usePeticoes";
+import { PETICAO_STATUSES, checklistProgress, getPeticaoStatus, type Peticao } from "@/hooks/usePeticoes";
 
 interface Props {
   peticao: Peticao;
