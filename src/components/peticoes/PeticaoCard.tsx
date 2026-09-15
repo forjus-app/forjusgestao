@@ -22,6 +22,7 @@ interface Props {
   onTransfer: (memberId: string) => void;
   onDelete: () => void;
   onFile: () => void;
+  onToggleUrgent?: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: (e: React.DragEvent) => void;
 }
