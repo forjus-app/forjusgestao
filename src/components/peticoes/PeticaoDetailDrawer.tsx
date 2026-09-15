@@ -46,6 +46,7 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
         facts: peticao.facts || peticao.case_description || "",
         drive_link: peticao.drive_link || "",
         notes: peticao.notes || "",
+        checklist: (peticao.checklist as any) || {},
       });
     }
   }, [peticao, open]);
