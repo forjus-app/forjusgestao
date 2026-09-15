@@ -79,6 +79,7 @@ export interface Peticao {
   tribunal: string | null;
   comarca: string | null;
   filed_at: string | null;
+  checklist?: PeticaoChecklist | null;
   created_at: string;
   updated_at: string;
   team_members?: { id: string; name: string } | null;
