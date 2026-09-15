@@ -105,6 +105,15 @@ export function PeticaoCard({
             <DropdownMenuItem onClick={onFile}>
               <CheckCircle2 className="h-4 w-4 mr-2" /> Marcar protocolada
             </DropdownMenuItem>
+            {onToggleUrgent && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onToggleUrgent}>
+                  <Flame className="h-4 w-4 mr-2" />
+                  {isUrgent ? "Remover etiqueta Urgente" : "Marcar como Urgente"}
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs">Transferir para</DropdownMenuLabel>
             {members
