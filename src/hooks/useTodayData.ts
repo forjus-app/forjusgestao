@@ -280,3 +280,85 @@ export function useTodayCumprimentos(responsibleId?: string) {
     enabled: !!organization,
   });
 }
+
+export interface CompletedDeadlineDay {
+  label: string;
+  date: string;
+  count: number;
+}
+
+export function useTodayCompletedDeadlines(responsibleId?: string) {
+  const { data: organization } = useOrganization();
+
+  return useQuery({
+    queryKey: ["today-completed-deadlines", organization?.id, responsibleId],
+    queryFn: async () => {
+      if (!organization) return [];
+
+      const now = new Date();
+      const threeDaysAgo = startOfDay(subDays(now, 2));
+      const todayEnd = endOfDay(now);
+
+      let query = supabase
+        .from("deadlines")
+        .select("completed_at")
+        .eq("status", "completed")
+        .eq("deadline_category", "normal")
+        .gte("completed_at", threeDaysAgo.toISOString())
+        .lte("completed_at", todayEnd.toISOString());
+
+      if (responsibleId && responsibleId !== "all") {
+        query = query.eq("responsible_member_id", responsibleId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      const rows = data || [];
+      const days: CompletedDeadlineDay[] = [];
+      for (let i = 2; i >= 0; i--) {
+        const d = subDays(now, i);
+        const dateKey = format(d, "yyyy-MM-dd");
+        const count = rows.filter((r) => {
+          if (!r.completed_at) return false;
+          const completedDate = format(new Date(r.completed_at), "yyyy-MM-dd");
+          return completedDate === dateKey;
+        }).length;
+        days.push({
+          label: i === 0 ? "Hoje" : i === 1 ? "Ontem" : format(d, "dd/MM"),
+          date: dateKey,
+          count,
+        });
+      }
+
+      return days;
+    },
+    enabled: !!organization,
+  });
+}
+
+export function useTodayOpenPeticoes(responsibleId?: string) {
+  const { data: organization } = useOrganization();
+
+  return useQuery({
+    queryKey: ["today-open-peticoes", organization?.id, responsibleId],
+    queryFn: async () => {
+      if (!organization) return 0;
+
+      let query = supabase
+        .from("service_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", organization.id)
+        .neq("status", "filed");
+
+      if (responsibleId && responsibleId !== "all") {
+        query = query.eq("assigned_member_id", responsibleId);
+      }
+
+      const { count, error } = await query;
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!organization,
+  });
+}
