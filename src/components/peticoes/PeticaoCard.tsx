@@ -1,4 +1,4 @@
-import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame } from "lucide-react";
+import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format, differenceInCalendarDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { PETICAO_STATUSES, getPeticaoStatus, type Peticao } from "@/hooks/usePeticoes";
+import { PETICAO_STATUSES, checklistProgress, getPeticaoStatus, type Peticao } from "@/hooks/usePeticoes";
 
 interface Props {
   peticao: Peticao;
@@ -41,6 +41,7 @@ export function PeticaoCard({
   onDragEnd,
 }: Props) {
   const isUrgent = (peticao.priority ?? 0) >= 2;
+  const docs = checklistProgress(peticao.checklist);
   const status = getPeticaoStatus(peticao.status);
   const created = new Date(peticao.created_at);
   const days = differenceInCalendarDays(new Date(), created);
@@ -136,7 +137,19 @@ export function PeticaoCard({
           <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
           {status.label}
         </span>
-        {peticao.drive_link && <FolderOpen className="h-3 w-3 text-muted-foreground/70" />}
+        <span className="inline-flex items-center gap-2">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 text-[10px]",
+              docs.done === docs.total ? "text-emerald-600" : "text-muted-foreground"
+            )}
+            title="Checklist de documentos"
+          >
+            <ListChecks className="h-3 w-3" />
+            {docs.done}/{docs.total}
+          </span>
+          {peticao.drive_link && <FolderOpen className="h-3 w-3 text-muted-foreground/70" />}
+        </span>
       </div>
 
       <p className={cn("pl-5 text-[11px]", aging)}>

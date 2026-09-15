@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ExternalLink, Loader2, CheckCircle2 } from "lucide-react";
@@ -13,6 +14,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import {
   ACTION_TYPES,
+  PETICAO_CHECKLIST,
   PETICAO_STATUSES,
   getPeticaoStatus,
   normalizeStatus,
@@ -44,6 +46,7 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
         facts: peticao.facts || peticao.case_description || "",
         drive_link: peticao.drive_link || "",
         notes: peticao.notes || "",
+        checklist: (peticao.checklist as any) || {},
       });
     }
   }, [peticao, open]);
@@ -71,6 +74,16 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
       });
     if ((form.action_type || "") !== (peticao.action_type || ""))
       logs.push({ eventType: "type", description: `Tipo da ação alterado para ${form.action_type || "—"}.` });
+    if (JSON.stringify(form.checklist || {}) !== JSON.stringify(peticao.checklist || {})) {
+      const marcados = PETICAO_CHECKLIST.filter((i) => (form.checklist || {})[i.key]).map((i) => i.label);
+      logs.push({
+        eventType: "checklist",
+        description: marcados.length
+          ? `Checklist atualizado: ${marcados.join(", ")}.`
+          : "Checklist atualizado: nenhum item marcado.",
+      });
+    }
+
 
     update.mutate(
       {
@@ -85,6 +98,7 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
           case_description: form.facts || "",
           drive_link: form.drive_link || null,
           notes: form.notes || null,
+          checklist: form.checklist || {},
         },
         logs,
       },
@@ -173,6 +187,32 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Checklist de documentos</Label>
+              <div className="rounded-md border divide-y">
+                {PETICAO_CHECKLIST.map((item) => {
+                  const checked = !!(form.checklist || {})[item.key];
+                  return (
+                    <label
+                      key={item.key}
+                      className="flex items-center gap-3 px-3 py-2 cursor-pointer text-sm"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) =>
+                          setForm((p: any) => ({
+                            ...p,
+                            checklist: { ...(p.checklist || {}), [item.key]: !!v },
+                          }))
+                        }
+                      />
+                      <span className={cn(checked && "text-muted-foreground line-through")}>{item.label}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
