@@ -36,9 +36,11 @@ export function PeticaoCard({
   onTransfer,
   onDelete,
   onFile,
+  onToggleUrgent,
   onDragStart,
   onDragEnd,
 }: Props) {
+  const isUrgent = (peticao.priority ?? 0) >= 2;
   const status = getPeticaoStatus(peticao.status);
   const created = new Date(peticao.created_at);
   const days = differenceInCalendarDays(new Date(), created);
