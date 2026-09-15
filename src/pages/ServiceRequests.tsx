@@ -126,6 +126,7 @@ export default function ServiceRequests() {
 
   const sortList = (list: Peticao[]) => {
     const copy = [...list];
+    const urgent = (p: Peticao) => ((p.priority ?? 0) >= 2 ? 0 : 1);
     if (sortBy === "oldest") copy.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
     if (sortBy === "newest") copy.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
     if (sortBy === "client")
@@ -135,6 +136,7 @@ export default function ServiceRequests() {
         PETICAO_STATUSES.findIndex((s) => s.value === normalizeStatus(a.status)) -
         PETICAO_STATUSES.findIndex((s) => s.value === normalizeStatus(b.status))
       );
+    copy.sort((a, b) => urgent(a) - urgent(b));
     return copy;
   };
 
@@ -395,6 +397,21 @@ export default function ServiceRequests() {
                             onTransfer={(toId) => setTransfer({ peticao: p, toId })}
                             onDelete={() => remove.mutate(p.id)}
                             onFile={() => openFileDialog(p)}
+                            onToggleUrgent={() =>
+                              update.mutate({
+                                id: p.id,
+                                values: { priority: (p.priority ?? 0) >= 2 ? 0 : 2 },
+                                logs: [
+                                  {
+                                    eventType: "priority",
+                                    description:
+                                      (p.priority ?? 0) >= 2
+                                        ? "Etiqueta Urgente removida."
+                                        : "Marcada como Urgente.",
+                                  },
+                                ],
+                              })
+                            }
                             onDragStart={(e) => {
                               setDragId(p.id);
                               setDragFrom(p.assigned_member_id);

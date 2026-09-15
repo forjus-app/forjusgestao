@@ -1,4 +1,4 @@
-import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2 } from "lucide-react";
+import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
