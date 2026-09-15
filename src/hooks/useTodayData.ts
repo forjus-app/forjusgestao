@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
-import { startOfDay, endOfDay, addDays, startOfMonth, endOfMonth } from "date-fns";
+import { startOfDay, endOfDay, addDays, startOfMonth, endOfMonth, subDays, format } from "date-fns";
 
 export function useTodayDeadlines(responsibleId?: string) {
   const { data: organization } = useOrganization();
