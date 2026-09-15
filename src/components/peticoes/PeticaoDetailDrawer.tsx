@@ -177,6 +177,32 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
             </div>
 
             <div className="space-y-2">
+              <Label>Checklist de documentos</Label>
+              <div className="rounded-md border divide-y">
+                {PETICAO_CHECKLIST.map((item) => {
+                  const checked = !!(form.checklist || {})[item.key];
+                  return (
+                    <label
+                      key={item.key}
+                      className="flex items-center gap-3 px-3 py-2 cursor-pointer text-sm"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) =>
+                          setForm((p: any) => ({
+                            ...p,
+                            checklist: { ...(p.checklist || {}), [item.key]: !!v },
+                          }))
+                        }
+                      />
+                      <span className={cn(checked && "text-muted-foreground line-through")}>{item.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <Label>Observações</Label>
               <Textarea value={form.notes || ""} onChange={(e) => set("notes", e.target.value)} rows={3} />
             </div>
