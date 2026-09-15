@@ -74,6 +74,16 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
       });
     if ((form.action_type || "") !== (peticao.action_type || ""))
       logs.push({ eventType: "type", description: `Tipo da ação alterado para ${form.action_type || "—"}.` });
+    if (JSON.stringify(form.checklist || {}) !== JSON.stringify(peticao.checklist || {})) {
+      const marcados = PETICAO_CHECKLIST.filter((i) => (form.checklist || {})[i.key]).map((i) => i.label);
+      logs.push({
+        eventType: "checklist",
+        description: marcados.length
+          ? `Checklist atualizado: ${marcados.join(", ")}.`
+          : "Checklist atualizado: nenhum item marcado.",
+      });
+    }
+
 
     update.mutate(
       {
