@@ -136,7 +136,19 @@ export function PeticaoCard({
           <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
           {status.label}
         </span>
-        {peticao.drive_link && <FolderOpen className="h-3 w-3 text-muted-foreground/70" />}
+        <span className="inline-flex items-center gap-2">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 text-[10px]",
+              docs.done === docs.total ? "text-emerald-600" : "text-muted-foreground"
+            )}
+            title="Checklist de documentos"
+          >
+            <ListChecks className="h-3 w-3" />
+            {docs.done}/{docs.total}
+          </span>
+          {peticao.drive_link && <FolderOpen className="h-3 w-3 text-muted-foreground/70" />}
+        </span>
       </div>
 
       <p className={cn("pl-5 text-[11px]", aging)}>
