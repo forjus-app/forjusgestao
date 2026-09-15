@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2 } from "lucide-react";
 import {
-  Bar,
-  BarChart,
+  Area,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -43,7 +44,7 @@ export function TodayCompletedDeadlinesChart({
         ) : data && data.length > 0 ? (
           <div className="h-40 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+              <LineChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <XAxis
                   dataKey="label"
                   axisLine={false}
@@ -57,7 +58,7 @@ export function TodayCompletedDeadlinesChart({
                   tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
                 />
                 <Tooltip
-                  cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
+                  cursor={{ stroke: "hsl(var(--muted-foreground) / 0.3)", strokeWidth: 1 }}
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
@@ -72,13 +73,21 @@ export function TodayCompletedDeadlinesChart({
                     return null;
                   }}
                 />
-                <Bar
+                <Area
+                  type="monotone"
                   dataKey="count"
-                  fill="hsl(var(--primary))"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={48}
+                  stroke="none"
+                  fill="hsl(var(--primary) / 0.15)"
                 />
-              </BarChart>
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2.5}
+                  dot={{ r: 4, fill: "hsl(var(--primary))", strokeWidth: 0 }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           </div>
         ) : (
