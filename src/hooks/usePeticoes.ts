@@ -46,6 +46,22 @@ export const ACTION_TYPES = [
   "Outros",
 ];
 
+/** Checklist padrão de documentos da petição inicial */
+export const PETICAO_CHECKLIST = [
+  { key: "documentos_pessoais", label: "Documentos pessoais" },
+  { key: "procuracao", label: "Procuração" },
+  { key: "comprovante_endereco", label: "Comprovante de endereço" },
+  { key: "provas", label: "Provas" },
+] as const;
+
+export type PeticaoChecklist = Record<string, boolean>;
+
+export function checklistProgress(checklist: any) {
+  const c = (checklist || {}) as PeticaoChecklist;
+  const done = PETICAO_CHECKLIST.filter((i) => c[i.key]).length;
+  return { done, total: PETICAO_CHECKLIST.length };
+}
+
 export interface Peticao {
   id: string;
   organization_id: string;
