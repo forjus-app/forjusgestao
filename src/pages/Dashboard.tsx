@@ -55,8 +55,10 @@ export default function Dashboard() {
     useTodayFollowups(responsibleFilter);
   const { data: stats, isLoading: loadingStats } =
     useTodayStats(responsibleFilter);
-  const { data: cumprimentos, isLoading: loadingCumprimentos } =
-    useTodayCumprimentos(responsibleFilter);
+  const { data: completedDeadlines, isLoading: loadingCompletedDeadlines } =
+    useTodayCompletedDeadlines(responsibleFilter);
+  const { data: openPeticoesCount, isLoading: loadingOpenPeticoes } =
+    useTodayOpenPeticoes(responsibleFilter);
 
   const followupCount =
     (followupsData?.overdue?.length || 0) + (followupsData?.today?.length || 0);
