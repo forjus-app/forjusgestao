@@ -41,6 +41,7 @@ export function PeticaoCard({
   onDragEnd,
 }: Props) {
   const isUrgent = (peticao.priority ?? 0) >= 2;
+  const docs = checklistProgress(peticao.checklist);
   const status = getPeticaoStatus(peticao.status);
   const created = new Date(peticao.created_at);
   const days = differenceInCalendarDays(new Date(), created);
