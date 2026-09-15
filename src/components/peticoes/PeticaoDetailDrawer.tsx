@@ -14,6 +14,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import {
   ACTION_TYPES,
+  PETICAO_CHECKLIST,
   PETICAO_STATUSES,
   getPeticaoStatus,
   normalizeStatus,
