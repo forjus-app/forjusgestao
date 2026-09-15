@@ -98,6 +98,7 @@ export function PeticaoDetailDrawer({ open, onOpenChange, peticao, members, onFi
           case_description: form.facts || "",
           drive_link: form.drive_link || null,
           notes: form.notes || null,
+          checklist: form.checklist || {},
         },
         logs,
       },
