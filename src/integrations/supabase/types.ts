@@ -1662,63 +1662,81 @@ export type Database = {
       }
       service_requests: {
         Row: {
+          action_type: string | null
           assigned_member_id: string
           case_description: string
           case_id: string | null
           client_contact_id: string | null
+          client_name: string | null
+          comarca: string | null
           created_at: string
           drive_link: string | null
           evidence_list: string | null
           facts: string | null
+          filed_at: string | null
           id: string
           notes: string | null
           organization_id: string
           priority: number
+          process_number: string | null
           related_contact_id: string | null
           requests: string | null
           service_type: string
           status: string
           title: string
+          tribunal: string | null
           updated_at: string
         }
         Insert: {
+          action_type?: string | null
           assigned_member_id: string
-          case_description: string
+          case_description?: string
           case_id?: string | null
           client_contact_id?: string | null
+          client_name?: string | null
+          comarca?: string | null
           created_at?: string
           drive_link?: string | null
           evidence_list?: string | null
           facts?: string | null
+          filed_at?: string | null
           id?: string
           notes?: string | null
           organization_id: string
           priority?: number
+          process_number?: string | null
           related_contact_id?: string | null
           requests?: string | null
           service_type?: string
           status?: string
           title: string
+          tribunal?: string | null
           updated_at?: string
         }
         Update: {
+          action_type?: string | null
           assigned_member_id?: string
           case_description?: string
           case_id?: string | null
           client_contact_id?: string | null
+          client_name?: string | null
+          comarca?: string | null
           created_at?: string
           drive_link?: string | null
           evidence_list?: string | null
           facts?: string | null
+          filed_at?: string | null
           id?: string
           notes?: string | null
           organization_id?: string
           priority?: number
+          process_number?: string | null
           related_contact_id?: string | null
           requests?: string | null
           service_type?: string
           status?: string
           title?: string
+          tribunal?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1986,6 +2004,7 @@ export type Database = {
           name: string
           organization_id: string
           role: string
+          show_in_kanban: boolean
           updated_at: string
           whatsapp: string | null
         }
@@ -1997,6 +2016,7 @@ export type Database = {
           name: string
           organization_id: string
           role?: string
+          show_in_kanban?: boolean
           updated_at?: string
           whatsapp?: string | null
         }
@@ -2008,6 +2028,7 @@ export type Database = {
           name?: string
           organization_id?: string
           role?: string
+          show_in_kanban?: boolean
           updated_at?: string
           whatsapp?: string | null
         }
