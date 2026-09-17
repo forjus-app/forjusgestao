@@ -39,6 +39,7 @@ export default function Cases() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
   const [importOpen, setImportOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
