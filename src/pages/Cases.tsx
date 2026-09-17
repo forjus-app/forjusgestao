@@ -30,6 +30,8 @@ import { toast } from "sonner";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToPDF, exportToExcel, casesExportColumns } from "@/lib/exportUtils";
 import { BulkImportCasesDialog } from "@/components/cases/BulkImportCasesDialog";
+import { BulkUpdateCasesDialog } from "@/components/cases/BulkUpdateCasesDialog";
+import { RefreshCw } from "lucide-react";
 
 export default function Cases() {
   const { data: organization } = useOrganization();
@@ -37,6 +39,7 @@ export default function Cases() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
   const [importOpen, setImportOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -160,6 +163,10 @@ export default function Cases() {
             <FileSpreadsheet className="h-4 w-4 mr-2" />
             Importar Planilha
           </Button>
+          <Button variant="outline" onClick={() => setUpdateOpen(true)}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Atualizar por Planilha
+          </Button>
           <Button asChild>
             <Link to="/cases/new">
               <Plus className="h-4 w-4 mr-2" />
@@ -170,6 +177,7 @@ export default function Cases() {
       </div>
 
       <BulkImportCasesDialog open={importOpen} onOpenChange={setImportOpen} />
+      <BulkUpdateCasesDialog open={updateOpen} onOpenChange={setUpdateOpen} />
 
       {/* Filters */}
       <Card>
