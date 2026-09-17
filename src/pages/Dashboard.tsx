@@ -13,7 +13,6 @@ import {
 import { TodayStatsCards } from "@/components/today/TodayStatsCards";
 import { TodayDeadlinesSection } from "@/components/today/TodayDeadlinesSection";
 import { TodayAgendaSection } from "@/components/today/TodayAgendaSection";
-import { TodaySettlementsSection } from "@/components/today/TodaySettlementsSection";
 import { TodayCompletedDeadlinesChart } from "@/components/today/TodayCompletedDeadlinesChart";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import { EmptyStateCards } from "@/components/onboarding/EmptyStateCards";
@@ -21,10 +20,10 @@ import { WelcomeDialog } from "@/components/onboarding/WelcomeDialog";
 import {
   useTodayDeadlines,
   useTodayEvents,
-  useTodayFollowups,
   useTodayStats,
   useTodayCompletedDeadlines,
   useTodayOpenPeticoes,
+  useTodayTotalCases,
 } from "@/hooks/useTodayData";
 import { User } from "lucide-react";
 
@@ -51,17 +50,14 @@ export default function Dashboard() {
     useTodayDeadlines(responsibleFilter);
   const { data: events = [], isLoading: loadingEvents } =
     useTodayEvents(responsibleFilter);
-  const { data: followupsData, isLoading: loadingFollowups } =
-    useTodayFollowups(responsibleFilter);
   const { data: stats, isLoading: loadingStats } =
     useTodayStats(responsibleFilter);
   const { data: completedDeadlines, isLoading: loadingCompletedDeadlines } =
     useTodayCompletedDeadlines(responsibleFilter);
   const { data: openPeticoesCount, isLoading: loadingOpenPeticoes } =
     useTodayOpenPeticoes(responsibleFilter);
-
-  const followupCount =
-    (followupsData?.overdue?.length || 0) + (followupsData?.today?.length || 0);
+  const { data: totalCases, isLoading: loadingTotalCases } =
+    useTodayTotalCases(responsibleFilter);
 
   const showOnboarding = onboarding && !onboarding.allCompleted;
 
@@ -119,9 +115,9 @@ export default function Dashboard() {
       {/* Stats Cards */}
       <TodayStatsCards
         stats={stats}
-        followupCount={followupCount}
+        totalCases={totalCases}
         openPeticoesCount={openPeticoesCount}
-        isLoading={loadingStats || loadingFollowups || loadingOpenPeticoes}
+        isLoading={loadingStats || loadingTotalCases || loadingOpenPeticoes}
       />
 
       {/* Prazos Cumpridos + Iniciais em Aberto */}
@@ -137,15 +133,8 @@ export default function Dashboard() {
         isLoading={loadingDeadlines}
       />
 
-      {/* Agenda + Acordos */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <TodayAgendaSection events={events} isLoading={loadingEvents} />
-        <TodaySettlementsSection
-          overdue={followupsData?.overdue || []}
-          today={followupsData?.today || []}
-          isLoading={loadingFollowups}
-        />
-      </div>
+      {/* Agenda */}
+      <TodayAgendaSection events={events} isLoading={loadingEvents} />
     </div>
   );
 }
