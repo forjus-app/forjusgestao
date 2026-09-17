@@ -177,6 +177,7 @@ export default function Cases() {
       </div>
 
       <BulkImportCasesDialog open={importOpen} onOpenChange={setImportOpen} />
+      <BulkUpdateCasesDialog open={updateOpen} onOpenChange={setUpdateOpen} />
 
       {/* Filters */}
       <Card>
