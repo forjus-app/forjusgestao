@@ -163,6 +163,10 @@ export default function Cases() {
             <FileSpreadsheet className="h-4 w-4 mr-2" />
             Importar Planilha
           </Button>
+          <Button variant="outline" onClick={() => setUpdateOpen(true)}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Atualizar por Planilha
+          </Button>
           <Button asChild>
             <Link to="/cases/new">
               <Plus className="h-4 w-4 mr-2" />
