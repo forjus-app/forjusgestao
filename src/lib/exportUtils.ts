@@ -98,6 +98,7 @@ export const casesExportColumns: ExportColumn[] = [
       return primary?.contacts?.name || "-";
     },
   },
+  { header: "Responsável", accessor: (row) => row.team_members?.name || "-" },
   { header: "Status", accessor: (row) => row.case_statuses?.name || "-" },
   { header: "Área", accessor: (row) => row.case_areas?.name || "-" },
   { header: "Fase", accessor: (row) => row.case_phases?.name || "-" },
