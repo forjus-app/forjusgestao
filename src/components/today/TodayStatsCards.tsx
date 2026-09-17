@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, Clock, CalendarDays, Handshake, Briefcase, FileText } from "lucide-react";
+import { AlertTriangle, Clock, CalendarDays, Briefcase, FileText, FolderOpen } from "lucide-react";
 
 interface TodayStatsCardsProps {
   stats: {
@@ -9,12 +9,12 @@ interface TodayStatsCardsProps {
     upcomingEvents: number;
     monthlyCases: number;
   } | null | undefined;
-  followupCount: number;
+  totalCases: number | undefined;
   openPeticoesCount: number | undefined;
   isLoading: boolean;
 }
 
-export function TodayStatsCards({ stats, followupCount, openPeticoesCount, isLoading }: TodayStatsCardsProps) {
+export function TodayStatsCards({ stats, totalCases, openPeticoesCount, isLoading }: TodayStatsCardsProps) {
   const cards = [
     {
       title: "Prazos Atrasados",
@@ -39,12 +39,11 @@ export function TodayStatsCards({ stats, followupCount, openPeticoesCount, isLoa
       bgColor: "bg-primary/10",
     },
     {
-      title: "Follow-ups Pendentes",
-      value: followupCount,
-      icon: Handshake,
+      title: "Processos Cadastrados",
+      value: totalCases || 0,
+      icon: FolderOpen,
       color: "text-primary",
       bgColor: "bg-primary/10",
-      urgent: followupCount > 0,
     },
     {
       title: "Processos no Mês",

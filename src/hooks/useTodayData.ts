@@ -362,3 +362,29 @@ export function useTodayOpenPeticoes(responsibleId?: string) {
     enabled: !!organization,
   });
 }
+
+export function useTodayTotalCases(responsibleId?: string) {
+  const { data: organization } = useOrganization();
+
+  return useQuery({
+    queryKey: ["today-total-cases", organization?.id, responsibleId],
+    queryFn: async () => {
+      if (!organization) return 0;
+
+      let query = supabase
+        .from("cases")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", organization.id)
+        .is("archived_at", null);
+
+      if (responsibleId && responsibleId !== "all") {
+        query = query.eq("default_deadline_responsible_id", responsibleId);
+      }
+
+      const { count, error } = await query;
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!organization,
+  });
+}

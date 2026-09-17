@@ -13,7 +13,6 @@ import {
 import { TodayStatsCards } from "@/components/today/TodayStatsCards";
 import { TodayDeadlinesSection } from "@/components/today/TodayDeadlinesSection";
 import { TodayAgendaSection } from "@/components/today/TodayAgendaSection";
-import { TodaySettlementsSection } from "@/components/today/TodaySettlementsSection";
 import { TodayCompletedDeadlinesChart } from "@/components/today/TodayCompletedDeadlinesChart";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import { EmptyStateCards } from "@/components/onboarding/EmptyStateCards";
@@ -21,10 +20,10 @@ import { WelcomeDialog } from "@/components/onboarding/WelcomeDialog";
 import {
   useTodayDeadlines,
   useTodayEvents,
-  useTodayFollowups,
   useTodayStats,
   useTodayCompletedDeadlines,
   useTodayOpenPeticoes,
+  useTodayTotalCases,
 } from "@/hooks/useTodayData";
 import { User } from "lucide-react";
 
