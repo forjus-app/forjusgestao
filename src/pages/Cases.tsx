@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Search, Filter, Briefcase, ExternalLink, FileSpreadsheet, User } from "lucide-react";
+import { Plus, Search, Filter, Briefcase, ExternalLink, FileSpreadsheet, User, FileEdit } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToPDF, exportToExcel, casesExportColumns } from "@/lib/exportUtils";
 import { BulkImportCasesDialog } from "@/components/cases/BulkImportCasesDialog";
+import { BulkEditCasesDialog } from "@/components/cases/BulkEditCasesDialog";
 
 export default function Cases() {
   const { data: organization } = useOrganization();
@@ -37,6 +38,7 @@ export default function Cases() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
   const [importOpen, setImportOpen] = useState(false);
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -160,6 +162,10 @@ export default function Cases() {
             <FileSpreadsheet className="h-4 w-4 mr-2" />
             Importar Planilha
           </Button>
+          <Button variant="outline" onClick={() => setBulkEditOpen(true)}>
+            <FileEdit className="h-4 w-4 mr-2" />
+            Editar em Massa
+          </Button>
           <Button asChild>
             <Link to="/cases/new">
               <Plus className="h-4 w-4 mr-2" />
@@ -170,6 +176,7 @@ export default function Cases() {
       </div>
 
       <BulkImportCasesDialog open={importOpen} onOpenChange={setImportOpen} />
+      <BulkEditCasesDialog open={bulkEditOpen} onOpenChange={setBulkEditOpen} />
 
       {/* Filters */}
       <Card>
