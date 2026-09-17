@@ -30,6 +30,8 @@ import { toast } from "sonner";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToPDF, exportToExcel, casesExportColumns } from "@/lib/exportUtils";
 import { BulkImportCasesDialog } from "@/components/cases/BulkImportCasesDialog";
+import { BulkUpdateCasesDialog } from "@/components/cases/BulkUpdateCasesDialog";
+import { RefreshCw } from "lucide-react";
 
 export default function Cases() {
   const { data: organization } = useOrganization();
