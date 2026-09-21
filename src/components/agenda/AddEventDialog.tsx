@@ -404,19 +404,20 @@ export function AddEventDialog({
             />
           </div>
         </div>
+      </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            Cancelar
-          </Button>
-          <Button
-            onClick={() => createMutation.mutate()}
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? "Criando..." : "Criar Compromisso"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      {/* Sticky Footer */}
+      <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4 flex gap-2 justify-end">
+        <Button variant="outline" onClick={handleClose}>
+          Cancelar
+        </Button>
+        <Button
+          onClick={() => createMutation.mutate()}
+          disabled={createMutation.isPending}
+        >
+          {createMutation.isPending ? "Criando..." : "Criar Compromisso"}
+        </Button>
+      </div>
+    </DialogContent>
   );
 }
