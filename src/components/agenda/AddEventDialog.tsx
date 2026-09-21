@@ -137,6 +137,8 @@ export function AddEventDialog({
       if (!organization?.id) throw new Error("Organização não encontrada");
 
       if (!formData.title) throw new Error("Título é obrigatório");
+      if (isHearing && !formData.caseId)
+        throw new Error("Toda audiência deve ser vinculada a um processo cadastrado");
       if (!formData.responsibleMemberId) throw new Error("Responsável é obrigatório");
       if (!formData.startAt) throw new Error("Data/hora é obrigatória");
 
@@ -245,7 +247,7 @@ export function AddEventDialog({
           </div>
 
           {/* Link to Case Toggle */}
-          {!preselectedCaseId && (
+          {!preselectedCaseId && !isHearing && (
             <div className="flex items-center justify-between">
               <Label>Vincular a processo</Label>
               <Switch
@@ -258,7 +260,12 @@ export function AddEventDialog({
           {/* Case selection */}
           {linkToCase && !preselectedCaseId && (
             <div className="space-y-2">
-              <Label>Processo</Label>
+              <Label>Processo {isHearing && "*"}</Label>
+              {isHearing && (
+                <p className="text-xs text-muted-foreground">
+                  Toda audiência deve ser vinculada a um processo. O responsável será o mesmo do processo.
+                </p>
+              )}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
