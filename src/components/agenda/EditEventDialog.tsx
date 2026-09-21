@@ -111,12 +111,14 @@ export function EditEventDialog({
     enabled: open && !!organization?.id,
   });
 
+  const isHearing = formData.eventType === "audiencia";
+
   const { data: cases } = useQuery({
     queryKey: ["cases-search", organization?.id, caseSearch],
     queryFn: async () => {
       let query = supabase
         .from("cases")
-        .select("id, title, cnj_number")
+        .select("id, title, cnj_number, default_deadline_responsible_id")
         .order("updated_at", { ascending: false })
         .limit(20);
 
@@ -132,6 +134,36 @@ export function EditEventDialog({
     },
     enabled: open && !!organization?.id && linkToCase,
   });
+
+  const { data: caseResponsible } = useQuery({
+    queryKey: ["case-responsible", formData.caseId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cases")
+        .select("id, title, default_deadline_responsible_id")
+        .eq("id", formData.caseId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: open && !!formData.caseId,
+  });
+
+  // Hearings must always be linked to a case
+  useEffect(() => {
+    if (isHearing) setLinkToCase(true);
+  }, [isHearing]);
+
+  // Hearings inherit the case responsible
+  useEffect(() => {
+    if (isHearing && caseResponsible?.default_deadline_responsible_id) {
+      setFormData((prev) => ({
+        ...prev,
+        responsibleMemberId: caseResponsible.default_deadline_responsible_id!,
+      }));
+    }
+  }, [isHearing, caseResponsible]);
+
 
   const updateMutation = useMutation({
     mutationFn: async () => {
