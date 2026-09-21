@@ -114,7 +114,7 @@ export function EditEventDialog({
   const isHearing = formData.eventType === "audiencia";
 
   const { data: cases } = useQuery({
-    queryKey: ["cases-search", organization?.id, caseSearch],
+    queryKey: ["agenda-cases-search", organization?.id, caseSearch],
     queryFn: async () => {
       let query = supabase
         .from("cases")
@@ -132,7 +132,10 @@ export function EditEventDialog({
       if (error) throw error;
       return data;
     },
-    enabled: open && !!organization?.id && linkToCase,
+    enabled: open && linkToCase,
+    staleTime: 0,
+    refetchOnMount: "always",
+    retry: 2,
   });
 
   const { data: caseResponsible } = useQuery({
