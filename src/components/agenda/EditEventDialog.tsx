@@ -337,6 +337,7 @@ export function EditEventDialog({
               <Select
                 value={formData.responsibleMemberId}
                 onValueChange={(v) => setFormData({ ...formData, responsibleMemberId: v })}
+                disabled={isHearing && !!caseResponsible?.default_deadline_responsible_id}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o responsável..." />
@@ -349,6 +350,11 @@ export function EditEventDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {isHearing && caseResponsible?.default_deadline_responsible_id && (
+                <p className="text-xs text-muted-foreground">
+                  Responsável definido automaticamente pelo processo vinculado.
+                </p>
+              )}
             </div>
 
             {/* Dates */}
