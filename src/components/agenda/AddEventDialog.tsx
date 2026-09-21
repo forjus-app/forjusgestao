@@ -79,8 +79,8 @@ export function AddEventDialog({
 
   const isHearing = formData.eventType === "audiencia";
 
-  const { data: cases } = useQuery({
-    queryKey: ["cases-search", organization?.id, caseSearch],
+  const { data: cases, isFetching: loadingCases } = useQuery({
+    queryKey: ["agenda-cases-search", organization?.id, caseSearch],
     queryFn: async () => {
       let query = supabase
         .from("cases")
@@ -98,7 +98,10 @@ export function AddEventDialog({
       if (error) throw error;
       return data;
     },
-    enabled: open && !!organization?.id && linkToCase,
+    enabled: open && linkToCase,
+    staleTime: 0,
+    refetchOnMount: "always",
+    retry: 2,
   });
 
   // Case responsible (used to mirror the responsible on hearings)
