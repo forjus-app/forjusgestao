@@ -303,7 +303,12 @@ export function AddEventDialog({
                       )}
                     </button>
                   ))}
-                  {cases?.length === 0 && (
+                  {loadingCases && !cases && (
+                    <p className="text-center py-2 text-muted-foreground text-sm">
+                      Carregando processos...
+                    </p>
+                  )}
+                  {!loadingCases && cases?.length === 0 && (
                     <p className="text-center py-2 text-muted-foreground text-sm">
                       Nenhum processo encontrado
                     </p>
