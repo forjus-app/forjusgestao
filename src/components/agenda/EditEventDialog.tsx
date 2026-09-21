@@ -223,7 +223,7 @@ export function EditEventDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] p-0 overflow-hidden flex flex-col">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col">
         {/* Sticky Header */}
         <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
           <DialogTitle>Editar Compromisso</DialogTitle>
