@@ -419,6 +419,8 @@ export function AddEventDialog({
         </Button>
       </div>
     </DialogContent>
+    </Dialog>
   );
 }
+
 
