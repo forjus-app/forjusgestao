@@ -213,12 +213,15 @@ export function AddEventDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
           <DialogTitle>Novo Compromisso</DialogTitle>
-        </DialogHeader>
+        </div>
 
-        <div className="space-y-4 py-4">
+        {/* Scrollable Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="space-y-4">
           {/* Event Type */}
           <div className="space-y-2">
             <Label>Tipo *</Label>
@@ -401,19 +404,23 @@ export function AddEventDialog({
             />
           </div>
         </div>
+      </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            Cancelar
-          </Button>
-          <Button
-            onClick={() => createMutation.mutate()}
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending ? "Criando..." : "Criar Compromisso"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+      {/* Sticky Footer */}
+      <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4 flex gap-2 justify-end">
+        <Button variant="outline" onClick={handleClose}>
+          Cancelar
+        </Button>
+        <Button
+          onClick={() => createMutation.mutate()}
+          disabled={createMutation.isPending}
+        >
+          {createMutation.isPending ? "Criando..." : "Criar Compromisso"}
+        </Button>
+      </div>
+    </DialogContent>
     </Dialog>
   );
 }
+
+
