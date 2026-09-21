@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -77,12 +77,14 @@ export function AddEventDialog({
     enabled: open && !!organization?.id,
   });
 
+  const isHearing = formData.eventType === "audiencia";
+
   const { data: cases } = useQuery({
     queryKey: ["cases-search", organization?.id, caseSearch],
     queryFn: async () => {
       let query = supabase
         .from("cases")
-        .select("id, title, cnj_number")
+        .select("id, title, cnj_number, default_deadline_responsible_id")
         .order("updated_at", { ascending: false })
         .limit(20);
 
@@ -99,11 +101,44 @@ export function AddEventDialog({
     enabled: open && !!organization?.id && linkToCase,
   });
 
+  // Case responsible (used to mirror the responsible on hearings)
+  const { data: caseResponsible } = useQuery({
+    queryKey: ["case-responsible", formData.caseId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cases")
+        .select("id, title, default_deadline_responsible_id")
+        .eq("id", formData.caseId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: open && !!formData.caseId,
+  });
+
+  // Hearings must always be linked to a case
+  useEffect(() => {
+    if (isHearing) setLinkToCase(true);
+  }, [isHearing]);
+
+  // Hearings inherit the case responsible
+  useEffect(() => {
+    if (isHearing && caseResponsible?.default_deadline_responsible_id) {
+      setFormData((prev) => ({
+        ...prev,
+        responsibleMemberId: caseResponsible.default_deadline_responsible_id!,
+      }));
+    }
+  }, [isHearing, caseResponsible]);
+
+
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!organization?.id) throw new Error("Organização não encontrada");
 
       if (!formData.title) throw new Error("Título é obrigatório");
+      if (isHearing && !formData.caseId)
+        throw new Error("Toda audiência deve ser vinculada a um processo cadastrado");
       if (!formData.responsibleMemberId) throw new Error("Responsável é obrigatório");
       if (!formData.startAt) throw new Error("Data/hora é obrigatória");
 
@@ -212,7 +247,7 @@ export function AddEventDialog({
           </div>
 
           {/* Link to Case Toggle */}
-          {!preselectedCaseId && (
+          {!preselectedCaseId && !isHearing && (
             <div className="flex items-center justify-between">
               <Label>Vincular a processo</Label>
               <Switch
@@ -225,7 +260,12 @@ export function AddEventDialog({
           {/* Case selection */}
           {linkToCase && !preselectedCaseId && (
             <div className="space-y-2">
-              <Label>Processo</Label>
+              <Label>Processo {isHearing && "*"}</Label>
+              {isHearing && (
+                <p className="text-xs text-muted-foreground">
+                  Toda audiência deve ser vinculada a um processo. O responsável será o mesmo do processo.
+                </p>
+              )}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -281,6 +321,7 @@ export function AddEventDialog({
             <Select
               value={formData.responsibleMemberId}
               onValueChange={(v) => setFormData({ ...formData, responsibleMemberId: v })}
+              disabled={isHearing && !!caseResponsible?.default_deadline_responsible_id}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o responsável..." />
@@ -293,6 +334,11 @@ export function AddEventDialog({
                 ))}
               </SelectContent>
             </Select>
+            {isHearing && caseResponsible?.default_deadline_responsible_id && (
+              <p className="text-xs text-muted-foreground">
+                Responsável definido automaticamente pelo processo vinculado.
+              </p>
+            )}
           </div>
 
           {/* Dates */}
