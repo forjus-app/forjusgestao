@@ -28,6 +28,7 @@ import SettlementDetail from "./pages/SettlementDetail";
 import ServiceRequests from "./pages/ServiceRequests";
 import ServiceRequestDetail from "./pages/ServiceRequestDetail";
 import Crm from "./pages/Crm";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -198,6 +199,15 @@ const App = () => (
               element={
                 <AppLayout>
                   <Crm />
+                </AppLayout>
+              }
+            />
+
+            <Route
+              path="/reports"
+              element={
+                <AppLayout>
+                  <Reports />
                 </AppLayout>
               }
             />

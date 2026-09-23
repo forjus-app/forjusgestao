@@ -38,6 +38,7 @@ import {
   FileEdit,
   Contact,
   Gavel,
+  BarChart3,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useOrganization } from "@/hooks/useOrganization";
@@ -55,6 +56,7 @@ const navItems = [
   { title: "Agenda", icon: CalendarDays, href: "/agenda" },
   { title: "Contatos", icon: Users, href: "/contacts" },
   { title: "Tags", icon: Tags, href: "/tags" },
+  { title: "Relatórios", icon: BarChart3, href: "/reports" },
 ];
 
 const settingsItems = [
