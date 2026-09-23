@@ -99,3 +99,75 @@ export function exportDeadlinesPDF({ deadlines, filtersLabel }: ExportDeadlinesP
 
   doc.save(`prazos_${format(new Date(), "yyyy-MM-dd")}.pdf`);
 }
+
+/** Relatório específico de prazos concluídos (inclui data de conclusão) */
+export function exportCompletedDeadlinesPDF({
+  deadlines,
+  filtersLabel,
+}: ExportDeadlinesPDFOptions) {
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("Relatório de Prazos Concluídos", 15, 18);
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100);
+  doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 15, 25);
+  doc.text(`Filtros: ${filtersLabel}`, 15, 30);
+  doc.text(`Total: ${deadlines.length} prazo(s) concluído(s)`, 15, 35);
+  doc.setTextColor(0);
+
+  const tableData = deadlines.map((d: any) => [
+    d.completed_at
+      ? format(parseLocalDateTime(d.completed_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+      : "—",
+    d.fatal_due_at
+      ? format(parseLocalDateTime(d.fatal_due_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+      : "—",
+    d.title && d.title.length > 60 ? d.title.substring(0, 57) + "..." : d.title || "—",
+    d.team_members?.name || "—",
+    d.cases?.title || "—",
+    d.cases?.cnj_number || "—",
+  ]);
+
+  const usable = pageWidth - 30;
+
+  autoTable(doc, {
+    head: [["Concluído em", "Prazo Fatal", "Título", "Responsável", "Processo", "CNJ"]],
+    body: tableData,
+    startY: 40,
+    margin: { left: 15, right: 15 },
+    styles: { fontSize: 8, cellPadding: 2.5, overflow: "linebreak", lineWidth: 0.1 },
+    headStyles: {
+      fillColor: [16, 185, 129],
+      textColor: 255,
+      fontSize: 8,
+      fontStyle: "bold",
+      halign: "center",
+    },
+    alternateRowStyles: { fillColor: [245, 247, 250] },
+    columnStyles: {
+      0: { cellWidth: usable * 0.15, halign: "center" },
+      1: { cellWidth: usable * 0.15, halign: "center" },
+      2: { cellWidth: usable * 0.24 },
+      3: { cellWidth: usable * 0.14 },
+      4: { cellWidth: usable * 0.2 },
+      5: { cellWidth: usable * 0.12, halign: "center", fontSize: 7 },
+    },
+    didDrawPage: (data: any) => {
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text(
+        `Página ${data.pageNumber} de ${doc.getNumberOfPages()}`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 8,
+        { align: "center" }
+      );
+    },
+  });
+
+  doc.save(`prazos_concluidos_${format(new Date(), "yyyy-MM-dd")}.pdf`);
+}
