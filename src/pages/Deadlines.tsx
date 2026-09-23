@@ -50,13 +50,13 @@ import {
   X,
 } from "lucide-react";
 import { DeadlineKanbanView } from "@/components/deadlines/DeadlineKanbanView";
-import { format, isPast, isToday, addDays, isBefore, startOfDay, endOfDay, endOfWeek, endOfMonth, isTomorrow, isWithinInterval } from "date-fns";
+import { format, isPast, isToday, addDays, isBefore, startOfDay, endOfDay, endOfWeek, endOfMonth, startOfMonth, subMonths, isTomorrow, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { parseLocalDateTime } from "@/lib/dateUtils";
 import { toast } from "sonner";
 import { ExportDropdown } from "@/components/ExportDropdown";
 import { exportToExcel } from "@/lib/exportUtils";
-import { exportDeadlinesPDF } from "@/lib/deadlinesPdfExport";
+import { exportDeadlinesPDF, exportCompletedDeadlinesPDF } from "@/lib/deadlinesPdfExport";
 import { DeadlineTagBadges } from "@/components/deadlines/DeadlineTagBadges";
 import { useDeadlineTags, useDeadlineTagLinks } from "@/hooks/useDeadlineTags";
 
@@ -87,6 +87,14 @@ export default function Deadlines() {
   const [filterResponsible, setFilterResponsible] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterTag, setFilterTag] = useState<string>("all");
+  const [filterMonth, setFilterMonth] = useState<string>("all");
+  const monthOptions = useMemo(() => {
+    const now = new Date();
+    return Array.from({ length: 12 }, (_, i) => {
+      const d = subMonths(now, i);
+      return { value: format(d, "yyyy-MM"), label: format(d, "MMMM 'de' yyyy", { locale: ptBR }) };
+    });
+  }, []);
   const [selectedDeadlineId, setSelectedDeadlineId] = useState<string | null>(null);
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
@@ -201,11 +209,23 @@ export default function Deadlines() {
   // Apply tag filter + date funnel filter client-side
   const taggedDeadlines = useMemo(() => {
     if (!rawDeadlines) return rawDeadlines;
-    if (filterTag === "all") return rawDeadlines;
-    return rawDeadlines.filter((d: any) =>
-      (tagLinks?.[d.id] || []).some((t) => t.id === filterTag)
-    );
-  }, [rawDeadlines, filterTag, tagLinks]);
+    let list = rawDeadlines;
+    if (filterTag !== "all") {
+      list = list.filter((d: any) => (tagLinks?.[d.id] || []).some((t) => t.id === filterTag));
+    }
+    if (filterMonth !== "all" && activeTab === "completed") {
+      const [y, m] = filterMonth.split("-").map(Number);
+      const base = new Date(y, m - 1, 1);
+      const start = startOfMonth(base);
+      const end = endOfMonth(base);
+      list = list.filter((d: any) => {
+        if (!d.completed_at) return false;
+        const done = parseLocalDateTime(d.completed_at);
+        return isWithinInterval(done, { start, end });
+      });
+    }
+    return list;
+  }, [rawDeadlines, filterTag, tagLinks, filterMonth, activeTab]);
 
   const deadlines = useMemo(() => {
     if (!taggedDeadlines || activeFunnel === "all") return taggedDeadlines;
@@ -313,6 +333,10 @@ export default function Deadlines() {
       const tagName = allTags?.find((t) => t.id === filterTag)?.name;
       if (tagName) parts.push(`Etiqueta: ${tagName}`);
     }
+    if (filterMonth !== "all" && activeTab === "completed") {
+      const label = monthOptions.find((o) => o.value === filterMonth)?.label;
+      if (label) parts.push(`Mês de conclusão: ${label}`);
+    }
     if (searchTerm) parts.push(`Busca: "${searchTerm}"`);
     return parts.length > 0 ? parts.join(" | ") : "Todos";
   };
@@ -328,10 +352,17 @@ export default function Deadlines() {
       toast.error("Nenhum prazo para exportar");
       return;
     }
-    exportDeadlinesPDF({
-      deadlines,
-      filtersLabel: getAppliedFiltersLabel(),
-    });
+    if (activeTab === "completed" && viewMode === "table") {
+      exportCompletedDeadlinesPDF({
+        deadlines,
+        filtersLabel: getAppliedFiltersLabel(),
+      });
+    } else {
+      exportDeadlinesPDF({
+        deadlines,
+        filtersLabel: getAppliedFiltersLabel(),
+      });
+    }
     toast.success("PDF exportado com sucesso!");
   };
 
@@ -452,6 +483,21 @@ export default function Deadlines() {
                 ))}
               </SelectContent>
             </Select>
+            {activeTab === "completed" && viewMode === "table" && (
+              <Select value={filterMonth} onValueChange={setFilterMonth}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Mês de conclusão" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os meses</SelectItem>
+                  {monthOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value} className="capitalize">
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* Date Funnel Chips */}
