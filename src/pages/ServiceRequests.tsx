@@ -27,6 +27,7 @@ import {
   PETICAO_STATUSES,
   getPeticaoStatus,
   normalizeStatus,
+  isClosedStatus,
   usePeticoes,
   useUpdatePeticao,
   useDeletePeticao,
@@ -63,6 +64,19 @@ export default function ServiceRequests() {
   const { data: profile } = useProfile();
   const update = useUpdatePeticao();
   const remove = useDeletePeticao();
+  const [confirmAction, setConfirmAction] = useState<{ type: "delete" | "cancel"; peticao: Peticao } | null>(null);
+  const runConfirm = () => {
+    if (!confirmAction) return;
+    const p = confirmAction.peticao;
+    if (confirmAction.type === "delete") remove.mutate(p.id);
+    else
+      update.mutate({
+        id: p.id,
+        values: { status: "canceled" },
+        logs: [{ eventType: "status", description: "Ação cancelada." }],
+      });
+    setConfirmAction(null);
+  };
 
   const [addOpen, setAddOpen] = useState(false);
   const [addMemberId, setAddMemberId] = useState<string | undefined>();
@@ -94,8 +108,8 @@ export default function ServiceRequests() {
     return members.find((m) => m.name.toLowerCase() === profile.full_name!.toLowerCase())?.id ?? null;
   }, [members, profile]);
 
-  const open = (peticoes || []).filter((p) => normalizeStatus(p.status) !== "filed");
-  const filed = (peticoes || []).filter((p) => normalizeStatus(p.status) === "filed");
+  const open = (peticoes || []).filter((p) => !isClosedStatus(p.status));
+  const filed = (peticoes || []).filter((p) => isClosedStatus(p.status));
 
   const applyFilters = (list: Peticao[]) =>
     list.filter((p) => {
@@ -395,7 +409,8 @@ export default function ServiceRequests() {
                             }}
                             onStatusChange={(s) => changeStatus(p, s)}
                             onTransfer={(toId) => setTransfer({ peticao: p, toId })}
-                            onDelete={() => remove.mutate(p.id)}
+                            onDelete={() => setConfirmAction({ type: "delete", peticao: p })}
+                            onCancel={() => setConfirmAction({ type: "cancel", peticao: p })}
                             onFile={() => openFileDialog(p)}
                             onToggleUrgent={() =>
                               update.mutate({
@@ -470,7 +485,9 @@ export default function ServiceRequests() {
                         {format(new Date(p.created_at), "dd/MM/yyyy", { locale: ptBR })}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs">
-                        {p.filed_at ? format(new Date(p.filed_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "—"}
+                        {normalizeStatus(p.status) === "canceled" ? (
+                          <span className="text-destructive">Cancelada</span>
+                        ) : p.filed_at ? format(new Date(p.filed_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "—"}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -491,6 +508,28 @@ export default function ServiceRequests() {
       />
       <ProtocolarDialog open={fileOpen} onOpenChange={setFileOpen} peticao={fileTarget} />
       <ManageResponsaveisDialog open={manageOpen} onOpenChange={setManageOpen} members={allMembers || []} />
+
+      <AlertDialog open={!!confirmAction} onOpenChange={(o) => !o && setConfirmAction(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmAction?.type === "delete" ? "Excluir ação" : "Cancelar ação"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmAction?.type === "delete"
+                ? "A ação e todo o seu histórico serão apagados definitivamente. Deseja continuar?"
+                : "A ação será marcada como Cancelada e movida para a aba Protocoladas / Concluídas, mantendo o histórico."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Voltar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={runConfirm}
+              className={confirmAction?.type === "delete" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+            >
+              {confirmAction?.type === "delete" ? "Excluir" : "Cancelar ação"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={!!transfer} onOpenChange={(o) => !o && setTransfer(null)}>
         <AlertDialogContent>
