@@ -1,4 +1,4 @@
-import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame, ListChecks } from "lucide-react";
+import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame, ListChecks, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +21,7 @@ interface Props {
   onStatusChange: (status: string) => void;
   onTransfer: (memberId: string) => void;
   onDelete: () => void;
+  onCancel?: () => void;
   onFile: () => void;
   onToggleUrgent?: () => void;
   onDragStart: (e: React.DragEvent) => void;
@@ -35,6 +36,7 @@ export function PeticaoCard({
   onStatusChange,
   onTransfer,
   onDelete,
+  onCancel,
   onFile,
   onToggleUrgent,
   onDragStart,
@@ -97,7 +99,7 @@ export function PeticaoCard({
             )}
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-xs">Status</DropdownMenuLabel>
-            {PETICAO_STATUSES.filter((s) => s.value !== "filed").map((s) => (
+            {PETICAO_STATUSES.filter((s) => s.value !== "filed" && s.value !== "canceled").map((s) => (
               <DropdownMenuItem key={s.value} onClick={() => onStatusChange(s.value)}>
                 <span className={cn("h-2 w-2 rounded-full mr-2", s.dot)} />
                 {s.label}
@@ -125,6 +127,11 @@ export function PeticaoCard({
                 </DropdownMenuItem>
               ))}
             <DropdownMenuSeparator />
+            {onCancel && (
+              <DropdownMenuItem onClick={onCancel}>
+                <XCircle className="h-4 w-4 mr-2" /> Cancelar ação
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
               <Trash2 className="h-4 w-4 mr-2" /> Excluir
             </DropdownMenuItem>

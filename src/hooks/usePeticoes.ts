@@ -11,6 +11,7 @@ export const PETICAO_STATUSES = [
   { value: "review", label: "Em revisão", dot: "bg-purple-500", badge: "bg-purple-500/10 text-purple-600 border-purple-500/20" },
   { value: "ready", label: "Pronta para protocolo", dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
   { value: "filed", label: "Protocolada", dot: "bg-muted-foreground", badge: "bg-muted text-muted-foreground border-border" },
+  { value: "canceled", label: "Cancelada", dot: "bg-destructive", badge: "bg-destructive/10 text-destructive border-destructive/20" },
 ] as const;
 
 /** Compatibilidade com status antigos do módulo anterior */
@@ -20,7 +21,6 @@ const LEGACY_STATUS_MAP: Record<string, string> = {
   waiting_client: "waiting_docs",
   ready_to_file: "ready",
   filed: "filed",
-  canceled: "filed",
   archived: "filed",
 };
 
@@ -28,6 +28,11 @@ export function normalizeStatus(status: string | null | undefined) {
   if (!status) return "not_started";
   if (PETICAO_STATUSES.some((s) => s.value === status)) return status;
   return LEGACY_STATUS_MAP[status] || "not_started";
+}
+
+export function isClosedStatus(status: string | null | undefined) {
+  const v = normalizeStatus(status);
+  return v === "filed" || v === "canceled";
 }
 
 export function getPeticaoStatus(status: string | null | undefined) {
