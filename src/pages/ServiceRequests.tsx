@@ -416,12 +416,14 @@ export default function ServiceRequests() {
                             {isOver ? "Soltar aqui" : "Nenhuma ação"}
                           </p>
                         )}
-                        {list.map((p) => (
+                        {list.map((p, idx) => (
                           <PeticaoCard
                             key={p.id}
                             peticao={p}
                             members={members}
                             isDragging={dragId === p.id}
+                            onMoveUp={idx > 0 ? () => moveCard(list, idx, -1) : undefined}
+                            onMoveDown={idx < list.length - 1 ? () => moveCard(list, idx, 1) : undefined}
                             onOpen={() => {
                               setDetail(p);
                               setDetailOpen(true);
