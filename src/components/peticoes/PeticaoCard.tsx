@@ -1,4 +1,4 @@
-import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame, ListChecks, XCircle } from "lucide-react";
+import { FolderOpen, GripVertical, MoreHorizontal, Trash2, CheckCircle2, Flame, ListChecks, XCircle, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,6 +24,8 @@ interface Props {
   onCancel?: () => void;
   onFile: () => void;
   onToggleUrgent?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragEnd: (e: React.DragEvent) => void;
 }
@@ -39,6 +41,8 @@ export function PeticaoCard({
   onCancel,
   onFile,
   onToggleUrgent,
+  onMoveUp,
+  onMoveDown,
   onDragStart,
   onDragEnd,
 }: Props) {
@@ -92,6 +96,16 @@ export function PeticaoCard({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()} className="w-56">
             <DropdownMenuItem onClick={onOpen}>Abrir detalhes</DropdownMenuItem>
+            {onMoveUp && (
+              <DropdownMenuItem onClick={onMoveUp}>
+                <ArrowUp className="h-4 w-4 mr-2" /> Mover para cima
+              </DropdownMenuItem>
+            )}
+            {onMoveDown && (
+              <DropdownMenuItem onClick={onMoveDown}>
+                <ArrowDown className="h-4 w-4 mr-2" /> Mover para baixo
+              </DropdownMenuItem>
+            )}
             {peticao.drive_link && (
               <DropdownMenuItem onClick={() => window.open(peticao.drive_link!, "_blank")}>
                 <FolderOpen className="h-4 w-4 mr-2" /> Abrir Drive

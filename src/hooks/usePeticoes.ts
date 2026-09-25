@@ -85,6 +85,7 @@ export interface Peticao {
   comarca: string | null;
   filed_at: string | null;
   checklist?: PeticaoChecklist | null;
+  kanban_order?: number | null;
   created_at: string;
   updated_at: string;
   team_members?: { id: string; name: string } | null;
@@ -224,6 +225,21 @@ export function useUpdatePeticao() {
       qc.invalidateQueries({ queryKey: ["peticao-history", vars.id] });
     },
     onError: (e: any) => toast.error(e.message || "Erro ao salvar"),
+  });
+}
+
+/** Troca a posição de duas petições dentro da mesma coluna do Kanban */
+export function useReorderPeticao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ a, b }: { a: { id: string; order: number }; b: { id: string; order: number } }) => {
+      const { error: e1 } = await supabase.from("service_requests").update({ kanban_order: b.order }).eq("id", a.id);
+      if (e1) throw e1;
+      const { error: e2 } = await supabase.from("service_requests").update({ kanban_order: a.order }).eq("id", b.id);
+      if (e2) throw e2;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["peticoes"] }),
+    onError: (e: any) => toast.error(e.message || "Erro ao reordenar"),
   });
 }
 

@@ -1676,6 +1676,7 @@ export type Database = {
           facts: string | null
           filed_at: string | null
           id: string
+          kanban_order: number | null
           notes: string | null
           organization_id: string
           priority: number
@@ -1703,6 +1704,7 @@ export type Database = {
           facts?: string | null
           filed_at?: string | null
           id?: string
+          kanban_order?: number | null
           notes?: string | null
           organization_id: string
           priority?: number
@@ -1730,6 +1732,7 @@ export type Database = {
           facts?: string | null
           filed_at?: string | null
           id?: string
+          kanban_order?: number | null
           notes?: string | null
           organization_id?: string
           priority?: number
