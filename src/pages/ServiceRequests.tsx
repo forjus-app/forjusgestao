@@ -31,6 +31,7 @@ import {
   usePeticoes,
   useUpdatePeticao,
   useDeletePeticao,
+  useReorderPeticao,
   ACTION_TYPES,
   type Peticao,
 } from "@/hooks/usePeticoes";
@@ -64,6 +65,7 @@ export default function ServiceRequests() {
   const { data: profile } = useProfile();
   const update = useUpdatePeticao();
   const remove = useDeletePeticao();
+  const reorder = useReorderPeticao();
   const [confirmAction, setConfirmAction] = useState<{ type: "delete" | "cancel"; peticao: Peticao } | null>(null);
   const runConfirm = () => {
     if (!confirmAction) return;
@@ -92,7 +94,7 @@ export default function ServiceRequests() {
   const [filterType, setFilterType] = useState("all");
   const [filterPeriod, setFilterPeriod] = useState("all");
   const [onlyMine, setOnlyMine] = useState(false);
-  const [sortBy, setSortBy] = useState("oldest");
+  const [sortBy, setSortBy] = useState("manual");
 
   // drag state
   const [dragId, setDragId] = useState<string | null>(null);
@@ -141,6 +143,12 @@ export default function ServiceRequests() {
   const sortList = (list: Peticao[]) => {
     const copy = [...list];
     const urgent = (p: Peticao) => ((p.priority ?? 0) >= 2 ? 0 : 1);
+    if (sortBy === "manual")
+      copy.sort(
+        (a, b) =>
+          (a.kanban_order ?? Number.MAX_SAFE_INTEGER) - (b.kanban_order ?? Number.MAX_SAFE_INTEGER) ||
+          +new Date(a.created_at) - +new Date(b.created_at)
+      );
     if (sortBy === "oldest") copy.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
     if (sortBy === "newest") copy.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
     if (sortBy === "client")
@@ -189,6 +197,16 @@ export default function ServiceRequests() {
     },
     [dragId, dragFrom, peticoes]
   );
+
+  const moveCard = (list: Peticao[], index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= list.length) return;
+    const a = list[index];
+    const b = list[target];
+    const orderA = a.kanban_order ?? index + 1;
+    const orderB = b.kanban_order ?? target + 1;
+    reorder.mutate({ a: { id: a.id, order: orderA }, b: { id: b.id, order: orderB } });
+  };
 
   const confirmTransfer = () => {
     if (!transfer) return;
@@ -307,6 +325,7 @@ export default function ServiceRequests() {
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="w-[170px]"><SelectValue placeholder="Ordenar" /></SelectTrigger>
           <SelectContent>
+            <SelectItem value="manual">Ordem manual</SelectItem>
             <SelectItem value="oldest">Mais antigas primeiro</SelectItem>
             <SelectItem value="newest">Mais recentes primeiro</SelectItem>
             <SelectItem value="client">Cliente (A-Z)</SelectItem>
