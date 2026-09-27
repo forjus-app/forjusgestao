@@ -7,6 +7,7 @@ export interface ProductionRow {
   name: string;
   deadlines: number;
   peticoes: number;
+  cases: number;
   total: number;
 }
 
@@ -39,17 +40,18 @@ export function exportProductionReportPDF({
     (acc, r) => ({
       deadlines: acc.deadlines + r.deadlines,
       peticoes: acc.peticoes + r.peticoes,
+      cases: acc.cases + r.cases,
       total: acc.total + r.total,
     }),
-    { deadlines: 0, peticoes: 0, total: 0 }
+    { deadlines: 0, peticoes: 0, cases: 0, total: 0 }
   );
 
   const usable = pageWidth - 30;
 
   autoTable(doc, {
-    head: [["Responsável", "Prazos Cumpridos", "Petições Protocoladas", "Total"]],
-    body: rows.map((r) => [r.name, String(r.deadlines), String(r.peticoes), String(r.total)]),
-    foot: [["TOTAL", String(totals.deadlines), String(totals.peticoes), String(totals.total)]],
+    head: [["Responsável", "Prazos Cumpridos", "Petições Protocoladas", "Processos", "Total Entregas"]],
+    body: rows.map((r) => [r.name, String(r.deadlines), String(r.peticoes), String(r.cases), String(r.total)]),
+    foot: [["TOTAL", String(totals.deadlines), String(totals.peticoes), String(totals.cases), String(totals.total)]],
     startY: 36,
     margin: { left: 15, right: 15 },
     styles: { fontSize: 9, cellPadding: 3, lineWidth: 0.1 },
@@ -57,10 +59,11 @@ export function exportProductionReportPDF({
     footStyles: { fillColor: [230, 234, 240], textColor: 20, fontStyle: "bold", halign: "center" },
     alternateRowStyles: { fillColor: [245, 247, 250] },
     columnStyles: {
-      0: { cellWidth: usable * 0.4 },
-      1: { cellWidth: usable * 0.2, halign: "center" },
-      2: { cellWidth: usable * 0.25, halign: "center" },
+      0: { cellWidth: usable * 0.32 },
+      1: { cellWidth: usable * 0.17, halign: "center" },
+      2: { cellWidth: usable * 0.21, halign: "center" },
       3: { cellWidth: usable * 0.15, halign: "center" },
+      4: { cellWidth: usable * 0.15, halign: "center" },
     },
     didDrawPage: (data: any) => {
       doc.setFontSize(7);

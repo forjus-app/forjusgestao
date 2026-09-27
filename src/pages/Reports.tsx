@@ -93,13 +93,32 @@ export default function Reports() {
     enabled: !!organization?.id,
   });
 
+  const { data: responsibleCases } = useQuery({
+    queryKey: ["report-cases-count", organization?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cases")
+        .select("id, default_deadline_responsible_id")
+        .not("default_deadline_responsible_id", "is", null);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!organization?.id,
+  });
+
   const isLoading = loadingDeadlines || loadingPeticoes;
 
   const rows: ProductionRow[] = useMemo(() => {
     if (!members) return [];
     const map = new Map<string, ProductionRow>();
-    members.forEach((m) => map.set(m.id, { name: m.name, deadlines: 0, peticoes: 0, total: 0 }));
+    members.forEach((m) =>
+      map.set(m.id, { name: m.name, deadlines: 0, peticoes: 0, cases: 0, total: 0 })
+    );
 
+    (responsibleCases || []).forEach((c: any) => {
+      const row = map.get(c.default_deadline_responsible_id);
+      if (row) row.cases++;
+    });
     (completedDeadlines || []).forEach((d: any) => {
       const row = map.get(d.responsible_member_id);
       if (row) row.deadlines++;
@@ -111,9 +130,9 @@ export default function Reports() {
 
     return Array.from(map.values())
       .map((r) => ({ ...r, total: r.deadlines + r.peticoes }))
-      .filter((r) => r.total > 0)
-      .sort((a, b) => b.total - a.total);
-  }, [members, completedDeadlines, filedPeticoes]);
+      .filter((r) => r.total > 0 || r.cases > 0)
+      .sort((a, b) => b.total - a.total || b.cases - a.cases);
+  }, [members, responsibleCases, completedDeadlines, filedPeticoes]);
 
   const totals = rows.reduce(
     (acc, r) => ({
@@ -214,7 +233,8 @@ export default function Reports() {
                   <TableHead>Responsável</TableHead>
                   <TableHead className="text-center">Prazos Cumpridos</TableHead>
                   <TableHead className="text-center">Petições Protocoladas</TableHead>
-                  <TableHead className="text-center">Total</TableHead>
+                  <TableHead className="text-center">Processos (Total)</TableHead>
+                  <TableHead className="text-center">Total de Entregas</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -223,6 +243,7 @@ export default function Reports() {
                     <TableCell className="font-medium">{r.name}</TableCell>
                     <TableCell className="text-center">{r.deadlines}</TableCell>
                     <TableCell className="text-center">{r.peticoes}</TableCell>
+                    <TableCell className="text-center">{r.cases}</TableCell>
                     <TableCell className="text-center font-semibold">{r.total}</TableCell>
                   </TableRow>
                 ))}
