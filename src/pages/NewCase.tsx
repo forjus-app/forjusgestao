@@ -19,6 +19,7 @@ import { ArrowLeft, Loader2, Save, User } from "lucide-react";
 import { TribunalSelect } from "@/components/cases/TribunalSelect";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { formatCnj, cnjDigits, isCompleteCnj } from "@/lib/cnjUtils";
 
 export default function NewCase() {
   const navigate = useNavigate();
@@ -123,6 +124,23 @@ export default function NewCase() {
 
       const defaultStatus = statuses?.find((s) => s.is_default) || statuses?.[0];
 
+      // Verifica duplicidade pelo número CNJ (comparando apenas os dígitos)
+      const digits = cnjDigits(formData.cnj_number);
+      if (digits) {
+        const { data: existing } = await supabase
+          .from("cases")
+          .select("id, title, cnj_number")
+          .eq("organization_id", organization.id);
+        const duplicate = (existing || []).find(
+          (c) => cnjDigits(c.cnj_number) === digits
+        );
+        if (duplicate) {
+          throw new Error(
+            `Já existe um processo com este número: "${duplicate.title}"`
+          );
+        }
+      }
+
       const { data, error } = await supabase
         .from("cases")
         .insert({
@@ -168,6 +186,10 @@ export default function NewCase() {
     }
     if (!formData.responsible_id) {
       toast.error("O responsável é obrigatório");
+      return;
+    }
+    if (formData.cnj_number && !isCompleteCnj(formData.cnj_number)) {
+      toast.error("O número CNJ está incompleto (padrão: 0000000-00.0000.0.00.0000)");
       return;
     }
     createCase.mutate();
@@ -217,7 +239,7 @@ export default function NewCase() {
                   id="cnj_number"
                   placeholder="0000000-00.0000.0.00.0000"
                   value={formData.cnj_number}
-                  onChange={(e) => handleChange("cnj_number", e.target.value)}
+                  onChange={(e) => handleChange("cnj_number", formatCnj(e.target.value))}
                 />
               </div>
 
