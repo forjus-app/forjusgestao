@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
+import { formatCnj } from "@/lib/cnjUtils";
 import {
   Dialog,
   DialogContent,

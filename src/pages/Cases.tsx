@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,22 @@ export default function Cases() {
   const [responsibleFilter, setResponsibleFilter] = useState<string>("all");
   const [importOpen, setImportOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const assignResponsible = useMutation({
+    mutationFn: async ({ caseId, memberId }: { caseId: string; memberId: string }) => {
+      const { error } = await supabase
+        .from("cases")
+        .update({ default_deadline_responsible_id: memberId })
+        .eq("id", caseId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      toast.success("Responsável definido!");
+    },
+    onError: () => toast.error("Erro ao definir responsável"),
+  });
 
   const { data: teamMembers } = useQuery({
     queryKey: ["team-members-active", organization?.id],
@@ -284,7 +300,27 @@ export default function Cases() {
                     </TableCell>
                     <TableCell>{getPrimaryClient(caseItem)}</TableCell>
                     <TableCell>
-                      {caseItem.team_members?.name || "—"}
+                      {caseItem.team_members?.name ? (
+                        caseItem.team_members.name
+                      ) : (
+                        <Select
+                          value=""
+                          onValueChange={(v) =>
+                            assignResponsible.mutate({ caseId: caseItem.id, memberId: v })
+                          }
+                        >
+                          <SelectTrigger className="h-8 w-44 text-xs border-dashed text-muted-foreground">
+                            <SelectValue placeholder="+ Definir responsável" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teamMembers?.map((member) => (
+                              <SelectItem key={member.id} value={member.id}>
+                                {member.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
                     </TableCell>
                     <TableCell>
                       {caseItem.case_statuses && (

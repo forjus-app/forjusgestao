@@ -141,7 +141,7 @@ export function ConvertToCaseDialog({ open, onOpenChange, serviceRequest }: Prop
       onOpenChange(false);
       navigate(`/cases/${newCase.id}`);
     },
-    onError: () => toast.error("Erro ao converter em processo"),
+    onError: (error: any) => toast.error(error.message || "Erro ao converter em processo"),
   });
 
   const set = (field: string, value: string) => setForm((p) => ({ ...p, [field]: value }));
