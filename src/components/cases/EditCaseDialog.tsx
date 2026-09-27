@@ -219,7 +219,7 @@ export function EditCaseDialog({ open, onOpenChange, caseData }: EditCaseDialogP
                   id="edit-cnj"
                   placeholder="0000000-00.0000.0.00.0000"
                   value={formData.cnj_number}
-                  onChange={(e) => handleChange("cnj_number", e.target.value)}
+                  onChange={(e) => handleChange("cnj_number", formatCnj(e.target.value))}
                 />
               </div>
 

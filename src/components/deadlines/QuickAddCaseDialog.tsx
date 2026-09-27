@@ -68,10 +68,10 @@ export function QuickAddCaseDialog({
         .from("cases")
         .select("id, title, cnj_number")
         .eq("organization_id", organization.id)
-        .eq("cnj_number", debouncedCnj)
-        .maybeSingle();
+        .not("cnj_number", "is", null);
       if (error) throw error;
-      return data;
+      const digits = cnjDigits(debouncedCnj);
+      return (data || []).find((c) => cnjDigits(c.cnj_number) === digits) || null;
     },
     enabled: !!organization?.id && !!debouncedCnj,
   });
@@ -278,7 +278,7 @@ export function QuickAddCaseDialog({
                 <Input
                   value={formData.cnj_number}
                   onChange={(e) =>
-                    setFormData({ ...formData, cnj_number: e.target.value })
+                    setFormData({ ...formData, cnj_number: formatCnj(e.target.value) })
                   }
                   placeholder="0000000-00.0000.0.00.0000"
                 />
