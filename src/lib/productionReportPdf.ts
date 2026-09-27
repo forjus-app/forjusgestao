@@ -7,6 +7,7 @@ export interface ProductionRow {
   name: string;
   deadlines: number;
   peticoes: number;
+  cases: number;
   total: number;
 }
 
@@ -39,9 +40,10 @@ export function exportProductionReportPDF({
     (acc, r) => ({
       deadlines: acc.deadlines + r.deadlines,
       peticoes: acc.peticoes + r.peticoes,
+      cases: acc.cases + r.cases,
       total: acc.total + r.total,
     }),
-    { deadlines: 0, peticoes: 0, total: 0 }
+    { deadlines: 0, peticoes: 0, cases: 0, total: 0 }
   );
 
   const usable = pageWidth - 30;
