@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TribunalSelect } from "@/components/cases/TribunalSelect";
 import { Loader2 } from "lucide-react";
+import { formatCnj, cnjDigits } from "@/lib/cnjUtils";
 
 interface Props {
   open: boolean;
@@ -59,6 +60,21 @@ export function ConvertToCaseDialog({ open, onOpenChange, serviceRequest }: Prop
       if (!organization) throw new Error("Organização não encontrada");
 
       const defaultStatus = statuses?.find((s) => s.is_default) || statuses?.[0];
+
+      // Verifica duplicidade pelo número CNJ (comparando apenas os dígitos)
+      const digits = cnjDigits(form.cnj_number);
+      if (digits) {
+        const { data: existing } = await supabase
+          .from("cases")
+          .select("id, title, cnj_number")
+          .eq("organization_id", organization.id);
+        const duplicate = (existing || []).find(
+          (c) => cnjDigits(c.cnj_number) === digits
+        );
+        if (duplicate) {
+          throw new Error(`Já existe um processo com este número: "${duplicate.title}"`);
+        }
+      }
 
       // 1. Create case
       const { data: newCase, error: caseError } = await supabase
@@ -125,7 +141,7 @@ export function ConvertToCaseDialog({ open, onOpenChange, serviceRequest }: Prop
       onOpenChange(false);
       navigate(`/cases/${newCase.id}`);
     },
-    onError: () => toast.error("Erro ao converter em processo"),
+    onError: (error: any) => toast.error(error.message || "Erro ao converter em processo"),
   });
 
   const set = (field: string, value: string) => setForm((p) => ({ ...p, [field]: value }));
@@ -144,7 +160,7 @@ export function ConvertToCaseDialog({ open, onOpenChange, serviceRequest }: Prop
           </div>
           <div className="space-y-2">
             <Label>Número CNJ</Label>
-            <Input placeholder="0000000-00.0000.0.00.0000" value={form.cnj_number} onChange={(e) => set("cnj_number", e.target.value)} />
+            <Input placeholder="0000000-00.0000.0.00.0000" value={form.cnj_number} onChange={(e) => set("cnj_number", formatCnj(e.target.value))} />
           </div>
           <div className="space-y-2">
             <Label>Tribunal</Label>
