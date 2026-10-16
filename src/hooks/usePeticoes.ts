@@ -243,6 +243,33 @@ export function useReorderPeticao() {
   });
 }
 
+/** Regrava a ordem completa de uma coluna (ids na sequência desejada) */
+export function useSetPeticaoOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const results = await Promise.all(
+        ids.map((id, i) => supabase.from("service_requests").update({ kanban_order: i + 1 }).eq("id", id))
+      );
+      const err = results.find((r) => r.error)?.error;
+      if (err) throw err;
+    },
+    onMutate: async (ids: string[]) => {
+      await qc.cancelQueries({ queryKey: ["peticoes"] });
+      qc.setQueriesData({ queryKey: ["peticoes"] }, (old: any) =>
+        Array.isArray(old)
+          ? old.map((p: Peticao) => {
+              const i = ids.indexOf(p.id);
+              return i >= 0 ? { ...p, kanban_order: i + 1 } : p;
+            })
+          : old
+      );
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["peticoes"] }),
+    onError: (e: any) => toast.error(e.message || "Erro ao reordenar"),
+  });
+}
+
 export function useDeletePeticao() {
   const qc = useQueryClient();
   return useMutation({
