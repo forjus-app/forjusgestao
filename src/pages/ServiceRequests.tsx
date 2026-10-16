@@ -31,7 +31,7 @@ import {
   usePeticoes,
   useUpdatePeticao,
   useDeletePeticao,
-  useReorderPeticao,
+  useReorderPeticao, useSetPeticaoOrder,
   ACTION_TYPES,
   type Peticao,
 } from "@/hooks/usePeticoes";
