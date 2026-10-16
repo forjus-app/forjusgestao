@@ -100,6 +100,8 @@ export default function ServiceRequests() {
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragFrom, setDragFrom] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
+  const [dropPos, setDropPos] = useState<{ member: string; index: number } | null>(null);
+  const setOrder = useSetPeticaoOrder();
   const counters = useRef<Record<string, number>>({});
   const [transfer, setTransfer] = useState<{ peticao: Peticao; toId: string } | null>(null);
 
@@ -417,8 +419,44 @@ export default function ServiceRequests() {
                           </p>
                         )}
                         {list.map((p, idx) => (
-                          <PeticaoCard
+                          <div
                             key={p.id}
+                            className="relative"
+                            onDragOver={(e) => {
+                              if (!dragId || dragFrom !== m.id || sortBy !== "manual") return;
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const r = e.currentTarget.getBoundingClientRect();
+                              const pos = e.clientY < r.top + r.height / 2 ? idx : idx + 1;
+                              if (dropPos?.member !== m.id || dropPos.index !== pos) setDropPos({ member: m.id, index: pos });
+                            }}
+                            onDrop={(e) => {
+                              if (!dragId || dragFrom !== m.id || sortBy !== "manual") return;
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const pos = dropPos?.member === m.id ? dropPos.index : idx;
+                              const ids = list.map((x) => x.id);
+                              const from = ids.indexOf(dragId);
+                              if (from >= 0) {
+                                ids.splice(from, 1);
+                                const to = pos > from ? pos - 1 : pos;
+                                ids.splice(to, 0, dragId);
+                                if (to !== from) setOrder.mutate(ids);
+                              }
+                              setDragId(null);
+                              setDragFrom(null);
+                              setDragOver(null);
+                              setDropPos(null);
+                              counters.current = {};
+                            }}
+                          >
+                          {dropPos?.member === m.id && dropPos.index === idx && (
+                            <div className="absolute -top-1.5 left-0 right-0 h-0.5 rounded bg-primary" />
+                          )}
+                          {dropPos?.member === m.id && dropPos.index === idx + 1 && idx === list.length - 1 && (
+                            <div className="absolute -bottom-1.5 left-0 right-0 h-0.5 rounded bg-primary" />
+                          )}
+                          <PeticaoCard
                             peticao={p}
                             members={members}
                             isDragging={dragId === p.id}
@@ -458,9 +496,11 @@ export default function ServiceRequests() {
                               setDragId(null);
                               setDragFrom(null);
                               setDragOver(null);
+                              setDropPos(null);
                               counters.current = {};
                             }}
                           />
+                          </div>
                         ))}
                       </div>
                     </div>
