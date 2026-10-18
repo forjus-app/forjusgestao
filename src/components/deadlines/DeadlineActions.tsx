@@ -106,6 +106,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
             onClick={handleComplete}
             disabled={updateStatusMutation.isPending}
             title="Concluir"
+            aria-label="Concluir prazo"
           >
             <CheckCheck className="h-4 w-4 text-success" />
           </Button>
@@ -113,7 +114,7 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Mais ações do prazo">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

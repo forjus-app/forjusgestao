@@ -1,0 +1,3 @@
+- [x] Adapt deadline filters, actions and lists to phone screens.
+- [x] Adapt deadline forms and details to phone screen height.
+- [x] Verify mobile and desktop views with a signed-in session.
