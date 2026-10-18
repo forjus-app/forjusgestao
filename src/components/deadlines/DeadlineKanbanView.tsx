@@ -14,8 +14,8 @@ interface DeadlineKanbanViewProps {
 }
 
 const KANBAN_COLUMNS = [
-  { status: "open", label: "Abertos", icon: Clock, colorClass: "border-t-blue-500" },
-  { status: "completed", label: "Concluídos", icon: CheckCircle, colorClass: "border-t-green-500" },
+  { status: "open", label: "Abertos", icon: Clock, colorClass: "border-t-primary" },
+  { status: "completed", label: "Concluídos", icon: CheckCircle, colorClass: "border-t-success" },
 ];
 
 export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanbanViewProps) {
@@ -42,7 +42,7 @@ export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanba
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {grouped.map((col) => (
-        <div key={col.status} className="flex flex-col min-h-0">
+        <div key={col.status} className="flex flex-col min-h-0 min-w-0">
           <div className="flex items-center gap-2 mb-3 px-1">
             <col.icon className="h-4 w-4 text-muted-foreground" />
             <span className="font-semibold text-sm">{col.label}</span>
@@ -50,7 +50,7 @@ export function DeadlineKanbanView({ deadlines, onDeadlineClick }: DeadlineKanba
               {col.items.length}
             </Badge>
           </div>
-          <ScrollArea className="flex-1 max-h-[calc(100vh-380px)]">
+          <ScrollArea className="flex-1 md:max-h-[calc(100dvh-380px)]">
             <div className="space-y-2 pr-2">
               {col.items.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground text-xs border border-dashed rounded-lg">

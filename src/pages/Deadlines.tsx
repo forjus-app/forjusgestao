@@ -651,7 +651,7 @@ export default function Deadlines() {
                       <Checkbox
                         checked={deadlines.every((d) => selectedIds.includes(d.id))}
                         onCheckedChange={() => toggleAll(deadlines)}
-                        aria-label="Sélectionner tous les prazos"
+                        aria-label="Selecionar todos os prazos"
                       />
                       Selecionar todos
                     </label>
@@ -688,7 +688,7 @@ export default function Deadlines() {
                           {deadline.cases && (
                             <div><dt className="text-xs text-muted-foreground">Processo</dt><dd><Link to={`/cases/${deadline.cases.id}`} className="break-words text-primary hover:underline">{deadline.cases.title}</Link></dd></div>
                           )}
-                          <div><dt className="text-xs text-muted-foreground">Prazo fatal</dt><dd className="font-medium">{formatDateTime(deadline.fatal_due_at)}</dd></div>
+                          <div><dt className="text-xs text-muted-foreground">{deadline.fatal_due_at ? "Prazo fatal" : deadline.transit_judged_at ? "Trânsito em julgado" : "Prazo fatal"}</dt><dd className="font-medium">{formatDateTime(deadline.fatal_due_at || deadline.transit_judged_at)}</dd></div>
                           {activeTab === "completed" && <div><dt className="text-xs text-muted-foreground">Concluído em</dt><dd>{formatDateTime(deadline.completed_at)}</dd></div>}
                         </dl>
                         <DeadlineTagBadges tags={tagLinks?.[deadline.id]} className="mt-2 flex-wrap" />

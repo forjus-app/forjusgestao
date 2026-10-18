@@ -165,13 +165,13 @@ export function DeadlineDetailDrawer({
   return (
     <>
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[90vh] overflow-hidden flex flex-col">
+        <DrawerContent className="max-h-[calc(100dvh-1rem)] sm:max-h-[90dvh] overflow-hidden flex flex-col">
           {/* Header Sticky */}
-          <div className="sticky top-0 z-10 bg-background border-b">
+          <div className="shrink-0 bg-background border-b">
             <DrawerHeader className="pb-2">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <DrawerTitle className="text-xl truncate">
+                  <DrawerTitle className="text-lg break-words sm:text-xl">
                     {deadline?.title || "Carregando..."}
                   </DrawerTitle>
                   {deadline && (
@@ -200,7 +200,7 @@ export function DeadlineDetailDrawer({
           </div>
 
           {/* Body with scroll */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6">
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">
                 Carregando detalhes...
@@ -268,8 +268,8 @@ export function DeadlineDetailDrawer({
                   {deadline.type === "processual" && deadline.cases ? (
                     <div className="p-3 border rounded-lg bg-muted/30">
                       <p className="text-sm text-muted-foreground mb-1">Processo</p>
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="min-w-0 break-words">
                           <p className="font-medium">{deadline.cases.title}</p>
                           {deadline.cases.cnj_number && (
                             <p className="text-sm text-muted-foreground">
@@ -283,7 +283,9 @@ export function DeadlineDetailDrawer({
                               variant="ghost"
                               size="icon"
                               onClick={() => {
-                                navigator.clipboard.writeText(deadline.cases!.cnj_number!);
+                                const number = deadline.cases?.cnj_number;
+                                if (!number) return;
+                                navigator.clipboard.writeText(number);
                                 toast.success("Número do processo copiado!");
                               }}
                               title="Copiar nº do processo"
@@ -322,7 +324,9 @@ export function DeadlineDetailDrawer({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleCopyLink(deadline.drive_link!)}
+                          onClick={() => {
+                            if (deadline.drive_link) handleCopyLink(deadline.drive_link);
+                          }}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -428,7 +432,7 @@ export function DeadlineDetailDrawer({
 
           {/* Footer Sticky */}
           {deadline && (
-            <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4">
+            <div className="shrink-0 bg-background border-t px-4 py-4 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <div className="flex flex-wrap gap-2 justify-end">
                 {deadline.status === "open" && (
                   <>

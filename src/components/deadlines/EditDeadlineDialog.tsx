@@ -260,14 +260,14 @@ export function EditDeadlineDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] p-0 overflow-hidden flex flex-col">
+      <DialogContent className="w-[calc(100vw-1rem)] max-w-lg max-h-[calc(100dvh-1rem)] sm:max-h-[90dvh] p-0 overflow-hidden flex flex-col">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
+        <div className="shrink-0 bg-background border-b px-4 py-4 pr-12 sm:px-6">
           <DialogTitle>Editar Prazo</DialogTitle>
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 [&_input]:min-w-0 [&_input]:max-w-full [&_input]:text-base sm:[&_input]:text-sm [&_textarea]:text-base sm:[&_textarea]:text-sm">
           <div className="space-y-4">
             {/* Category */}
             <div className="space-y-2">
@@ -424,7 +424,7 @@ export function EditDeadlineDialog({
                     )}
                     
                     {/* Quick add case button */}
-                    <div className="flex items-center gap-2 pt-1">
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
                       <span className="text-sm text-muted-foreground">Não encontrou o processo?</span>
                       <Button
                         type="button"
@@ -537,7 +537,7 @@ export function EditDeadlineDialog({
                   onChange={(e) =>
                     setFormData({ ...formData, driveLink: e.target.value })
                   }
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                 />
                 {formData.driveLink && (
                   <>
@@ -595,7 +595,7 @@ export function EditDeadlineDialog({
         </div>
 
         {/* Sticky Footer */}
-        <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4 flex gap-2 justify-end">
+        <div className="shrink-0 bg-background border-t px-4 py-4 sm:px-6 flex gap-2 justify-end pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
