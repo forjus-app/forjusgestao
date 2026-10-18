@@ -59,6 +59,7 @@ import { exportToExcel } from "@/lib/exportUtils";
 import { exportDeadlinesPDF, exportCompletedDeadlinesPDF } from "@/lib/deadlinesPdfExport";
 import { DeadlineTagBadges } from "@/components/deadlines/DeadlineTagBadges";
 import { useDeadlineTags, useDeadlineTagLinks } from "@/hooks/useDeadlineTags";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type DeadlineStatus = "open" | "completed";
 type DateFunnel = "all" | "overdue" | "today" | "tomorrow" | "week" | "month";
@@ -78,6 +79,7 @@ const dateFunnels: { value: DateFunnel; label: string }[] = [
 ];
 
 export default function Deadlines() {
+  const isMobile = useIsMobile();
   const { data: organization } = useOrganization();
   const queryClient = useQueryClient();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -393,21 +395,23 @@ export default function Deadlines() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="min-w-0 space-y-4 sm:space-y-6 animate-fade-in">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">Prazos</h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground sm:text-base">
             Gerencie prazos processuais e atividades internas
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center border rounded-md">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex shrink-0 items-center border rounded-md">
             <Button
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
               className="rounded-r-none"
               onClick={() => setViewMode("table")}
+              aria-label="Visualização em lista"
+              title="Visualização em lista"
             >
               <LayoutList className="h-4 w-4" />
             </Button>
@@ -416,6 +420,8 @@ export default function Deadlines() {
               size="sm"
               className="rounded-l-none"
               onClick={() => setViewMode("kanban")}
+              aria-label="Visualização Kanban"
+              title="Visualização Kanban"
             >
               <Columns3 className="h-4 w-4" />
             </Button>
@@ -425,7 +431,7 @@ export default function Deadlines() {
             onExportExcel={handleExportExcel}
             disabled={!deadlines || deadlines.length === 0}
           />
-          <Button onClick={() => setAddDialogOpen(true)}>
+          <Button className="flex-1 sm:flex-none" onClick={() => setAddDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Novo Prazo
           </Button>
@@ -433,22 +439,23 @@ export default function Deadlines() {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
+      <div className="border-y py-4">
+        <div>
+          <div className="grid min-w-0 grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:gap-4">
+            <div className="min-w-0 sm:min-w-[200px] sm:flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por título..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-base sm:text-sm"
+                  aria-label="Buscar prazos por título"
                 />
               </div>
             </div>
             <Select value={filterResponsible} onValueChange={setFilterResponsible}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full min-w-0 sm:w-[200px]" aria-label="Filtrar por responsável">
                 <SelectValue placeholder="Responsável" />
               </SelectTrigger>
               <SelectContent>
@@ -461,7 +468,7 @@ export default function Deadlines() {
               </SelectContent>
             </Select>
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full min-w-0 sm:w-[150px]" aria-label="Filtrar por tipo">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -471,7 +478,7 @@ export default function Deadlines() {
               </SelectContent>
             </Select>
             <Select value={filterTag} onValueChange={setFilterTag}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full min-w-0 sm:w-[180px]" aria-label="Filtrar por etiqueta">
                 <SelectValue placeholder="Etiqueta" />
               </SelectTrigger>
               <SelectContent>
@@ -485,7 +492,7 @@ export default function Deadlines() {
             </Select>
             {activeTab === "completed" && viewMode === "table" && (
               <Select value={filterMonth} onValueChange={setFilterMonth}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full min-w-0 sm:w-[200px]" aria-label="Mês de conclusão">
                   <SelectValue placeholder="Mês de conclusão" />
                 </SelectTrigger>
                 <SelectContent>
@@ -506,14 +513,14 @@ export default function Deadlines() {
               Período filtrado pela data de conclusão
             </p>
           )}
-          <div className={`flex flex-wrap gap-2 ${activeTab === "completed" && viewMode === "table" ? "mt-2" : "mt-4"}`}>
+          <div className={`grid grid-cols-3 gap-2 sm:flex sm:flex-wrap ${activeTab === "completed" && viewMode === "table" ? "mt-2" : "mt-4"}`}>
             {dateFunnels.map((funnel) => (
               <Button
                 key={funnel.value}
                 variant={activeFunnel === funnel.value ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveFunnel(funnel.value)}
-                className="gap-1.5"
+                className="min-w-0 gap-1 px-2 sm:gap-1.5 sm:px-3"
               >
                 {funnel.label}
                 {funnelCounts[funnel.value] !== undefined && (
@@ -527,8 +534,8 @@ export default function Deadlines() {
               </Button>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Kanban or Table View */}
       {viewMode === "kanban" ? (
@@ -555,14 +562,14 @@ export default function Deadlines() {
             {statusTabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="gap-2">
                 <tab.icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span>{tab.label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
 
-          <TabsContent value={activeTab} className="mt-6">
-            <Card>
-              <CardHeader>
+          <TabsContent value={activeTab} className="mt-4 sm:mt-6">
+            <Card className="min-w-0 border-0 bg-transparent shadow-none sm:border sm:bg-card sm:shadow-sm">
+              <CardHeader className="px-0 py-3 sm:p-6">
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
                   {statusTabs.find((t) => t.value === activeTab)?.label || "Prazos"}
@@ -573,15 +580,15 @@ export default function Deadlines() {
                   )}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-0 sm:px-6">
                 {selectedIds.length > 0 && (
                   <div className="flex flex-wrap items-center gap-3 mb-4 p-3 rounded-md border bg-muted/40">
                     <span className="text-sm font-medium">
                       {selectedIds.length} selecionado(s)
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto">
                       <Select value={bulkResponsible} onValueChange={setBulkResponsible}>
-                        <SelectTrigger className="w-[220px] h-9">
+                        <SelectTrigger className="h-9 w-full min-w-0 flex-1 sm:w-[220px] sm:flex-none">
                           <SelectValue placeholder="Alterar responsável para..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -637,6 +644,56 @@ export default function Deadlines() {
                         Criar primeiro prazo
                       </Button>
                     )}
+                  </div>
+                ) : isMobile ? (
+                  <div className="space-y-3">
+                    <label className="flex min-h-10 items-center gap-3 text-sm">
+                      <Checkbox
+                        checked={deadlines.every((d) => selectedIds.includes(d.id))}
+                        onCheckedChange={() => toggleAll(deadlines)}
+                        aria-label="Sélectionner tous les prazos"
+                      />
+                      Selecionar todos
+                    </label>
+                    {deadlines.map((deadline) => (
+                      <Card key={deadline.id} className="min-w-0 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                          <div className="flex h-10 shrink-0 items-center justify-center px-1">
+                            <Checkbox
+                              checked={selectedIds.includes(deadline.id)}
+                              onCheckedChange={() => toggleOne(deadline.id)}
+                              aria-label={`Selecionar ${deadline.title}`}
+                            />
+                          </div>
+                          <Button
+                            variant="ghost"
+                            className="h-auto min-h-10 min-w-0 flex-1 justify-start whitespace-normal px-0 py-2 text-left font-semibold hover:bg-transparent"
+                            onClick={() => {
+                              setSelectedDeadlineId(deadline.id);
+                              setDetailDrawerOpen(true);
+                            }}
+                          >
+                            <span className="break-words">{deadline.title}</span>
+                          </Button>
+                          <div className="shrink-0"><DeadlineActions deadline={deadline} /></div>
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                          {getPriorityBadge(deadline.priority)}
+                          {getDateBadge(deadline.fatal_due_at, deadline.status)}
+                          {deadline.status === "completed" && <Badge className="bg-success text-success-foreground">Concluído</Badge>}
+                          {deadline.type === "interno" && <Badge variant="outline">Interno</Badge>}
+                        </div>
+                        <dl className="mt-3 space-y-2 text-sm">
+                          <div><dt className="text-xs text-muted-foreground">Responsável</dt><dd className="break-words">{deadline.team_members?.name || "—"}</dd></div>
+                          {deadline.cases && (
+                            <div><dt className="text-xs text-muted-foreground">Processo</dt><dd><Link to={`/cases/${deadline.cases.id}`} className="break-words text-primary hover:underline">{deadline.cases.title}</Link></dd></div>
+                          )}
+                          <div><dt className="text-xs text-muted-foreground">Prazo fatal</dt><dd className="font-medium">{formatDateTime(deadline.fatal_due_at)}</dd></div>
+                          {activeTab === "completed" && <div><dt className="text-xs text-muted-foreground">Concluído em</dt><dd>{formatDateTime(deadline.completed_at)}</dd></div>}
+                        </dl>
+                        <DeadlineTagBadges tags={tagLinks?.[deadline.id]} className="mt-2 flex-wrap" />
+                      </Card>
+                    ))}
                   </div>
                 ) : (
                   <Table>

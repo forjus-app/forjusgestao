@@ -27,11 +27,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
-          <SidebarTrigger className="-ml-2" />
+      <SidebarInset className="min-w-0">
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
+          <SidebarTrigger className="-ml-2 h-10 w-10 sm:h-7 sm:w-7" />
         </header>
-        <main className="flex-1 p-6">
+        <main className="min-w-0 flex-1 p-3 sm:p-6">
           {children}
         </main>
       </SidebarInset>
