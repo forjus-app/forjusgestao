@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import {
   MoreHorizontal,
   RotateCcw,
   Pencil,
+  UserCog,
 } from "lucide-react";
 import { EditDeadlineDialog } from "./EditDeadlineDialog";
 
@@ -46,6 +48,40 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
   const queryClient = useQueryClient();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [reopenDialogOpen, setReopenDialogOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [newResponsible, setNewResponsible] = useState("");
+
+  const { data: members = [] } = useQuery({
+    queryKey: ["transfer-team-members"],
+    enabled: transferOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id, name")
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const transferMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("deadlines")
+        .update({ responsible_member_id: newResponsible })
+        .eq("id", deadline.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Prazo transferido");
+      setTransferOpen(false);
+      ["deadlines", "cumprimentos", "today-deadlines", "today-cumprimentos", "case-deadlines", "deadline-detail"].forEach((k) =>
+        queryClient.invalidateQueries({ queryKey: [k] })
+      );
+    },
+    onError: (error: any) => toast.error("Erro: " + error.message),
+  });
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ status }: { status: string }) => {
@@ -123,6 +159,15 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
               <Pencil className="h-4 w-4 mr-2" />
               Editar
             </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setNewResponsible(deadline.responsible_member_id);
+                setTransferOpen(true);
+              }}
+            >
+              <UserCog className="h-4 w-4 mr-2" />
+              Transferir prazo
+            </DropdownMenuItem>
             {showComplete && (
               <DropdownMenuItem onClick={handleComplete}>
                 <CheckCheck className="h-4 w-4 mr-2" />
@@ -160,6 +205,36 @@ export function DeadlineActions({ deadline }: DeadlineActionsProps) {
             <Button onClick={handleReopen} disabled={updateStatusMutation.isPending}>
               <RotateCcw className="h-4 w-4 mr-2" />
               {updateStatusMutation.isPending ? "Reabrindo..." : "Reabrir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={transferOpen} onOpenChange={setTransferOpen}>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-md">
+          <DialogHeader>
+            <DialogTitle>Transferir Prazo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              Escolha o novo responsável por <strong>{deadline.title}</strong>. O responsável do processo não será alterado.
+            </p>
+            <Select value={newResponsible} onValueChange={setNewResponsible}>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <SelectContent>
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTransferOpen(false)}>Cancelar</Button>
+            <Button
+              onClick={() => transferMutation.mutate()}
+              disabled={!newResponsible || newResponsible === deadline.responsible_member_id || transferMutation.isPending}
+            >
+              {transferMutation.isPending ? "Transferindo..." : "Transferir"}
             </Button>
           </DialogFooter>
         </DialogContent>
